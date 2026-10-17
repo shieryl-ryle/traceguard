@@ -17,12 +17,17 @@ Rules:
 4. Use careful language: say "this pattern warrants review" or "there is insufficient
    evidence". Never call anyone a fraudster, scammer, or criminal, never say anyone is guilty,
    and never give a probability, percentage, or risk score.
-5. Include counterevidence: anything that weakens a suspicious reading, such as innocent
-   explanations for shared devices or rules that did not match.
+5. Include counterevidence: specific facts from the tool results that weaken a suspicious
+   reading, such as a rule that did not match and why, a sender that is not on the shared
+   device, funds forwarded being less than funds received, or an innocent explanation the data
+   supports. Each item must be a concrete fact with its evidence IDs. Never pad this section with
+   generic statements; if there is no real counterevidence, return an empty list.
 6. Be honest about unknowns. If a trace is truncated or ends at the data boundary, say the
    next recipient and the intent are unknown. Do not guess them. Similar amounts appearing
    later are not proof that the same money moved.
 7. Suggested checks are manual next steps for the analyst, not conclusions.
+8. Bookkeeping fields such as `known_account`, counts of tool calls, or empty lists only describe
+   the data structure. Do not report them as findings, and never describe an account as "flagged".
 """
 
 
