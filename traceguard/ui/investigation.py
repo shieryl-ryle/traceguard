@@ -9,11 +9,12 @@ from dataclasses import dataclass
 
 import streamlit as st
 
-from traceguard.ai import InvestigationError, InvestigationResult, Statement, run_investigation
+from traceguard.ai import Brief, InvestigationError, InvestigationResult, Statement, run_investigation
 from traceguard.ai.gemini import GeminiBriefGenerator, GeminiConfig
 from traceguard.ai.investigate import Retriever
 from traceguard.graph.retriever import graph_retriever
-from traceguard.ui.citations import highlight_for, rule_flags, tool_contrasts
+from traceguard.ai.validate import validation_summary
+from traceguard.ui.citations import highlight_for, rule_description, rule_flags, tool_contrasts
 from traceguard.ui.export import brief_to_markdown
 from traceguard.ui.models import CaseView
 
@@ -93,20 +94,42 @@ def _statement(s: Statement, key: str) -> None:
             )
 
 
+def render_verified_panel(brief: Brief, result: InvestigationResult) -> None:
+    """Shows what was checked before this brief was displayed (BR-002, BR-003, BR-004)."""
+    summary = validation_summary(brief, result.evidence)
+    rejected = sum(1 for a in result.attempts if a.problems)
+    with st.container(border=True):
+        st.markdown(":material/verified: **Verified before display**")
+        with st.container(horizontal=True, gap="small"):
+            st.badge(f"{summary.citations} citations ({summary.distinct_citations} records) found in the evidence",
+                     icon=":material/check:", color="green")
+            st.badge(f"{summary.figures} figures matched to tool output", icon=":material/check:", color="green")
+            st.badge(f"{summary.ids_in_text} IDs in the text checked", icon=":material/check:", color="green")
+            st.badge("No accusatory or probability wording", icon=":material/check:", color="green")
+            st.badge(f"Attempt {len(result.attempts)} of 2" + (f" ({rejected} rejected)" if rejected else ""),
+                     icon=":material/replay:", color="blue")
+        st.caption("Any brief that cites an unknown record, states a figure not in the tool output, or uses "
+                   "accusatory wording is regenerated once, then blocked.")
+
+
 def _render_result(view: CaseView, result: InvestigationResult) -> None:
     brief = result.brief
     st.success("Live AI output" if not brief.cached else "Cached AI output", icon=":material/smart_toy:")
     st.caption(
         f"Model `{brief.model}` · generated {brief.run_at.isoformat(timespec='seconds')} · "
-        f"{len(result.attempts)} attempt(s) · citations validated against retrieved evidence"
+        f"evidence: {EVIDENCE_SOURCE}"
     )
-    st.caption(f"Evidence source: {EVIDENCE_SOURCE}")
+    render_verified_panel(brief, result)
 
     st.markdown(f"**{FLAGS_HEADING}**")
     for flag in rule_flags(result.evidence):
-        params = ", ".join(f"{k} = {v}" for k, v in flag.config.items())
-        label = "Pattern warrants review" if flag.matched else "Rule not matched"
-        st.markdown(f"- `{flag.rule_id}` — {label} ({params}). {flag.explanation}")
+        with st.container(horizontal=True, vertical_alignment="center", gap="small"):
+            st.markdown(f"`{flag.rule_id}`")
+            if flag.matched:
+                st.badge("Pattern warrants review", icon=":material/flag:", color="red")
+            else:
+                st.badge("Rule not matched", icon=":material/remove:", color="gray")
+        st.caption(f"{rule_description(flag)}. {flag.explanation}")
 
     contrasts = tool_contrasts(result.evidence)
     if contrasts:
