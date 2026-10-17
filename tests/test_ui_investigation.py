@@ -92,7 +92,7 @@ def test_markdown_export_contains_full_brief() -> None:
 
     result = run_investigation("S-1", retrieve=sample_retriever, generate=lambda *_: GOOD_BRIEF, model_id="gemini-test")
     md = brief_to_markdown(result.brief, result.evidence, VIEW.case.title, "Sample evidence", "Rule flags (sample)")
-    for expected in ("Synthetic data", "gemini-test", "Live AI output", "RULE-FANIN-01", "min_senders=3",
+    for expected in ("Synthetic data", "gemini-test", "Live AI output", "RULE-FANIN-01", "at least 3 distinct senders within 30 minutes", "## Verified before display",
                      "## Observations", "`TX-0005`", "## Counterevidence", "## Unknowns", "data boundary",
                      "## Suggested manual checks", "Generated:"):
         assert expected in md, expected
@@ -208,3 +208,33 @@ def test_no_contrasts_when_tools_emit_none() -> None:
     from traceguard.ui.citations import tool_contrasts
 
     assert tool_contrasts(EVIDENCE) == []
+
+
+def test_rule_descriptions_are_plain_language() -> None:
+    from traceguard.graph.retriever import graph_retriever
+    from traceguard.ui.citations import rule_description
+
+    flags = {f.rule_id: f for f in rule_flags(graph_retriever("C-1", MAX_TOOL_ROUNDS))}
+    assert rule_description(flags["RULE-FANIN-01"]) == "Rule: at least 3 distinct senders within 30 minutes"
+    assert rule_description(flags["RULE-FWD-01"]) == (
+        "Rule: an outbound transfer within 60 minutes of inbound funds, worth at least 0.50 of them"
+    )
+
+
+def test_validation_summary_counts_what_was_checked() -> None:
+    from traceguard.ai.schema import ModelBrief
+    from traceguard.ai.validate import validation_summary
+    from traceguard.graph.retriever import graph_retriever
+
+    evidence = graph_retriever("C-1", MAX_TOOL_ROUNDS)
+    summary = validation_summary(ModelBrief.model_validate_json(C1_BRIEF), evidence)
+    assert summary.passed
+    assert (summary.citations, summary.distinct_citations) == (6, 6)
+    assert summary.figures >= 6 and summary.ids_in_text >= 8
+
+
+def test_page_shows_verified_panel_and_rule_badges(app: AppTest) -> None:
+    _button(app, "Run AI investigation").click().run()
+    md = " ".join(m.value for m in app.markdown)
+    assert "Verified before display" in md
+    assert "Pattern warrants review" in md and "figures matched to tool output" in md

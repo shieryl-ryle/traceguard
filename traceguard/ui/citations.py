@@ -56,3 +56,14 @@ def tool_contrasts(evidence: EvidenceBundle) -> list[Contrast]:
                 ids = tuple(str(i) for i in item.get("evidence_ids", []) if str(i) in evidence.evidence_ids)
                 contrasts.append(Contrast(text=item["text"], evidence_ids=ids))
     return contrasts
+
+
+def rule_description(flag: RuleFlag) -> str:
+    """The rule's threshold in plain language, from its tool config (BR-004: flags shown with thresholds)."""
+    c = flag.config
+    if flag.rule_id.startswith("RULE-FANIN") and {"min_senders", "window_minutes"} <= c.keys():
+        return f"Rule: at least {c['min_senders']} distinct senders within {c['window_minutes']} minutes"
+    if flag.rule_id.startswith("RULE-FWD") and {"min_forward_ratio", "window_minutes"} <= c.keys():
+        return (f"Rule: an outbound transfer within {c['window_minutes']} minutes of inbound funds, "
+                f"worth at least {c['min_forward_ratio']} of them")
+    return "Rule parameters: " + ", ".join(f"{k} = {v}" for k, v in c.items())
