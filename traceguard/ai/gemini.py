@@ -15,6 +15,9 @@ from traceguard.ai.errors import InvestigationError, api_error_message
 from traceguard.ai.schema import ModelBrief
 
 REQUEST_TIMEOUT_MS = 30_000  # BR-007, provisional (PRD Q6). google-genai timeouts are in ms.
+# LOW thinking: measured 3-9 s per brief vs 20-28 s at the default level, all passing validation
+# (2026-10-17, gemini-3.5-flash, asia-southeast1). Keeps a regeneration well inside the timeout.
+THINKING = types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW)
 REQUIRED_ENV = ("GOOGLE_CLOUD_PROJECT", "VERTEX_LOCATION", "GEMINI_MODEL")
 
 T = TypeVar("T")
@@ -79,7 +82,8 @@ def _call(fn: Callable[[], T]) -> T:
 
 def generate_text(client: genai.Client, model: str, prompt: str) -> str:
     """Plain-text call used by the deployment diagnostics check (TASK-001)."""
-    response = _call(lambda: client.models.generate_content(model=model, contents=prompt))
+    config = types.GenerateContentConfig(thinking_config=THINKING)
+    response = _call(lambda: client.models.generate_content(model=model, contents=prompt, config=config))
     return response.text or ""
 
 
@@ -96,6 +100,7 @@ class GeminiBriefGenerator:
             response_mime_type="application/json",
             response_schema=ModelBrief,
             temperature=0.2,
+            thinking_config=THINKING,
         )
         response = _call(
             lambda: self._client.models.generate_content(model=self.model, contents=user_prompt, config=config)
