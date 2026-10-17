@@ -1,0 +1,87 @@
+{
+  "_note": "Hand-derived expected outcomes for C-2 (ADR-003 semantics). Tests only; never loaded by the app or sent to the model (BR-010).",
+  "case_id": "C-2",
+  "case": {
+    "seed_ids": ["A-13", "A-14", "A-15"],
+    "account_ids": ["A-13", "A-14", "A-15", "A-16", "A-17", "A-18"],
+    "transaction_ids": ["TX-0013", "TX-0014", "TX-0015", "TX-0016", "TX-0017", "TX-0018"]
+  },
+  "account_context": {
+    "A-13": {
+      "inbound_transaction_ids": ["TX-0013"],
+      "outbound_transaction_ids": ["TX-0014", "TX-0015", "TX-0016"],
+      "linked_device_ids": ["D-04", "D-05"],
+      "device_relationship_ids": ["DL-0005", "DL-0008"]
+    },
+    "A-14": {
+      "inbound_transaction_ids": ["TX-0014"],
+      "outbound_transaction_ids": ["TX-0017"],
+      "linked_device_ids": ["D-04"],
+      "device_relationship_ids": ["DL-0006"]
+    },
+    "A-15": {
+      "inbound_transaction_ids": ["TX-0016"],
+      "outbound_transaction_ids": ["TX-0018"],
+      "linked_device_ids": ["D-04"],
+      "device_relationship_ids": ["DL-0007"]
+    }
+  },
+  "fan_in": {
+    "A-13": {"matched": false, "sender_count": 1},
+    "A-14": {"matched": false, "sender_count": 1},
+    "A-15": {"matched": false, "sender_count": 1}
+  },
+  "rapid_forwarding": {
+    "A-13": {
+      "matched": false,
+      "evaluated": [
+        {
+          "outbound_transaction_id": "TX-0014",
+          "outbound_amount": "3000.00",
+          "inbound_transaction_ids": ["TX-0013"],
+          "inbound_total": "25000.00",
+          "forwarded_ratio": "0.12",
+          "minutes_after_last_inbound": 30,
+          "matched": false
+        },
+        {
+          "outbound_transaction_id": "TX-0015",
+          "outbound_amount": "12000.00",
+          "inbound_transaction_ids": [],
+          "inbound_total": "0.00",
+          "forwarded_ratio": null,
+          "minutes_after_last_inbound": null,
+          "matched": false
+        },
+        {
+          "outbound_transaction_id": "TX-0016",
+          "outbound_amount": "2000.00",
+          "inbound_transaction_ids": [],
+          "inbound_total": "0.00",
+          "forwarded_ratio": null,
+          "minutes_after_last_inbound": null,
+          "matched": false
+        }
+      ]
+    },
+    "A-14": {"matched": false},
+    "A-15": {"matched": false}
+  },
+  "shared_devices": [
+    {
+      "account_ids": ["A-13", "A-14", "A-15"],
+      "expected": [{"device_id": "D-04", "account_ids": ["A-13", "A-14", "A-15"], "relationship_ids": ["DL-0005", "DL-0006", "DL-0007"]}]
+    }
+  ],
+  "trace_funds": [
+    {
+      "inputs": {"account_id": "A-13", "direction": "out", "max_depth": 3},
+      "truncated": true,
+      "paths": [
+        {"transaction_ids": ["TX-0014", "TX-0017"], "end_account_id": "A-17", "stop_reason": "data_boundary"},
+        {"transaction_ids": ["TX-0015"], "end_account_id": "A-18", "stop_reason": "data_boundary"},
+        {"transaction_ids": ["TX-0016", "TX-0018"], "end_account_id": "A-17", "stop_reason": "data_boundary"}
+      ]
+    }
+  ]
+}
