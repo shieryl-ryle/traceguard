@@ -22,12 +22,18 @@
       "matched": true,
       "sender_count": 4,
       "sender_account_ids": ["A-01", "A-02", "A-03", "A-04"],
+      "senders_on_shared_device": ["A-01", "A-03"],
+      "senders_not_on_shared_device": ["A-02", "A-04"],
+      "shared_device_relationship_ids": ["DL-0001", "DL-0002"],
       "transfer_count": 5,
       "transaction_ids": ["TX-0002", "TX-0003", "TX-0004", "TX-0005", "TX-0006"],
       "window_start": "2026-09-30T09:01:00+08:00",
       "window_end": "2026-09-30T09:31:00+08:00",
       "window_span_minutes": 30,
-      "aggregate_amount": "17000.00"
+      "aggregate_amount": "17000.00",
+      "contrasts": [
+        {"text": "A-02 and A-04 have no recorded device link shared with another sender in this window.", "evidence_ids": ["DL-0001", "DL-0002", "TX-0003", "TX-0006"]}
+      ]
     }
   },
   "rapid_forwarding": {
@@ -41,8 +47,12 @@
           "inbound_total": "17000.00",
           "forwarded_ratio": "0.91",
           "minutes_after_last_inbound": 30,
+          "inbound_minus_outbound": "1500.00",
           "matched": true
         }
+      ],
+      "contrasts": [
+        {"text": "TX-0007 (15500.00 PHP) is 1500.00 PHP less than the 17000.00 PHP total of inbound transfers in the 60 minutes before it.", "evidence_ids": ["TX-0007", "TX-0002", "TX-0003", "TX-0004", "TX-0005", "TX-0006"]}
       ]
     }
   },
