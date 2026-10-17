@@ -5,8 +5,8 @@
 **Claims rule:** Every claim must be backed by the app, the tests, or the docs. There are no accuracy or
 time-saved claims, because we have no data for either (PRD §10).
 
-> **Before you export:** the four items marked **FILL** below need real screenshots or numbers
-> from the deployed app. **Q1** (category label) is still open with the organisers.
+> **Before you export:** the items marked **FILL** below need real results
+> from the deployed app. Interim screenshots are in `screenshots/`. Q1: the BFSI theme is confirmed; check the form category field at submission.
 
 ---
 
@@ -34,7 +34,7 @@ time-saved claims, because we have no data for either (PRD §10).
   - What is the evidence?
   - What can't the data tell us?
 
-**Visual:** the C-1 graph screenshot. **FILL:** take it from the deployed app.
+**Visual:** `screenshots/slide2-c1-graph.png` (interim, captured on sample evidence; retake after TASK-003).
 
 ---
 
@@ -54,7 +54,7 @@ time-saved claims, because we have no data for either (PRD §10).
 **What it is not:** it does not block transfers, declare guilt, file regulatory reports, or give
 a risk score.
 
-**Visual:** the brief with one citation highlighted. **FILL:** screenshot.
+**Visual:** `screenshots/slide3-brief.png` with `slide3-graph-highlight.png`, or `slide3-citation-records.png` (interim; retake after TASK-003).
 
 ---
 
