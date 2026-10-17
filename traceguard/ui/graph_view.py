@@ -33,6 +33,7 @@ def _node(node_id: str, label: str, color: str, shape: str, highlighted: bool) -
         shape=shape,
         size=30 if highlighted else 22,
         borderWidth=4 if highlighted else 1,
+        font={"size": 16, "strokeWidth": 3, "strokeColor": "#ffffff"},
     )
     # agraph's double-click handler calls window.open(<title>); no title keeps it inert.
     node.title = None
@@ -91,11 +92,17 @@ def build_elements(view: CaseView, highlight_ids: frozenset[str] = frozenset()) 
     return GraphElements(nodes=nodes, edges=edges)
 
 
+def graph_height(node_count: int) -> int:
+    """Bigger cases get a taller canvas so labels stay readable."""
+    return max(480, min(640, 360 + 20 * node_count))
+
+
 def render_graph(
-    view: CaseView, highlight_ids: frozenset[str] = frozenset(), height: int = 520, width: int = 680
+    view: CaseView, highlight_ids: frozenset[str] = frozenset(), height: int | None = None, width: int = 680
 ) -> str | None:
     """Draws the graph and returns the ID of the node the analyst clicked, if any."""
     elements = build_elements(view, highlight_ids)
+    height = height or graph_height(len(elements.nodes))
     config = Config(
         height=height,
         width=width,
@@ -104,6 +111,11 @@ def render_graph(
         hierarchical=False,
         interaction={"hover": True, "navigationButtons": False},
     )
-    config.physics["barnesHut"] = {"springLength": 220, "avoidOverlap": 0.6, "gravitationalConstant": -6000}
+    compact = len(elements.nodes) > 9
+    config.physics["barnesHut"] = {
+        "springLength": 110 if compact else 220,
+        "avoidOverlap": 0.6,
+        "gravitationalConstant": -3000 if compact else -6000,
+    }
     selected = agraph(nodes=elements.nodes, edges=elements.edges, config=config)
     return selected if isinstance(selected, str) else None
