@@ -58,6 +58,23 @@ Gemini function calling is used only for F-011 (P1), if time allows.
 
 Window boundaries are inclusive at the configured length and exclusive beyond it (tested to the second, TC-004).
 
+### AI module contract (`traceguard/ai/`, TASK-005)
+- **Retriever** (provided by the graph layer): `(case_id, max_rounds) -> EvidenceBundle`. A bundle
+  is a tuple of rounds; each round holds `ToolCall(tool, inputs, output, evidence_ids)`. `output`
+  must be JSON-serialisable. A "tool round" is one batch of tool calls. The retriever stops at
+  `max_rounds` (4), and `run_investigation` re-checks this as a backstop.
+- **Figures must be ready to quote.** The validator rejects any number in brief text that does
+  not appear in the tool output (BR-003). Tools should therefore emit display-ready values,
+  e.g. `window_minutes: 30` next to `window_seconds: 1800`, and amounts as decimal strings.
+- **IDs in free text are checked too.** Any account, device, transaction, relationship, or rule ID
+  mentioned in brief text must appear in the tool output (BR-002, BR-005). IDs use an uppercase
+  prefix plus a hyphen and contain a digit (e.g. `A-07`, `TX-0001`, `RULE-FANIN-01`).
+- **Validation order:** structure → citations → figures → wording. On any problem, the workflow
+  regenerates once, sending the problems back to the model; a second failure raises
+  `InvestigationError("validation")` and shows no brief.
+- **Errors:** every failure is an `InvestigationError(kind, user_message)`. The UI shows
+  `user_message`; logs record `kind` and the error code only, never prompts or evidence.
+
 ## 3. Data
 All synthetic (BR-001), one currency (PHP), deterministic seed, about 20–40 accounts and 80–150
 transactions. Bundled in the image as JSON under `data/`. No database, and no persistence across requests.
