@@ -217,3 +217,68 @@ def test_mixed_currency_is_rejected() -> None:
                               "timestamp": "2026-10-01T10:00:00+08:00"}]}
     with pytest.raises(ValueError):
         dataset_from_dict(data)
+
+
+def _rule_results(account: str) -> tuple[tools.ToolResult, tools.ToolResult]:
+    graph = load_dataset().graph
+    return tools.detect_fan_in(graph, account), tools.detect_rapid_forwarding(graph, account)
+
+
+@pytest.mark.parametrize("account", ["A-07", "A-13", "A-14", "A-15", "A-19"])
+def test_contrasts_are_quotable_and_cite_tool_evidence(account: str) -> None:
+    """Contrasts become counterevidence verbatim: figures and IDs must be in the same output (BR-002, BR-003)."""
+    for result in _rule_results(account):
+        output = dict(result.output)
+        contrasts = output.pop("contrasts")
+        output.pop("explanation")
+        values = {Decimal(v) for v in _numbers(output) if v.replace(".", "", 1).isdigit()}
+        text_of_output = json.dumps(output)
+        for contrast in contrasts:
+            assert contrast["evidence_ids"] and set(contrast["evidence_ids"]) <= result.evidence_ids
+            for token in re.findall(r"(?<![\w.-])\d+(?:\.\d+)?", contrast["text"]):
+                assert Decimal(token) in values, f"{account}: {token} in {contrast['text']!r}"
+            for id_token in re.findall(r"\b[A-Z]+-\d+\b", contrast["text"]):
+                assert id_token in text_of_output, f"{account}: {id_token} not in output"
+            assert "%" not in contrast["text"] and "same money" not in contrast["text"].lower()
+
+
+def test_c2_has_no_contrasts() -> None:
+    for account in ("A-13", "A-14", "A-15"):
+        for result in _rule_results(account):
+            assert result.output["contrasts"] == []
+
+
+def test_no_fan_in_contrast_when_every_sender_shares_a_device() -> None:
+    graph = dataset_from_dict({
+        "accounts": [{"account_id": a, "label": a} for a in ("A-90", "A-91", "A-92", "A-93")],
+        "device_links": [
+            {"relationship_id": f"DL-990{i}", "account_id": a, "device_id": "D-99",
+             "observed_at": "2026-10-01T09:00:00+08:00"}
+            for i, a in enumerate(("A-91", "A-92", "A-93"), 1)
+        ],
+        "transactions": [
+            {"transaction_id": f"TX-900{i}", "sender_account_id": a, "receiver_account_id": "A-90",
+             "amount": "100.00", "currency": "PHP", "timestamp": f"2026-10-01T10:0{i}:00+08:00"}
+            for i, a in enumerate(("A-91", "A-92", "A-93"), 1)
+        ],
+    }).graph
+    output = tools.detect_fan_in(graph, "A-90").output
+    assert output["senders_on_shared_device"] == ["A-91", "A-92", "A-93"]
+    assert output["senders_not_on_shared_device"] == [] and output["contrasts"] == []
+
+
+def test_no_fan_in_contrast_when_rule_not_matched() -> None:
+    graph = dataset_from_dict({
+        "accounts": [{"account_id": a, "label": a} for a in ("A-90", "A-91", "A-92")],
+        "device_links": [
+            {"relationship_id": "DL-9901", "account_id": "A-91", "device_id": "D-99", "observed_at": "2026-10-01T09:00:00+08:00"},
+            {"relationship_id": "DL-9902", "account_id": "A-92", "device_id": "D-99", "observed_at": "2026-10-01T09:00:00+08:00"},
+        ],
+        "transactions": [
+            {"transaction_id": f"TX-900{i}", "sender_account_id": a, "receiver_account_id": "A-90",
+             "amount": "100.00", "currency": "PHP", "timestamp": f"2026-10-01T10:0{i}:00+08:00"}
+            for i, a in enumerate(("A-91", "A-92"), 1)
+        ],
+    }).graph
+    output = tools.detect_fan_in(graph, "A-90").output
+    assert output["matched"] is False and output["contrasts"] == []

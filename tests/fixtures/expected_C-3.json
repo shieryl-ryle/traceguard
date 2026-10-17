@@ -19,12 +19,15 @@
       "matched": false,
       "sender_count": 2,
       "sender_account_ids": ["A-20", "A-21"],
+      "senders_on_shared_device": [],
+      "senders_not_on_shared_device": ["A-20", "A-21"],
       "transfer_count": 2,
       "transaction_ids": ["TX-0020", "TX-0021"],
       "window_start": "2026-09-29T14:00:00+08:00",
       "window_end": "2026-09-29T14:10:00+08:00",
       "window_span_minutes": 10,
-      "aggregate_amount": "14500.00"
+      "aggregate_amount": "14500.00",
+      "contrasts": []
     }
   },
   "rapid_forwarding": {
@@ -38,8 +41,12 @@
           "inbound_total": "14500.00",
           "forwarded_ratio": "0.96",
           "minutes_after_last_inbound": 25,
+          "inbound_minus_outbound": "500.00",
           "matched": true
         }
+      ],
+      "contrasts": [
+        {"text": "TX-0022 (14000.00 PHP) is 500.00 PHP less than the 14500.00 PHP total of inbound transfers in the 60 minutes before it.", "evidence_ids": ["TX-0022", "TX-0020", "TX-0021"]}
       ]
     }
   },
