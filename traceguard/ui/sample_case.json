@@ -1,0 +1,29 @@
+{
+  "_note": "Synthetic UI sample shaped like System Design §3, used until TASK-002/003 land. Not the real fixture dataset.",
+  "case": {
+    "case_id": "C-1",
+    "title": "Convergence and forwarding to one account",
+    "description": "Several accounts send funds to A-07 within a short window; A-07 forwards funds onward.",
+    "seed_ids": ["A-07"],
+    "scenario_label": "Convergence & forwarding"
+  },
+  "accounts": [
+    {"account_id": "A-01", "label": "Wallet A-01"},
+    {"account_id": "A-02", "label": "Wallet A-02"},
+    {"account_id": "A-03", "label": "Wallet A-03"},
+    {"account_id": "A-07", "label": "Wallet A-07"},
+    {"account_id": "A-09", "label": "Wallet A-09"}
+  ],
+  "device_links": [
+    {"relationship_id": "DL-0001", "account_id": "A-01", "device_id": "D-01", "observed_at": "2026-09-30T08:55:00+08:00"},
+    {"relationship_id": "DL-0002", "account_id": "A-03", "device_id": "D-01", "observed_at": "2026-09-30T09:02:00+08:00"},
+    {"relationship_id": "DL-0003", "account_id": "A-07", "device_id": "D-02", "observed_at": "2026-09-30T09:20:00+08:00"}
+  ],
+  "transactions": [
+    {"transaction_id": "TX-0001", "sender_account_id": "A-01", "receiver_account_id": "A-07", "amount": "4800.00", "currency": "PHP", "timestamp": "2026-09-30T09:01:00+08:00"},
+    {"transaction_id": "TX-0002", "sender_account_id": "A-02", "receiver_account_id": "A-07", "amount": "2500.00", "currency": "PHP", "timestamp": "2026-09-30T09:06:00+08:00"},
+    {"transaction_id": "TX-0003", "sender_account_id": "A-02", "receiver_account_id": "A-07", "amount": "2500.00", "currency": "PHP", "timestamp": "2026-09-30T09:09:00+08:00"},
+    {"transaction_id": "TX-0004", "sender_account_id": "A-03", "receiver_account_id": "A-07", "amount": "5200.00", "currency": "PHP", "timestamp": "2026-09-30T09:14:00+08:00"},
+    {"transaction_id": "TX-0005", "sender_account_id": "A-07", "receiver_account_id": "A-09", "amount": "14500.00", "currency": "PHP", "timestamp": "2026-09-30T09:27:00+08:00"}
+  ]
+}
