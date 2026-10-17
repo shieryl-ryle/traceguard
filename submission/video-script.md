@@ -36,17 +36,18 @@ TX-0006, then TX-0007, so they highlight. Point at TX-0008 (A-09 → A-06 at 09:
 > so it isn't counted. Every path, window and sum here comes from deterministic graph tools, not the
 > AI. Two senders share a device. That's worth noting, but on its own it proves nothing.
 
-## 1:20–2:15 · AI brief with citations and counterevidence (about 115 words)
-**Screen:** click **Run AI investigation**. Open the tool log briefly. Scroll the brief. Click the
-`RULE-FWD-01` chip to show the highlight and the cited records. Click **Export**.
+## 1:20–2:15 · AI brief, verification and follow-up (about 120 words)
+**Screen:** click **Run AI investigation** and pause on the **Verified before display** panel. Scroll
+to the counterevidence. Click the `RULE-FWD-01` chip, so the graph on the left highlights. In the
+follow-up box type "Who owns A-22?" and click **Ask**. Click **Export**.
 
-> Now I run the AI investigation. This is a fixed workflow: the app runs the graph tools, and then
-> Gemini on Vertex AI explains the results. The log shows exactly what was retrieved. The brief says
-> the pattern warrants review, and every observation carries evidence IDs. Clicking a citation
-> highlights the exact records on the graph and lists them right here, so I can verify each claim.
-> The brief also includes counterevidence and unknowns. Before anything is shown, the app checks
-> that every cited ID and every figure really exists in the tool output. If it doesn't, the brief
-> is regenerated once or blocked. Then I export it as Markdown for the case file.
+> Now I run the AI investigation. It's a fixed workflow: the app runs the graph tools, then Gemini on
+> Vertex AI explains the results. Before anything is shown, every citation and every figure is checked
+> against the tool output, and this panel shows what was verified. The brief says the pattern warrants
+> review, and the counterevidence comes straight from the tools: two senders aren't on the shared
+> device, and less went out than came in. Clicking a citation highlights it on the graph, right beside
+> the brief. I can also ask a follow-up. "Who owns A-22?" is refused, because the data can't say.
+> Then I export the brief for the case file.
 
 ## 2:15–2:40 · Benign and incomplete cases (about 50 words)
 **Screen:** open C-2 and show its brief's conclusion. Open C-3 and show the Unknowns section.
