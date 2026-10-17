@@ -282,3 +282,14 @@ def test_no_fan_in_contrast_when_rule_not_matched() -> None:
     }).graph
     output = tools.detect_fan_in(graph, "A-90").output
     assert output["matched"] is False and output["contrasts"] == []
+
+
+def test_trace_notice_matches_number_of_boundary_accounts() -> None:
+    graph = load_dataset().graph
+    assert tools.trace_funds(graph, "A-19").output["notice"] == (
+        "The trace reaches the data boundary at A-22; where funds went after this account "
+        "is not in the dataset and is unknown."
+    )
+    notice = tools.trace_funds(graph, "A-13").output["notice"]
+    assert notice.startswith("The trace reaches the data boundary at A-17 and A-18; ")
+    assert "after these accounts" in notice
