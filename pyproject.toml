@@ -13,5 +13,5 @@ python_version = "3.12"
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["streamlit_agraph", "streamlit_agraph.*"]
+module = ["streamlit_agraph", "streamlit_agraph.*", "networkx", "networkx.*"]
 ignore_missing_imports = true
