@@ -93,14 +93,20 @@ Cloud Run "traceguard" (asia-southeast1, max 2 instances, runtime SA traceguard-
      └─ Synthetic dataset bundled in the image (no database)
               │ Application Default Credentials (no API keys)
               ▼
-        Gemini on Vertex AI (google-genai SDK, structured JSON output)
+        Gemini on Vertex AI: gemini-3.5-flash, asia-southeast1
+        (google-genai SDK, structured JSON output)
 ```
 
-- **Least-privilege IAM:** the runtime identity has only `roles/aiplatform.user`. There are no Owner or Editor roles.
+- **Least-privilege IAM:** the app runs as `traceguard-run`, which has only `roles/aiplatform.user`.
+  The build account has only `roles/run.builder`, and the teammate deployer has four narrow roles.
+  No Editor role exists anywhere in the project.
+- **The graph decides, the AI explains:** every number and rule flag comes from the 5 graph tools.
+  The model can only cite the IDs those tools return.
 - **Cost controls:** max instances and per-call caps. Budget alerts are a backstop.
 
-**Owner:** Dzelle (architecture slide). **FILL:** check that the region, model ID, and service
-account match the live deploy.
+**Owner:** Dzelle (architecture slide). Verified against the live deploy on 2026-10-17
+(revision `traceguard-00005`): region, model ID, runtime service account, max instances, and IAM.
+Re-check after the final redeploy.
 
 ---
 
@@ -112,6 +118,18 @@ account match the live deploy.
 | C-1 Convergence & forwarding | Fan-in plus rapid forwarding, shared device | Pattern warrants review | **FILL** |
 | C-2 Benign shared device | Household accounts on one device, no forwarding | Insufficient evidence: device sharing alone is not enough | **FILL** |
 | C-3 Incomplete evidence | Chain ends at the data boundary | Next recipient and intent unknown, not guessed | **FILL** |
+
+**Deterministic results (graph tools vs hand-derived expected outcomes, TC-004): 11 of 11 match.**
+
+| Case | What the graph tools found |
+|---|---|
+| C-1 | Fan-in: 4 senders to A-07 within 30 min, 17000.00 PHP. Rapid forwarding: TX-0007 sent a ratio of 0.91 of that, 30 min after the last inbound. A-01 and A-03 share device D-01. |
+| C-2 | Shared device D-04 (A-13, A-14, A-15). No rapid forwarding: the in-hour spend is a ratio of 0.12 (below 0.50), and the large spend came 60 min 1 s after payday (outside the window). |
+| C-3 | Fan-in not met (2 senders, threshold 3). Rapid forwarding to A-22 (ratio 0.96, 25 min). The trace stops at A-22 at the data boundary, so the next recipient is unknown. |
+
+Rules (ADR-003): fan-in means ≥ 3 distinct senders within 30 min. Rapid forwarding means an
+outbound transfer within 60 min of inbound transfers, worth at least 0.50 of their total.
+Boundaries are exact to the second.
 
 **Quality evidence:**
 - **Automated tests:** cover repeated transfers, time ordering, exact window boundaries, sums,
