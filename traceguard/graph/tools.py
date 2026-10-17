@@ -195,12 +195,26 @@ def detect_fan_in(graph: nx.MultiDiGraph, account_id: str, config: FanInConfig =
         if senders > best_senders:
             best, best_senders = window, senders
     matched = best_senders >= config.min_senders
+    sender_ids = sorted({t.sender for t in best})
+    on_shared, shared_rels = _senders_sharing_a_device(graph, sender_ids)
+    not_shared = [s for s in sender_ids if s not in on_shared]
+    contrasts: list[dict[str, Any]] = []
+    if matched and on_shared and not_shared:
+        not_shared_txs = [t.transaction_id for t in best if t.sender in not_shared]
+        contrasts.append({
+            "text": f"{_join(not_shared)} {'has' if len(not_shared) == 1 else 'have'} no recorded device link "
+                    f"shared with another sender in this window.",
+            "evidence_ids": [*shared_rels, *not_shared_txs],
+        })
     output: dict[str, Any] = {
         "rule_id": config.rule_id,
         "matched": matched,
         "receiver_account_id": account_id,
         "sender_count": best_senders,
-        "sender_account_ids": sorted({t.sender for t in best}),
+        "sender_account_ids": sender_ids,
+        "senders_on_shared_device": on_shared,
+        "senders_not_on_shared_device": not_shared,
+        "shared_device_relationship_ids": shared_rels,
         "transfer_count": len(best),
         "transaction_ids": _ids(best),
         "window_start": best[0].timestamp.isoformat() if best else None,
@@ -211,6 +225,7 @@ def detect_fan_in(graph: nx.MultiDiGraph, account_id: str, config: FanInConfig =
         "aggregate_amount": _money(_total(best)),
         "currency": CURRENCY,
         "config": config.as_output(),
+        "contrasts": contrasts,
     }
     minutes, threshold = config.window_seconds // 60, config.min_senders
     if not best:
@@ -225,7 +240,23 @@ def detect_fan_in(graph: nx.MultiDiGraph, account_id: str, config: FanInConfig =
             f"At most {best_senders} distinct sender(s) paid {account_id} within any {minutes}-minute "
             f"window (threshold: {threshold} senders)."
         )
-    return ToolResult(output, frozenset({config.rule_id, *_ids(best)}))
+    return ToolResult(output, frozenset({config.rule_id, *_ids(best), *shared_rels}))
+
+
+def _senders_sharing_a_device(graph: nx.MultiDiGraph, senders: list[str]) -> tuple[list[str], list[str]]:
+    """Senders linked to a device that another sender in the same list also uses, plus those links."""
+    by_device: dict[str, list[tuple[str, str]]] = {}
+    for sender in senders:
+        for device, rel in device_links(graph, sender):
+            by_device.setdefault(device, []).append((sender, rel))
+    shared = [links for links in by_device.values() if len({a for a, _ in links}) >= 2]
+    accounts = sorted({a for links in shared for a, _ in links})
+    rels = sorted(rel for links in shared for _, rel in links)
+    return accounts, rels
+
+
+def _join(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else f"{', '.join(items[:-1])} and {items[-1]}"
 
 
 def detect_rapid_forwarding(
@@ -241,6 +272,7 @@ def detect_rapid_forwarding(
         total = _total(window)
         matched = bool(window) and out.amount >= config.min_forward_ratio * total
         ratio = out.amount / total if total > 0 else None
+        difference = total - out.amount
         evaluated.append({
             "outbound_transaction_id": out.transaction_id,
             "outbound_amount": _money(out.amount),
@@ -250,10 +282,22 @@ def detect_rapid_forwarding(
             "minutes_after_last_inbound": (
                 _minutes((out.timestamp - window[-1].timestamp).total_seconds()) if window else None
             ),
+            "inbound_minus_outbound": _money(difference) if window and difference > 0 else None,
             "matched": matched,
         })
         evidence |= {out.transaction_id, *_ids(window)}
     matches = [e for e in evaluated if e["matched"]]
+    minutes = config.window_seconds // 60
+    contrasts = [
+        {
+            "text": f"{m['outbound_transaction_id']} ({m['outbound_amount']} {CURRENCY}) is "
+                    f"{m['inbound_minus_outbound']} {CURRENCY} less than the {m['inbound_total']} {CURRENCY} "
+                    f"total of inbound transfers in the {minutes} minutes before it.",
+            "evidence_ids": [m["outbound_transaction_id"], *m["inbound_transaction_ids"]],
+        }
+        for m in matches
+        if m["inbound_minus_outbound"] is not None
+    ]
     output: dict[str, Any] = {
         "rule_id": config.rule_id,
         "matched": bool(matches),
@@ -264,6 +308,7 @@ def detect_rapid_forwarding(
         "currency": CURRENCY,
         "config": config.as_output(),
         "explanation": _forwarding_explanation(account_id, matches, evaluated, config),
+        "contrasts": contrasts,
     }
     return ToolResult(output, frozenset(evidence))
 

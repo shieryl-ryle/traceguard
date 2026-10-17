@@ -27,7 +27,7 @@
     }
   },
   "fan_in": {
-    "A-13": {"matched": false, "sender_count": 1},
+    "A-13": {"matched": false, "sender_count": 1, "contrasts": []},
     "A-14": {"matched": false, "sender_count": 1},
     "A-15": {"matched": false, "sender_count": 1}
   },
@@ -42,6 +42,7 @@
           "inbound_total": "25000.00",
           "forwarded_ratio": "0.12",
           "minutes_after_last_inbound": 30,
+          "inbound_minus_outbound": "22000.00",
           "matched": false
         },
         {
@@ -51,6 +52,7 @@
           "inbound_total": "0.00",
           "forwarded_ratio": null,
           "minutes_after_last_inbound": null,
+          "inbound_minus_outbound": null,
           "matched": false
         },
         {
@@ -60,9 +62,11 @@
           "inbound_total": "0.00",
           "forwarded_ratio": null,
           "minutes_after_last_inbound": null,
+          "inbound_minus_outbound": null,
           "matched": false
         }
-      ]
+      ],
+      "contrasts": []
     },
     "A-14": {"matched": false},
     "A-15": {"matched": false}
