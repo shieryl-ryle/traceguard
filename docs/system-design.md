@@ -139,7 +139,7 @@ Agents must verify these versions against the official docs before emitting APIs
 | streamlit | 1.66.0 | https://docs.streamlit.io | 2026-10-17 (PyPI) |
 | networkx | 3.7 (requires ≥ 3.12) | https://networkx.org/documentation/stable/ | 2026-10-17 (PyPI) |
 | google-genai | 2.31.0 | https://googleapis.github.io/python-genai/ | 2026-10-17 (PyPI + source on `main`) |
-| streamlit-agraph | 0.0.45 (last release 2023-01-28; **3.12 support unverified**) | https://github.com/ChrisDelClea/streamlit-agraph | 2026-10-17 |
+| streamlit-agraph | 0.0.45 (last release 2023-01-28; browser spike passed 2026-10-17 on Python 3.14 — **3.12 unverified**; see ADR-002) | https://github.com/ChrisDelClea/streamlit-agraph | 2026-10-17 |
 | pandas | 3.0.6 | https://pandas.pydata.org/docs/ | 2026-10-17 (PyPI) |
 | pytest | 9.1.1 | https://docs.pytest.org | 2026-10-17 (PyPI) |
 | mypy | 2.4.0 | https://mypy.readthedocs.io | 2026-10-17 (PyPI) |

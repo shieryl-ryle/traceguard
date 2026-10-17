@@ -11,3 +11,7 @@ markers = ["live: calls Vertex AI for real and spends quota (run with -m live)"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
+
+[[tool.mypy.overrides]]
+module = ["streamlit_agraph", "streamlit_agraph.*"]
+ignore_missing_imports = true
