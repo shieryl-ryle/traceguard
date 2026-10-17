@@ -1,0 +1,6 @@
+{
+  "_note": "Rule parameters decided in ADR-003 (PRD Q7). Test copy only; the app reads traceguard/graph/config.py (BR-010).",
+  "fan_in": {"rule_id": "RULE-FANIN-01", "window_minutes": 30, "window_seconds": 1800, "min_senders": 3},
+  "rapid_forwarding": {"rule_id": "RULE-FWD-01", "window_minutes": 60, "window_seconds": 3600, "min_forward_ratio": "0.50"},
+  "trace_funds": {"default_max_depth": 3}
+}

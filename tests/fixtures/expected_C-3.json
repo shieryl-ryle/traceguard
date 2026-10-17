@@ -1,0 +1,66 @@
+{
+  "_note": "Hand-derived expected outcomes for C-3 (ADR-003 semantics). Tests only; never loaded by the app or sent to the model (BR-010).",
+  "case_id": "C-3",
+  "case": {
+    "seed_ids": ["A-19"],
+    "account_ids": ["A-19", "A-20", "A-21", "A-22", "A-23"],
+    "transaction_ids": ["TX-0019", "TX-0020", "TX-0021", "TX-0022"]
+  },
+  "account_context": {
+    "A-19": {
+      "inbound_transaction_ids": ["TX-0020", "TX-0021"],
+      "outbound_transaction_ids": ["TX-0022"],
+      "linked_device_ids": ["D-06"],
+      "device_relationship_ids": ["DL-0009"]
+    }
+  },
+  "fan_in": {
+    "A-19": {
+      "matched": false,
+      "sender_count": 2,
+      "sender_account_ids": ["A-20", "A-21"],
+      "transfer_count": 2,
+      "transaction_ids": ["TX-0020", "TX-0021"],
+      "window_start": "2026-09-29T14:00:00+08:00",
+      "window_end": "2026-09-29T14:10:00+08:00",
+      "window_span_minutes": 10,
+      "aggregate_amount": "14500.00"
+    }
+  },
+  "rapid_forwarding": {
+    "A-19": {
+      "matched": true,
+      "evaluated": [
+        {
+          "outbound_transaction_id": "TX-0022",
+          "outbound_amount": "14000.00",
+          "inbound_transaction_ids": ["TX-0020", "TX-0021"],
+          "inbound_total": "14500.00",
+          "forwarded_ratio": "0.96",
+          "minutes_after_last_inbound": 25,
+          "matched": true
+        }
+      ]
+    }
+  },
+  "shared_devices": [
+    {"account_ids": ["A-19", "A-22"], "expected": []}
+  ],
+  "trace_funds": [
+    {
+      "inputs": {"account_id": "A-19", "direction": "out", "max_depth": 3},
+      "truncated": true,
+      "paths": [
+        {"transaction_ids": ["TX-0022"], "end_account_id": "A-22", "stop_reason": "data_boundary"}
+      ]
+    },
+    {
+      "inputs": {"account_id": "A-19", "direction": "in", "max_depth": 3},
+      "truncated": true,
+      "paths": [
+        {"transaction_ids": ["TX-0020", "TX-0019"], "end_account_id": "A-23", "stop_reason": "data_boundary"},
+        {"transaction_ids": ["TX-0021"], "end_account_id": "A-21", "stop_reason": "data_boundary"}
+      ]
+    }
+  ]
+}

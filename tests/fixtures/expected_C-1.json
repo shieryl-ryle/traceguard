@@ -1,0 +1,80 @@
+{
+  "_note": "Hand-derived expected outcomes for C-1 (ADR-003 semantics). Tests only; never loaded by the app or sent to the model (BR-010).",
+  "case_id": "C-1",
+  "case": {
+    "seed_ids": ["A-07"],
+    "account_ids": ["A-01", "A-02", "A-03", "A-04", "A-05", "A-06", "A-07", "A-08", "A-09", "A-10", "A-11", "A-12"],
+    "transaction_ids": ["TX-0001", "TX-0002", "TX-0003", "TX-0004", "TX-0005", "TX-0006", "TX-0007", "TX-0008", "TX-0009", "TX-0010", "TX-0011", "TX-0012"]
+  },
+  "graph": {
+    "transfer_edges_between": [{"sender": "A-01", "receiver": "A-07", "transaction_ids": ["TX-0002", "TX-0005"]}]
+  },
+  "account_context": {
+    "A-07": {
+      "inbound_transaction_ids": ["TX-0001", "TX-0002", "TX-0003", "TX-0004", "TX-0005", "TX-0006"],
+      "outbound_transaction_ids": ["TX-0007"],
+      "linked_device_ids": ["D-02"],
+      "device_relationship_ids": ["DL-0003"]
+    }
+  },
+  "fan_in": {
+    "A-07": {
+      "matched": true,
+      "sender_count": 4,
+      "sender_account_ids": ["A-01", "A-02", "A-03", "A-04"],
+      "transfer_count": 5,
+      "transaction_ids": ["TX-0002", "TX-0003", "TX-0004", "TX-0005", "TX-0006"],
+      "window_start": "2026-09-30T09:01:00+08:00",
+      "window_end": "2026-09-30T09:31:00+08:00",
+      "window_span_minutes": 30,
+      "aggregate_amount": "17000.00"
+    }
+  },
+  "rapid_forwarding": {
+    "A-07": {
+      "matched": true,
+      "evaluated": [
+        {
+          "outbound_transaction_id": "TX-0007",
+          "outbound_amount": "15500.00",
+          "inbound_transaction_ids": ["TX-0002", "TX-0003", "TX-0004", "TX-0005", "TX-0006"],
+          "inbound_total": "17000.00",
+          "forwarded_ratio": "0.91",
+          "minutes_after_last_inbound": 30,
+          "matched": true
+        }
+      ]
+    }
+  },
+  "shared_devices": [
+    {
+      "account_ids": ["A-01", "A-02", "A-03", "A-04", "A-05", "A-07"],
+      "expected": [{"device_id": "D-01", "account_ids": ["A-01", "A-03"], "relationship_ids": ["DL-0001", "DL-0002"]}]
+    }
+  ],
+  "trace_funds": [
+    {
+      "inputs": {"account_id": "A-07", "direction": "out", "max_depth": 3},
+      "truncated": true,
+      "paths": [
+        {"transaction_ids": ["TX-0007", "TX-0009"], "end_account_id": "A-09", "stop_reason": "data_boundary"},
+        {"transaction_ids": ["TX-0007", "TX-0010", "TX-0011"], "end_account_id": "A-11", "stop_reason": "max_depth"}
+      ]
+    },
+    {
+      "inputs": {"account_id": "A-07", "direction": "out", "max_depth": 4},
+      "truncated": true,
+      "paths": [
+        {"transaction_ids": ["TX-0007", "TX-0009"], "end_account_id": "A-09", "stop_reason": "data_boundary"},
+        {"transaction_ids": ["TX-0007", "TX-0010", "TX-0011", "TX-0012"], "end_account_id": "A-12", "stop_reason": "data_boundary"}
+      ]
+    },
+    {
+      "inputs": {"account_id": "A-08", "direction": "out", "max_depth": 3, "start_time": "2026-09-30T10:20:00+08:00"},
+      "truncated": true,
+      "paths": [
+        {"transaction_ids": ["TX-0010", "TX-0011", "TX-0012"], "end_account_id": "A-12", "stop_reason": "data_boundary"}
+      ]
+    }
+  ]
+}
