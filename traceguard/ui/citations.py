@@ -39,3 +39,20 @@ def highlight_for(evidence: EvidenceBundle, cited_id: str) -> frozenset[str]:
         if flag.rule_id == cited_id:
             return flag.evidence_ids
     return frozenset({cited_id}) if cited_id in evidence.evidence_ids else frozenset()
+
+
+@dataclass(frozen=True)
+class Contrast:
+    text: str
+    evidence_ids: tuple[str, ...]
+
+
+def tool_contrasts(evidence: EvidenceBundle) -> list[Contrast]:
+    """Deterministic counterevidence emitted by the graph tools (`contrasts` lists), in tool order."""
+    contrasts: list[Contrast] = []
+    for call in evidence.calls:
+        for item in call.output.get("contrasts", []) or []:
+            if isinstance(item, dict) and isinstance(item.get("text"), str):
+                ids = tuple(str(i) for i in item.get("evidence_ids", []) if str(i) in evidence.evidence_ids)
+                contrasts.append(Contrast(text=item["text"], evidence_ids=ids))
+    return contrasts

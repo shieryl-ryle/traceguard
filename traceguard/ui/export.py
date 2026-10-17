@@ -2,7 +2,7 @@
 
 from traceguard.ai.evidence import EvidenceBundle
 from traceguard.ai.schema import Brief, Statement
-from traceguard.ui.citations import rule_flags
+from traceguard.ui.citations import rule_flags, tool_contrasts
 
 
 def _statement(s: Statement) -> str:
@@ -37,6 +37,10 @@ def brief_to_markdown(
         lines.append(f"- `{flag.rule_id}` {status} ({params}). {flag.explanation}")
     if not flags:
         lines.append("- No rule results.")
+    contrasts = tool_contrasts(evidence)
+    if contrasts:
+        lines += ["", "## Contrasts (deterministic, from graph tools)"]
+        lines += [_statement(Statement(text=c.text, evidence_ids=list(c.evidence_ids))) for c in contrasts]
     lines += ["", "## Observations", *(_statement(s) for s in brief.observations)]
     lines += ["", "## Counterevidence", *([_statement(s) for s in brief.counterevidence] or ["- None stated."])]
     lines += ["", "## Unknowns", *_bullets(brief.unknowns)]
