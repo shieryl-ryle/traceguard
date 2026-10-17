@@ -154,8 +154,9 @@ def _trace_notice(account_id: str, paths: list[dict[str, Any]], outward: bool, b
     parts = []
     if boundary:
         nxt = "where funds went after" if outward else "where funds came from before"
-        parts.append(f"The trace reaches the data boundary at {', '.join(boundary)}; {nxt} "
-                     "these accounts is not in the dataset and is unknown.")
+        which = "this account" if len(boundary) == 1 else "these accounts"
+        parts.append(f"The trace reaches the data boundary at {_join(boundary)}; {nxt} "
+                     f"{which} is not in the dataset and is unknown.")
     if depth:
         parts.append(f"The trace stops at the depth limit at {', '.join(depth)}; "
                      "further transfers exist but were not followed.")
