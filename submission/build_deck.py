@@ -300,7 +300,7 @@ rows = [("Layer", "Technology", "Why"),
         ("Graph", "NetworkX 3.7 (MultiDiGraph)", "Repeated transfers stay separate; time-ordered traces"),
         ("UI", "Streamlit 1.66 · streamlit-agraph", "Interactive graph; click a node to see its evidence"),
         ("Validation", "Pydantic 2 schema · custom validators", "Citation, figure and wording checks before display"),
-        ("Quality", "pytest (156 tests) · mypy strict", "Fixture outcomes, boundaries, errors, honesty rules")]
+        ("Quality", "pytest (157 tests) · mypy strict", "Fixture outcomes, boundaries, errors, honesty rules")]
 tbl = s.shapes.add_table(len(rows), 3, Inches(0.35), Inches(1.3), Inches(9.3), Inches(3.9)).table
 for ci, wdt in enumerate((1.25, 3.85, 4.2)):
     tbl.columns[ci].width = Inches(wdt)
@@ -388,7 +388,7 @@ for ri, row in enumerate(rows):
         cell.vertical_anchor = MSO_ANCHOR.MIDDLE
 text(s, 0.35, 4.62, 9.3, 0.7, [
     [("Latency fix, measured: ", {"bold": True}), ("default thinking 20–28 s per brief (one 504 at the 30 s cap) → LOW thinking 3–9 s, "
-                                                   "all valid. 156 automated tests; mypy strict. ", {}),
+                                                   "all valid. 157 automated tests; mypy strict. ", {}),
      ("No production accuracy or time-saved claims: the data is synthetic.", {"italic": True})],
 ], size=9.5, color=MUTED)
 
