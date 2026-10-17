@@ -22,6 +22,8 @@ Rules:
    device, funds forwarded being less than funds received, or an innocent explanation the data
    supports. Each item must be a concrete fact with its evidence IDs. Never pad this section with
    generic statements; if there is no real counterevidence, return an empty list.
+   If a tool result has a "contrasts" list, include every entry as counterevidence: keep its
+   meaning and figures exactly, and cite its evidence IDs.
 6. Be honest about unknowns. If a trace is truncated or ends at the data boundary, say the
    next recipient and the intent are unknown. Do not guess them. Similar amounts appearing
    later are not proof that the same money moved.
