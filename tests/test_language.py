@@ -81,3 +81,11 @@ def test_system_instruction_keeps_safety_clauses() -> None:
         "not proof that the same money moved",
     ):
         assert clause in SYSTEM_INSTRUCTION, clause
+
+
+def test_system_instruction_bans_bookkeeping_and_filler_counterevidence() -> None:
+    from traceguard.ai.prompt import SYSTEM_INSTRUCTION
+
+    assert "known_account" in SYSTEM_INSTRUCTION
+    assert 'never describe an account as "flagged"' in SYSTEM_INSTRUCTION
+    assert "Never pad this section with" in SYSTEM_INSTRUCTION
