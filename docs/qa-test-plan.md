@@ -16,8 +16,8 @@ the env vars in System Design §4.
 | ID | Covers | Steps / assertion | Automated? |
 |---|---|---|---|
 | TC-001 | F-001, BR-001 | Loader returns exactly C-1, C-2, C-3; each has `scenario_label`; UI renders "synthetic data" label | yes: `tests/test_cases.py` + manual |
-| TC-002 | F-002 | Timeline for each case is sorted ascending by timezone-aware timestamp; all fields present | yes: `tests/test_timeline.py` |
-| TC-003 | F-003 | Graph has distinct account/device node types; repeated transfers between one pair are separate edges; selecting a node shows its evidence IDs | partial: `tests/test_graph_loader.py` (edges) + manual (UI) |
+| TC-002 | F-002 | Timeline for each case is sorted ascending by timezone-aware timestamp; all fields present | yes: `tests/test_ui_timeline.py` |
+| TC-003 | F-003 | Graph has distinct account/device node types; repeated transfers between one pair are separate edges; selecting a node shows its evidence IDs | partial: `tests/test_graph_loader.py` (edges), `tests/test_ui_graph.py` (elements) + browser check (UI) |
 | TC-004 | F-004, BR-003 | All 5 tools match `tests/fixtures/expected_*.json`: repeated transfers preserved; chronological path order; exact window boundaries (at boundary = in, boundary + 1 s = out); aggregate sums; C-2 not flagged as forwarding; C-3 returns truncation notice; empty results for unknown account | yes: `tests/test_tools.py` |
 | TC-005 | F-005, BR-007 | With a mocked client: retrieval runs all case tools, ≤ 4 tool rounds, payload ≤ cap, JSON parsed against brief schema; log lists each tool + evidence IDs. Live: one real call on C-1 returns a valid brief | yes: `tests/test_investigation.py`; live: `-m live` |
 | TC-006 | F-006, BR-002, BR-004, BR-005 | Brief has observations (each ≥ 1 evidence ID), counterevidence, unknowns, suggested checks, model, run_at | yes: `tests/test_brief.py` |

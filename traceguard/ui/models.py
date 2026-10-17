@@ -107,3 +107,8 @@ def case_view_from_dict(data: dict[str, Any]) -> CaseView:
 
 def load_sample_case() -> CaseView:
     return case_view_from_dict(json.loads(SAMPLE_PATH.read_text(encoding="utf-8")))
+
+
+def load_cases() -> tuple[CaseView, ...]:
+    """Cases for the queue. Sample only until the TASK-002 dataset and TASK-003 loader land."""
+    return (load_sample_case(),)

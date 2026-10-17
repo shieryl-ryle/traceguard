@@ -1,7 +1,7 @@
 # ADR-002 — Graph view uses streamlit-agraph 0.0.45
 
 - **Date:** 2026-10-17
-- **Status:** Proposed
+- **Status:** Accepted
 - **Owners:** Shieryl
 - **Related:** F-003, F-007, TASK-004, `traceguard/ui/graph_view.py`, System Design §6
 

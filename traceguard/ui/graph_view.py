@@ -91,12 +91,14 @@ def build_elements(view: CaseView, highlight_ids: frozenset[str] = frozenset()) 
     return GraphElements(nodes=nodes, edges=edges)
 
 
-def render_graph(view: CaseView, highlight_ids: frozenset[str] = frozenset(), height: int = 520) -> str | None:
+def render_graph(
+    view: CaseView, highlight_ids: frozenset[str] = frozenset(), height: int = 520, width: int = 680
+) -> str | None:
     """Draws the graph and returns the ID of the node the analyst clicked, if any."""
     elements = build_elements(view, highlight_ids)
     config = Config(
         height=height,
-        width=900,
+        width=width,
         directed=True,
         physics=True,
         hierarchical=False,
