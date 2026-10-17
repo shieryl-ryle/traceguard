@@ -1,0 +1,82 @@
+{
+  "_note": "STATIC sample tool results for the UI sample case C-1, hand-derived from sample_case.json. Replaced by the TASK-003 graph tools; shown in the UI as 'sample evidence'.",
+  "case_id": "C-1",
+  "rounds": [
+    [
+      {
+        "tool": "get_account_context",
+        "inputs": {"account_id": "A-07"},
+        "output": {
+          "account_id": "A-07",
+          "inbound_transaction_ids": ["TX-0001", "TX-0002", "TX-0003", "TX-0004"],
+          "outbound_transaction_ids": ["TX-0005"],
+          "linked_device_ids": ["D-02"],
+          "device_relationship_ids": ["DL-0003"]
+        },
+        "evidence_ids": ["TX-0001", "TX-0002", "TX-0003", "TX-0004", "TX-0005", "DL-0003"]
+      }
+    ],
+    [
+      {
+        "tool": "detect_fan_in",
+        "inputs": {"account_id": "A-07"},
+        "output": {
+          "rule_id": "RULE-FANIN-01",
+          "matched": true,
+          "receiver_account_id": "A-07",
+          "sender_count": 3,
+          "sender_account_ids": ["A-01", "A-02", "A-03"],
+          "transfer_count": 4,
+          "transaction_ids": ["TX-0001", "TX-0002", "TX-0003", "TX-0004"],
+          "window_start": "2026-09-30T09:01:00+08:00",
+          "window_end": "2026-09-30T09:14:00+08:00",
+          "window_span_minutes": 13,
+          "aggregate_amount": "15000.00",
+          "currency": "PHP",
+          "config": {"window_minutes": 30, "min_senders": 3},
+          "explanation": "3 distinct senders paid A-07 within a 30-minute window (threshold: 3 senders)."
+        },
+        "evidence_ids": ["RULE-FANIN-01", "TX-0001", "TX-0002", "TX-0003", "TX-0004"]
+      },
+      {
+        "tool": "detect_rapid_forwarding",
+        "inputs": {"account_id": "A-07"},
+        "output": {
+          "rule_id": "RULE-FWD-01",
+          "matched": true,
+          "account_id": "A-07",
+          "last_inbound_transaction_id": "TX-0004",
+          "outbound_transaction_id": "TX-0005",
+          "outbound_amount": "14500.00",
+          "currency": "PHP",
+          "minutes_after_last_inbound": 13,
+          "config": {"window_minutes": 60},
+          "explanation": "A-07 sent funds out 13 minutes after its last inbound transfer (threshold: within 60 minutes)."
+        },
+        "evidence_ids": ["RULE-FWD-01", "TX-0004", "TX-0005"]
+      },
+      {
+        "tool": "find_shared_devices",
+        "inputs": {"account_ids": ["A-01", "A-02", "A-03", "A-07"]},
+        "output": {
+          "shared_devices": [
+            {"device_id": "D-01", "account_ids": ["A-01", "A-03"], "relationship_ids": ["DL-0001", "DL-0002"]}
+          ]
+        },
+        "evidence_ids": ["DL-0001", "DL-0002"]
+      },
+      {
+        "tool": "trace_funds",
+        "inputs": {"account_id": "A-07", "direction": "out", "max_depth": 3},
+        "output": {
+          "steps": [
+            {"transaction_id": "TX-0005", "from": "A-07", "to": "A-09", "amount": "14500.00", "currency": "PHP", "timestamp": "2026-09-30T09:27:00+08:00"}
+          ],
+          "truncated": true,
+          "truncation_reason": "A-09 has no outgoing transfers in the dataset (data boundary)."
+        },
+        "evidence_ids": ["TX-0005"]
+      }
+    ]
+  ]
+}

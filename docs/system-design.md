@@ -72,6 +72,14 @@ Window boundaries are inclusive at the configured length and exclusive beyond it
 - **Validation order:** structure → citations → figures → wording. On any problem, the workflow
   regenerates once, sending the problems back to the model; a second failure raises
   `InvestigationError("validation")` and shows no brief.
+- **Interim evidence (until TASK-003):** the UI's `RETRIEVER` in `traceguard/ui/investigation.py`
+  is `sample_retriever`, which serves static, hand-derived tool results for the sample case C-1
+  (`traceguard/ui/sample_evidence.json`). While it is in use, the UI and export label the evidence
+  and rule flags as "sample evidence, not yet computed by graph tools" (BR-003, BR-006). Swapping
+  `RETRIEVER` for the graph retriever switches those labels automatically.
+- **Citation navigation (F-007):** clicking an evidence ID in a validated brief highlights it in the
+  graph and marks it ★ in the timeline's "Cited" column; a rule ID highlights the records it
+  matched. The timeline's "Selected" column is the analyst's own row selection, never a citation.
 - **Errors:** every failure is an `InvestigationError(kind, user_message)`. The UI shows
   `user_message`; logs record `kind` and the error code only, never prompts or evidence.
 
