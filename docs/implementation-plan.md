@@ -36,4 +36,5 @@ Statuses: `ready` · `in-progress` · `in-review` · `done` · `cut`
 | **Oct 18, 2 PM** | **Feature freeze**; all 3 cases deployed |
 | Oct 18, 2–6 PM | Verify cases, citation checks, clean-browser test of public URL (TC-010) |
 | Oct 18, 6–9 PM | Proposal PDF, record + upload video, verify public access |
-| **Oct 18, 10 PM** | **Submit** |
+| **Oct 18, 10 PM** | **Submit** (internal target) |
+| Oct 19, 2:29 AM | Portal closes (hard deadline). Buffer for upload or form issues only |
