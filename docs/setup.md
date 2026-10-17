@@ -64,16 +64,46 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member="user:$SHIERYL" --role="roles/iam.serviceAccountUser"
 ```
 
+### A5b. Let source deploys build (needed before the first `gcloud run deploy --source`)
+A source deploy builds in Cloud Build, which runs as the project's **default compute service
+account** (`PROJECT_NUMBER-compute@developer.gserviceaccount.com`). Without these two grants, the
+build fails with `caller does not have permission to act as service account` (seen on 2026-10-17).
+```bash
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+BUILD_SA=$PROJECT_NUMBER-compute@developer.gserviceaccount.com
+
+# The deployer may start builds that run as the build SA (that one SA only)
+gcloud iam service-accounts add-iam-policy-binding $BUILD_SA --project $PROJECT_ID \
+  --member="user:$SHIERYL" --role="roles/iam.serviceAccountUser"
+
+# The build SA may build and deploy to Cloud Run
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$BUILD_SA" --role="roles/run.builder"
+```
+On PowerShell, run the commands one at a time with the values filled in.
+
+### A5c. Make the service public (owner, once, after the first deploy)
+The teammate deployer's roles can't change a service's access policy. So the first deploy finishes
+with `Setting IAM policy failed`, and the URL returns HTTP 403 (seen 2026-10-17). The project owner
+runs this once, and later deploys keep the setting:
+```bash
+gcloud run services add-iam-policy-binding traceguard --region asia-southeast1 --project $PROJECT_ID \
+  --member="allUsers" --role="roles/run.invoker"
+```
+This only lets people call the app, which the hackathon requires for a public URL. It grants no management access.
+
 ### A6. Done when
 - [ ] The billing account is open, and `traceguard-2026` is linked to it
 - [ ] The budget alert is set
 - [ ] The model ID and location are confirmed and sent to Shieryl
 - [ ] The APIs are enabled and the `traceguard-run` service account exists with `roles/aiplatform.user`
 - [ ] Shieryl can see the project in the console with her personal account
+- [ ] The two A5b build grants are in place
+- [ ] After the first deploy, A5c is done and the URL loads in an incognito window
 - [ ] The Evidence column for TASK-000 in [implementation-plan.md](implementation-plan.md) is updated (no IDs or secrets)
 
-The first deploy is TASK-001. If it fails with a build permission error, grant `roles/run.builder`
-to the build service account named in the error, as described in [System Design §7](system-design.md).
+The first deploy is TASK-001 ([System Design §7](system-design.md)). If it still fails with a
+permission error, fix only the role named in that error. Never grant Owner or Editor.
 
 ---
 
