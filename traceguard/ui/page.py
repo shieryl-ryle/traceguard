@@ -8,6 +8,8 @@ from traceguard.ui.models import CaseView
 from traceguard.ui.timeline import TIMELINE_KEY, render_timeline, selected_transaction_ids
 
 SELECTED_NODE_KEY = "selected_node"
+GRAPH_WIDTH = 500
+BRIEF_PANEL_HEIGHT = 760
 ACTIVE_CASE_KEY = "active_case"
 
 
@@ -30,7 +32,7 @@ def _node_kind(view: CaseView, node_id: str) -> str:
 
 
 def render_selection_panel(view: CaseView, node_id: str | None) -> None:
-    st.subheader("Selection")
+    st.markdown("**Selection**")
     if node_id is None:
         st.caption("Click an account or device in the graph to see its evidence.")
         return
@@ -50,15 +52,17 @@ def render_case_page(view: CaseView) -> None:
 
     selected = selected_transaction_ids(view)
     cited = citation_highlight(view)
-    graph_col, panel_col = st.columns([3, 1])
+    # Graph and brief side by side: the brief scrolls inside its own panel, so the graph stays in
+    # view while the analyst clicks citations (F-007).
+    graph_col, brief_col = st.columns([11, 10], gap="medium")
     with graph_col:
-        clicked = render_graph(view, selected | cited)
-    if clicked is not None:
-        st.session_state[SELECTED_NODE_KEY] = clicked
-    with panel_col:
+        clicked = render_graph(view, selected | cited, width=GRAPH_WIDTH)
+        if clicked is not None:
+            st.session_state[SELECTED_NODE_KEY] = clicked
         render_selection_panel(view, st.session_state.get(SELECTED_NODE_KEY))
+    with brief_col:
+        with st.container(height=BRIEF_PANEL_HEIGHT, border=True):
+            render_investigation(view)
 
     st.subheader("Timeline")
     render_timeline(view, selected, cited)
-
-    render_investigation(view)
