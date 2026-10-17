@@ -23,7 +23,7 @@ Analysts reconstruct transfers by hand, must separate suspicious patterns from i
 
 ## 2. Context & constraints
 - **Why now:** AI Builder Cup 2026 submission, BFSI theme.
-- **Deadline:** 2026-10-18 11:59 PM Asia/Manila (confirmed by Shieryl 2026-10-17). Internal submit target
+- **Deadline:** prototype submission portal closes **2026-10-19 2:29 AM Asia/Manila** (portal shows "PST" = Philippine Standard Time, confirmed by its countdown on 2026-10-18). Internal submit target
   **2026-10-18 10:00 PM Asia/Manila**; feature freeze **2 PM Manila**.
 - **Budget:** no organiser credits. Project on Dzelle's personal Google Cloud account (free trial or personal billing). No employer project, account, or billing.
 - **Platform:** web app (Streamlit) on Google Cloud Run, publicly reachable, Gemini on Vertex AI.
@@ -208,14 +208,14 @@ No claims of production accuracy or analyst time saved (we have no data for eith
 | Gemini model ID / region not available in `asia-southeast1` (Q5) | Deploy or call fails | `VERTEX_LOCATION` and `GEMINI_MODEL` are env vars, separate from Cloud Run region |
 | Graph component cannot return click selection to Python | F-003/F-007 degrade | Pick component after docs check; fallback: selectbox-driven highlight |
 | Model returns invalid citations or forbidden language | Breaks BR-002/BR-004 live in demo | Validator + one regeneration; wording check; pre-demo 5-run test per case |
-| Late submission | Disqualification | Internal target 10 PM Manila, 2 h before the 11:59 PM Manila deadline |
+| Late submission | Disqualification | Internal target 10 PM Manila on Oct 18, 4.5 h before the portal closes (Oct 19 2:29 AM Manila). The buffer is contingency, not feature time. Check other modules (proposal, video) for their own countdowns |
 | Scope creep into P1/P2 before P0 is deployed | P0 incomplete at freeze | Feature freeze 2 PM Manila; cut order in §5 |
 
 ## 13. Open questions
 | # | Question | Owner | Blocks |
 |---|---|---|---|
 | Q1 | Category label — rules list "Healthcare, Education, Sustainability, Accessibility, Social Good", not the six challenge themes. Confirm with organisers/FAQ | Shieryl | submission form |
-| Q2 | (resolved 2026-10-17) Deadline is 2026-10-18 11:59 PM Asia/Manila | Shieryl | — |
+| Q2 | (resolved 2026-10-18) Prototype portal closes 2026-10-19 2:29 AM Asia/Manila (supersedes the 11:59 PM Oct 18 assumption) | Shieryl | — |
 | Q3 | (resolved 2026-10-17) No organiser credits; Shieryl's trial already used. Dzelle sets up the project on her personal account (TASK-000) | Dzelle | — |
 | Q4 | (resolved 2026-10-17) Yes, Shieryl + Dzelle are registered as a duo | Shieryl | — |
 | Q5 | Gemini model ID + Vertex location confirmed in Model Garden | Dzelle | F-005, TASK-001 |
