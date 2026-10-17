@@ -130,6 +130,12 @@ def picture(slide, path, x, y, w=None, h=None, frame=True):
     return pic
 
 
+def cropped_h(slide, path, x, y, h, l=0.0, t=0.0, r=0.0, b=0.0, px=(2880, 1920)):
+    """Like `cropped`, but sized to height h."""
+    aspect = (px[0] * (1 - l - r)) / (px[1] * (1 - t - b))
+    return cropped(slide, path, x, y, h * aspect, l, t, r, b, px)
+
+
 def cropped(slide, path, x, y, w, l=0.0, t=0.0, r=0.0, b=0.0, px=(2880, 1920)):
     """Place an image cropped by fractions, sized to width w with the cropped aspect ratio kept."""
     pic = picture(slide, path, x, y, w=w)
@@ -183,7 +189,7 @@ cols = [("How it differs", BLUE, [
             "Turns it into a brief with observations, counterevidence, unknowns and next checks.",
             "Each citation highlights its record on the graph and timeline, so it can be checked in place."]),
         ("USP", AMBER, [
-            "Every cited ID and every figure in the brief is validated against tool output. A failing brief is regenerated once, then blocked.",
+            "Every cited ID and figure is validated against tool output, and the checks are shown on screen (\"Verified before display\"). A failing brief is regenerated once, then blocked.",
             "Counterevidence is computed, not invented (e.g. senders not on the shared device).",
             "Careful language enforced in code: no accusations, probabilities or risk scores."])]
 for i, (head, colr, pts) in enumerate(cols):
@@ -202,8 +208,8 @@ feats = [("Case queue", "3 synthetic alert cases, clearly labelled \"synthetic d
          ("5 deterministic tools", "Account context, fund trace, shared devices, rapid forwarding, fan-in"),
          ("AI investigation", "Gemini on Vertex AI over retrieved evidence, with a visible tool log"),
          ("Evidence-linked brief", "Observations, counterevidence, unknowns, suggested checks"),
-         ("Citation navigation", "Click an evidence ID to highlight its record on graph and timeline"),
-         ("Markdown export", "Download the brief with model, run time and evidence list"),
+         ("Citations and export", "Click an evidence ID to highlight it on the graph; export the brief as Markdown"),
+         ("Follow-up question", "Ask about the case; answered from the same evidence, or refused if it can't be"),
          ("Readable errors", "Timeout, quota or permission errors explained; graph stays usable")]
 for i, (head, body) in enumerate(feats):
     col, row = i % 3, i // 3
@@ -245,13 +251,13 @@ s = S[5]
 title_only(s, "Wireframes/Mock diagrams of the proposed solution (optional): the live investigation page")
 pic = picture(s, SHOTS / "slide2-c1-graph.png", 0.35, 1.3, h=3.95)
 img_w, img_h = 3.95 * 1.5, 3.95
-for n, (fx, fy) in enumerate([(0.16, 0.035), (0.215, 0.235), (0.27, 0.40), (0.905, 0.36), (0.20, 0.90)], start=1):
+for n, (fx, fy) in enumerate([(0.16, 0.035), (0.215, 0.235), (0.26, 0.47), (0.595, 0.40), (0.20, 0.90)], start=1):
     badge(s, 0.35 + fx * img_w, 1.3 + fy * img_h, str(n), [BLUE, GREEN, AMBER, BLUE, GREEN][n - 1], d=0.3, size=11)
 callouts = [("Case queue", "Synthetic cases, each labelled", BLUE),
             ("Case header", "Alert description and scenario", GREEN),
             ("Relationship graph", "Accounts (circles), devices (squares), one arrow per transfer", AMBER),
-            ("Selection panel", "Click a node to list every record that touches it", BLUE),
-            ("Below the graph", "Timeline, AI investigation, brief, citations, export", GREEN)]
+            ("AI investigation panel", "Brief, Verified panel and follow-up question, scrolling beside the graph", BLUE),
+            ("Below the graph", "Selection panel for the clicked node, then the full timeline", GREEN)]
 for i, (head, body, colr) in enumerate(callouts):
     y = 1.3 + i * 0.8
     badge(s, 6.45, y + 0.06, str(i + 1), colr, d=0.3, size=11)
@@ -300,7 +306,7 @@ rows = [("Layer", "Technology", "Why"),
         ("Graph", "NetworkX 3.7 (MultiDiGraph)", "Repeated transfers stay separate; time-ordered traces"),
         ("UI", "Streamlit 1.66 · streamlit-agraph", "Interactive graph; click a node to see its evidence"),
         ("Validation", "Pydantic 2 schema · custom validators", "Citation, figure and wording checks before display"),
-        ("Quality", "pytest (157 tests) · mypy strict", "Fixture outcomes, boundaries, errors, honesty rules")]
+        ("Quality", "pytest (168 tests) · mypy strict", "Fixture outcomes, boundaries, errors, honesty rules")]
 tbl = s.shapes.add_table(len(rows), 3, Inches(0.35), Inches(1.3), Inches(9.3), Inches(3.9)).table
 for ci, wdt in enumerate((1.25, 3.85, 4.2)):
     tbl.columns[ci].width = Inches(wdt)
@@ -345,14 +351,21 @@ text(s, 0.4, 3.95, 9.2, 1.3, [
 # ---------- Slide 10: snapshots ----------
 s = S[9]
 title_only(s)
-p1 = cropped(s, SHOTS / "slide3-brief.png", 0.35, 1.3, 5.0, l=0.255, t=0.62, r=0.05, b=0.02)
-p2 = cropped(s, SHOTS / "slide3-citation-records.png", 0.35, 1.3 + p1.height / 914400 + 0.07, 5.0, l=0.255, t=0.0, r=0.05, b=0.55)
-p3 = cropped(s, SHOTS / "slide3-graph-highlight.png", 5.75, 1.3, 3.4, l=0.32, t=0.17, r=0.25, b=0.17)
-text(s, 5.6, 1.3 + p3.height / 914400 + 0.06, 4.05, 0.9, [
-    [("Left: ", {"bold": True}), ("live brief on real graph evidence: rule flags with thresholds, computed contrasts, "
-                                  "then Gemini's counterevidence and unknowns.", {})],
-    [("Right: ", {"bold": True}), ("clicking RULE-FWD-01 highlights the records it matched (amber).", {})],
-], size=9.5, color=MUTED, space_after=2)
+H = 2.7
+shots = [
+    (SHOTS / "slide3-brief.png", dict(l=0.255, t=0.39, r=0.40, b=0.0), (2880, 1920),
+     [("Citation click: ", {"bold": True}), ("records cited by RULE-FWD-01 highlighted on the graph (amber).", {})]),
+    (SHOTS / "slide10-verified-panel.png", dict(l=0.0, t=0.0, r=0.05, b=0.0), (890, 600),
+     [("Verified before display: ", {"bold": True}), ("citations, figures and wording checked, shown beside the brief.", {})]),
+    (SHOTS / "slide10-follow-up-refusal.png", dict(l=0.635, t=0.55, r=0.05, b=0.0), (1440, 960),
+     [("Follow-up question: ", {"bold": True}), ("\"Who owns A-22?\" is refused: the case data can't answer it.", {})]),
+]
+x = 0.35
+for path, crop, px, caption in shots:
+    pic = cropped_h(s, path, x, 1.3, H, px=px, **crop)
+    w = pic.width / 914400
+    text(s, x, 1.3 + H + 0.08, w, 0.75, [caption], size=10, color=MUTED)
+    x += w + 0.15
 
 # ---------- Slide 11: performance ----------
 s = S[10]
@@ -388,7 +401,7 @@ for ri, row in enumerate(rows):
         cell.vertical_anchor = MSO_ANCHOR.MIDDLE
 text(s, 0.35, 4.62, 9.3, 0.7, [
     [("Latency fix, measured: ", {"bold": True}), ("default thinking 20–28 s per brief (one 504 at the 30 s cap) → LOW thinking 3–9 s, "
-                                                   "all valid. 157 automated tests; mypy strict. ", {}),
+                                                   "all valid. 168 automated tests; mypy strict. ", {}),
      ("No production accuracy or time-saved claims: the data is synthetic.", {"italic": True})],
 ], size=9.5, color=MUTED)
 
@@ -398,7 +411,7 @@ title_only(s)
 future = [("Scale", "Spanner Graph or BigQuery for bank-scale transaction graphs, replacing in-memory NetworkX.", BLUE),
           ("Access and audit", "Analyst sign-in, case-level access controls, and an audit log of every brief and citation click.", GREEN),
           ("Validation", "Back-test on the bank's labelled historical alerts, under its governance. Track analyst agreement before any accuracy claim.", AMBER),
-          ("More patterns", "Cycle detection and CSV import (cut from this build); a case-scoped follow-up question with the same citation rules.", BLUE)]
+          ("More patterns", "Cycle detection, CSV import of the bank's own alerts, and cross-case links between accounts (cut from this build).", BLUE)]
 for i, (head, body, colr) in enumerate(future):
     col, row = i % 2, i // 2
     x, y = 0.35 + col * 4.7, 1.3 + row * 1.6

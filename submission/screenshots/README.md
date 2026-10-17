@@ -5,7 +5,11 @@
 | `slide2-c1-graph.png` | 2 | C-1 graph, with A-07 selected and its evidence IDs in the selection panel |
 | `slide3-brief.png` | 3 | The "Live AI output" label, model and run time, deterministic rule flags with thresholds, and the deterministic contrast with its citation chips |
 | `slide3-citation-records.png` | 3 | Counterevidence quoting the tool contrasts; unknowns (data boundary and depth limit); suggested checks; the records cited by `RULE-FWD-01` |
+| `slide10-verified-panel.png` | 10 | The full "Verified before display" panel of a live C-1 brief |
+| `slide10-follow-up-refusal.png` | 10 | Follow-up question "Who owns A-22?" refused as not answerable from the case data (1440×960, 1× scale) |
 | `slide3-graph-highlight.png` | 3 | The records matched by `RULE-FWD-01`, highlighted on the graph and starred in the timeline |
+
+**Layout:** graph and AI brief side by side, with the Verified panel and follow-up question (PRs #20 to #22).
 
 **Captured:** 2026-10-18, from the public Cloud Run URL
 (`https://traceguard-343683630064.asia-southeast1.run.app`, revision `traceguard-00009-52w`).

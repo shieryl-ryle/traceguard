@@ -143,7 +143,7 @@ Boundaries are exact to the second.
 **Quality evidence:**
 - **Automated tests:** cover repeated transfers, time ordering, exact window boundaries, sums,
   invented-citation rejection, model-computed-figure rejection, wording, and timeout handling.
-  157 unit tests pass, plus 1 live Gemini test (2026-10-18).
+  168 unit tests pass, plus 1 live Gemini test (2026-10-18).
 - **Citation integrity:** briefs shown with an invented citation: **0 by design**. The validator
   blocks display.
 
