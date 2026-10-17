@@ -17,7 +17,7 @@ from traceguard.ui.sample_evidence import sample_retriever
 
 APP = str(Path(__file__).resolve().parents[1] / "app.py")
 VIEW = load_sample_case()
-EVIDENCE = sample_retriever("C-1", MAX_TOOL_ROUNDS)
+EVIDENCE = sample_retriever("S-1", MAX_TOOL_ROUNDS)
 
 GOOD_BRIEF = json.dumps(
     {
@@ -75,7 +75,7 @@ def test_record_citation_highlights_itself_and_unknown_ids_nothing() -> None:
 def test_markdown_export_contains_full_brief() -> None:
     from traceguard.ai import run_investigation
 
-    result = run_investigation("C-1", retrieve=sample_retriever, generate=lambda *_: GOOD_BRIEF, model_id="gemini-test")
+    result = run_investigation("S-1", retrieve=sample_retriever, generate=lambda *_: GOOD_BRIEF, model_id="gemini-test")
     md = brief_to_markdown(result.brief, result.evidence, VIEW.case.title, "Sample evidence", "Rule flags (sample)")
     for expected in ("Synthetic data", "gemini-test", "Live AI output", "RULE-FANIN-01", "min_senders=3",
                      "## Observations", "`TX-0005`", "## Counterevidence", "## Unknowns", "data boundary",
@@ -106,7 +106,9 @@ def app(monkeypatch: pytest.MonkeyPatch) -> AppTest:
     monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
     monkeypatch.setattr(investigation, "GeminiBriefGenerator", FakeGenerator)
     FakeGenerator.error = None
-    return AppTest.from_file(APP, default_timeout=60).run()
+    at = AppTest.from_file(APP, default_timeout=60).run()
+    at.sidebar.radio[0].set_value("S-1").run()
+    return at
 
 
 def _button(at: AppTest, label: str):  # type: ignore[no-untyped-def]
@@ -150,7 +152,7 @@ def test_cited_records_are_listed_for_verification() -> None:
 
 def test_sample_retriever_errors_instead_of_truncating_rounds() -> None:
     with pytest.raises(InvestigationError) as exc:
-        sample_retriever("C-1", max_rounds=1)
+        sample_retriever("S-1", max_rounds=1)
     assert exc.value.kind == "too_many_rounds"
 
 
@@ -158,3 +160,16 @@ def test_labels_are_honest_while_using_sample_evidence() -> None:
     assert investigation.USING_SAMPLE_EVIDENCE
     assert "not yet computed by graph tools" in investigation.FLAGS_HEADING
     assert "static sample evidence" in investigation.WORKFLOW_SOURCE
+
+
+def test_dataset_case_without_graph_tools_says_so(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test-project")
+    monkeypatch.setenv("VERTEX_LOCATION", "asia-southeast1")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.setattr(investigation, "GeminiBriefGenerator", FakeGenerator)
+    at = AppTest.from_file(APP, default_timeout=60).run()
+    assert at.sidebar.radio[0].value == "C-1"
+    _button(at, "Run AI investigation").click().run()
+    assert not at.exception
+    assert any("needs the graph tools, which are not connected yet" in e.value for e in at.error)
+    assert not any("Live AI output" in s.value for s in at.success)

@@ -16,7 +16,11 @@ SAMPLE_EVIDENCE_PATH = Path(__file__).with_name("sample_evidence.json")
 def sample_retriever(case_id: str, max_rounds: int) -> EvidenceBundle:
     data = json.loads(SAMPLE_EVIDENCE_PATH.read_text(encoding="utf-8"))
     if data["case_id"] != case_id:
-        raise InvestigationError("validation", f"No sample evidence is available for case {case_id}.")
+        raise InvestigationError(
+            "validation",
+            f"AI investigation for {case_id} needs the graph tools, which are not connected yet. "
+            "The graph and timeline for this case are available above.",
+        )
     if len(data["rounds"]) > max_rounds:
         raise InvestigationError(
             "too_many_rounds",
