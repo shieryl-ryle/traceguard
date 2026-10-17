@@ -23,7 +23,7 @@ def _cases() -> tuple[CaseView, ...]:
 def main() -> None:
     st.set_page_config(page_title="TraceGuard", page_icon="🔎", layout="wide")
     st.title("TraceGuard")
-    st.caption("Investigation aid on synthetic data · not a decision system · flags come from deterministic rules")
+    st.caption("Investigation aid on synthetic data · not a decision system · rule flags come from tool output, not the model")
     view = render_case_queue(_cases())
     render_diagnostics()
     render_case_page(view)
