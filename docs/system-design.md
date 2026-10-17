@@ -53,8 +53,15 @@ Gemini function calling is used only for F-011 (P1), if time allows.
 | `get_account_context` | `account_id` | account ID, label, inbound/outbound transfers, linked devices, evidence IDs |
 | `trace_funds` | `account_id`, `direction`, `max_depth` (default 3), `start_time` | `paths[]` of time-ordered hops (equal timestamps followed), each with `stop_reason` `data_boundary` or `max_depth`; `truncated`, `truncation_reasons`, and a plain-language `notice` stating what is unknown |
 | `find_shared_devices` | `account_ids` | device ID, account IDs, `relationship_id`s |
-| `detect_rapid_forwarding` | `account_id`, config | `rule_id`, `matched`, `config`, `explanation`, and per-outbound `evaluated[]` entries with `inbound_transaction_ids`, `inbound_total`, `forwarded_ratio` (2-dp string, rounded down), `minutes_after_last_inbound`, `matched` |
-| `detect_fan_in` | `account_id`, config | sender count, transfers, window start/end, aggregate amount, threshold, `rule_id` |
+| `detect_rapid_forwarding` | `account_id`, config | `rule_id`, `matched`, `config`, `explanation`, and per-outbound `evaluated[]` entries with `inbound_transaction_ids`, `inbound_total`, `forwarded_ratio` (2-dp string, rounded down), `minutes_after_last_inbound`, `inbound_minus_outbound` (2-dp string when the inbound total exceeds the outbound amount, else null; a difference of amounts, not a claim about which money moved), `matched`; `contrasts[]` |
+| `detect_fan_in` | `account_id`, config | `rule_id`, `matched`, `config`, `explanation`, `sender_count`, `sender_account_ids`, `transfer_count`, `transaction_ids`, `window_start`/`window_end`, `window_span_minutes`, `aggregate_amount`; `senders_on_shared_device` / `senders_not_on_shared_device` (senders linked to a device another sender in the window also uses), `shared_device_relationship_ids`; `contrasts[]` |
+
+**Contrasts** (rule tools): `contrasts[]` holds deterministic counter-facts as `{text, evidence_ids}`,
+quotable verbatim as counterevidence. Every figure and ID in `text` is a field value in the same
+output; every `evidence_ids` entry is in the tool's evidence IDs. Fan-in adds one when the rule matched
+and some window senders share a recorded device while others do not; rapid forwarding adds one per
+matched outbound transfer with a positive `inbound_minus_outbound`. Contrast wording compares
+amounts and describes recorded data only; it never says outgoing funds are the incoming funds (BR-005). Unmatched rules add none (their `explanation` already serves).
 
 Window boundaries are inclusive at the configured length and exclusive beyond it (tested to the second, TC-004).
 
