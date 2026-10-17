@@ -10,6 +10,7 @@ import httpx
 from google import genai
 from google.auth.exceptions import DefaultCredentialsError, RefreshError
 from google.genai import errors, types
+from pydantic import BaseModel
 
 from traceguard.ai.errors import InvestigationError, api_error_message
 from traceguard.ai.schema import ModelBrief
@@ -88,17 +89,20 @@ def generate_text(client: genai.Client, model: str, prompt: str) -> str:
 
 
 class GeminiBriefGenerator:
-    """Returns the raw JSON text of a brief. Parsing and validation happen in `investigate`."""
+    """Returns raw JSON text in `schema` (default: a brief). Parsing and validation happen in the caller."""
 
-    def __init__(self, config: GeminiConfig, client: genai.Client | None = None) -> None:
+    def __init__(
+        self, config: GeminiConfig, client: genai.Client | None = None, schema: type[BaseModel] = ModelBrief
+    ) -> None:
         self.model = config.model
+        self.schema = schema
         self._client = client or build_client(config)
 
     def __call__(self, system_instruction: str, user_prompt: str) -> str:
         config = types.GenerateContentConfig(
             system_instruction=system_instruction,
             response_mime_type="application/json",
-            response_schema=ModelBrief,
+            response_schema=self.schema,
             temperature=0.2,
             thinking_config=THINKING,
         )
