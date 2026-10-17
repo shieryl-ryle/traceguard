@@ -167,6 +167,10 @@ Agents must verify these versions against the official docs before emitting APIs
   response_schema=<Pydantic model>)`, then read `response.parsed`. Do not set `response_json_schema`
   as well, because the two are mutually exclusive. Do not repeat the schema in the prompt.
 - Timeout: `http_options=types.HttpOptions(timeout=30_000)`. **The value is in milliseconds.**
+- Thinking: `thinking_config=types.ThinkingConfig(thinking_level=LOW)` on every call. Measured
+  2026-10-17 on `gemini-3.5-flash` in `asia-southeast1`: 3–9 s per brief at LOW vs 20–28 s at the
+  default level, and all LOW briefs passed validation. At the default level, one C-1 regeneration hit
+  the 30 s deadline (Vertex 504). Changing the level needs a re-measure against the timeout.
 - Health check: `GET /_stcore/health` returns 200 when ready.
 
 **Graph view decision:** use streamlit-agraph. It returns the selected node ID to Python
