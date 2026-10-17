@@ -108,6 +108,7 @@ only citable IDs. The model's schema has **no** numeric or flag fields (BR-003).
 | Teammate deployer | `roles/iam.serviceAccountUser` | the build SA only, so source deploys can run as it (setup.md §A5b) |
 | Teammate deployer | `roles/aiplatform.user` | project (local live tests) |
 | Teammate deployer | `roles/logging.viewer` | project |
+| `allUsers` | `roles/run.invoker` | the `traceguard` service only. The owner grants it once (setup.md §A5c); the hackathon requires a public URL |
 
 - No narrower GA role than `roles/aiplatform.user` covering only Gemini inference could be
   verified (`roles/aiplatform.expressUser` is Beta, scope unverified).

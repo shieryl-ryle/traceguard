@@ -82,6 +82,16 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 ```
 On PowerShell, run the commands one at a time with the values filled in.
 
+### A5c. Make the service public (owner, once, after the first deploy)
+The teammate deployer's roles can't change a service's access policy. So the first deploy finishes
+with `Setting IAM policy failed`, and the URL returns HTTP 403 (seen 2026-10-17). The project owner
+runs this once, and later deploys keep the setting:
+```bash
+gcloud run services add-iam-policy-binding traceguard --region asia-southeast1 --project $PROJECT_ID \
+  --member="allUsers" --role="roles/run.invoker"
+```
+This only lets people call the app, which the hackathon requires for a public URL. It grants no management access.
+
 ### A6. Done when
 - [ ] The billing account is open, and `traceguard-2026` is linked to it
 - [ ] The budget alert is set
@@ -89,6 +99,7 @@ On PowerShell, run the commands one at a time with the values filled in.
 - [ ] The APIs are enabled and the `traceguard-run` service account exists with `roles/aiplatform.user`
 - [ ] Shieryl can see the project in the console with her personal account
 - [ ] The two A5b build grants are in place
+- [ ] After the first deploy, A5c is done and the URL loads in an incognito window
 - [ ] The Evidence column for TASK-000 in [implementation-plan.md](implementation-plan.md) is updated (no IDs or secrets)
 
 The first deploy is TASK-001 ([System Design §7](system-design.md)). If it still fails with a
