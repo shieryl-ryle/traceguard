@@ -3,6 +3,7 @@
 import streamlit as st
 
 from traceguard.ui.graph_view import render_graph
+from traceguard.ui.investigation import CITED_KEY, citation_highlight, render_investigation
 from traceguard.ui.models import CaseView
 from traceguard.ui.timeline import TIMELINE_KEY, render_timeline, selected_transaction_ids
 
@@ -20,6 +21,7 @@ def render_case_queue(cases: tuple[CaseView, ...]) -> CaseView:
         st.session_state[ACTIVE_CASE_KEY] = case_id
         st.session_state.pop(SELECTED_NODE_KEY, None)
         st.session_state.pop(TIMELINE_KEY, None)
+        st.session_state.pop(CITED_KEY, None)
     return view
 
 
@@ -46,14 +48,17 @@ def render_case_page(view: CaseView) -> None:
     st.badge(case.scenario_label, color="blue")
     st.write(case.description)
 
-    highlight = selected_transaction_ids(view)
+    selected = selected_transaction_ids(view)
+    cited = citation_highlight(view)
     graph_col, panel_col = st.columns([3, 1])
     with graph_col:
-        clicked = render_graph(view, highlight)
+        clicked = render_graph(view, selected | cited)
     if clicked is not None:
         st.session_state[SELECTED_NODE_KEY] = clicked
     with panel_col:
         render_selection_panel(view, st.session_state.get(SELECTED_NODE_KEY))
 
     st.subheader("Timeline")
-    render_timeline(view, highlight)
+    render_timeline(view, selected, cited)
+
+    render_investigation(view)

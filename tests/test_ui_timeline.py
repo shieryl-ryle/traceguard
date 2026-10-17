@@ -24,7 +24,13 @@ def test_ordering_uses_instants_not_local_clock_text() -> None:
 
 
 def test_rows_have_every_field_and_mark_selected() -> None:
-    rows = timeline_rows(VIEW, frozenset({"TX-0003"}))
-    assert set(rows[0]) == {"Selected", "Time", "Transaction", "From", "To", "Amount", "Currency"}
+    rows = timeline_rows(VIEW, selected_ids=frozenset({"TX-0003"}))
+    assert set(rows[0]) == {"Selected", "Cited", "Time", "Transaction", "From", "To", "Amount", "Currency"}
     assert [r["Transaction"] for r in rows if r["Selected"]] == ["TX-0003"]
     assert rows[0]["Amount"] == "4,800.00" and rows[0]["Currency"] == "PHP"
+
+
+def test_citations_are_marked_separately_from_selection() -> None:
+    rows = timeline_rows(VIEW, selected_ids=frozenset({"TX-0001"}), cited_ids=frozenset({"TX-0005"}))
+    assert [r["Transaction"] for r in rows if r["Selected"]] == ["TX-0001"]
+    assert [r["Transaction"] for r in rows if r["Cited"]] == ["TX-0005"]
