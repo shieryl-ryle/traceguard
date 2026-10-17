@@ -12,30 +12,16 @@ import streamlit as st
 from traceguard.ai import InvestigationError, InvestigationResult, Statement, run_investigation
 from traceguard.ai.gemini import GeminiBriefGenerator, GeminiConfig
 from traceguard.ai.investigate import Retriever
+from traceguard.graph.retriever import graph_retriever
 from traceguard.ui.citations import highlight_for, rule_flags
 from traceguard.ui.export import brief_to_markdown
 from traceguard.ui.models import CaseView
-from traceguard.ui.sample_evidence import sample_retriever
 
 CITED_KEY = "cited_evidence_id"
-# Swap to the TASK-003 graph retriever here; the labels below follow automatically.
-RETRIEVER: Retriever = sample_retriever
-USING_SAMPLE_EVIDENCE = RETRIEVER is sample_retriever
-EVIDENCE_SOURCE = (
-    "Sample evidence (static, hand-derived for the sample case until graph tools land)"
-    if USING_SAMPLE_EVIDENCE
-    else "Graph tools (deterministic, computed by the backend)"
-)
-FLAGS_HEADING = (
-    "Rule flags (sample evidence, hand-derived; not yet computed by graph tools)"
-    if USING_SAMPLE_EVIDENCE
-    else "Rule flags (deterministic)"
-)
-WORKFLOW_SOURCE = (
-    "loads a fixed set of tool results for this case (currently static sample evidence)"
-    if USING_SAMPLE_EVIDENCE
-    else "runs every graph tool for this case"
-)
+RETRIEVER: Retriever = graph_retriever
+EVIDENCE_SOURCE = "Graph tools (deterministic, computed by the backend from the bundled dataset)"
+FLAGS_HEADING = "Rule flags (deterministic)"
+WORKFLOW_SOURCE = "runs a fixed set of graph tools for this case"
 
 
 @dataclass(frozen=True)

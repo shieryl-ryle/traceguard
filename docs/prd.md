@@ -220,7 +220,7 @@ No claims of production accuracy or analyst time saved (we have no data for eith
 | Q4 | (resolved 2026-10-17) Yes, Shieryl + Dzelle are registered as a duo | Shieryl | — |
 | Q5 | Gemini model ID + Vertex location confirmed in Model Garden | Dzelle | F-005, TASK-001 |
 | Q6 | Final BR-007 values: timeout (30 s provisional), evidence payload cap (60,000 chars provisional) | Shieryl | F-005 |
-| Q7 | Rule parameters: rapid-forwarding window, fan-in window and minimum sender count | Dzelle | F-004, TASK-002/003 |
+| Q7 | (resolved 2026-10-17 by [ADR-003](adr/ADR-003-rule-windows-and-thresholds.md)) Fan-in ≥ 3 senders in 30 min; forwarding within 60 min and ratio ≥ 0.50; trace depth 3; boundaries inclusive | Dzelle | — |
 
 ## 14. Traceability
 | Feature | Story / journey | Rules | Tests |

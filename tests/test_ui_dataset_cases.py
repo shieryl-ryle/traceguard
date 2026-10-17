@@ -1,13 +1,12 @@
-"""TC-001 (F-001, BR-001): the queue loads C-1..C-3 from the bundled dataset, each as its own case."""
+"""TC-001 (F-001, BR-001): the queue loads C-1..C-3 via the graph loader, each as its own case."""
 
-from traceguard.ui.models import DATASET_PATH, load_cases, load_dataset_cases
+from traceguard.ui.models import load_cases
 
-CASES = load_dataset_cases()
+CASES = load_cases()
 
 
-def test_queue_has_three_dataset_cases_then_the_sample() -> None:
-    assert [c.case.case_id for c in load_cases()] == ["C-1", "C-2", "C-3", "S-1"]
-    assert DATASET_PATH.parts[-2:] == ("data", "dataset.json")
+def test_queue_has_exactly_the_three_dataset_cases() -> None:
+    assert [c.case.case_id for c in CASES] == ["C-1", "C-2", "C-3"]
 
 
 def test_every_case_contains_its_seeds_and_only_its_own_records() -> None:

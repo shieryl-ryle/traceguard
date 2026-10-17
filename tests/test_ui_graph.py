@@ -1,7 +1,7 @@
 """TC-003 (F-003) and TC-007 (F-007): graph elements built from a case view."""
 
 from traceguard.ui.graph_view import HIGHLIGHT_COLOR, SEED_COLOR, build_elements
-from traceguard.ui.models import load_sample_case
+from tests.ui_sample import load_sample_case
 
 VIEW = load_sample_case()
 
