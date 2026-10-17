@@ -3,7 +3,7 @@
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
-from traceguard.ui.models import load_sample_case
+from tests.ui_sample import load_sample_case
 from traceguard.ui.timeline import ordered_transactions, timeline_rows
 
 VIEW = load_sample_case()

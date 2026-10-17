@@ -39,7 +39,7 @@ Gemini function calling is used only for F-011 (P1), if time allows.
 | Dataset | Seeded generator + generated JSON for C-1/C-2/C-3 | `data/` |
 | Graph loader | Build `MultiDiGraph`: account + device nodes; one transfer edge per `transaction_id` (`kind="transfer"`); separate `kind="device_link"` edges | `traceguard/graph/loader.py` |
 | Graph tools | `get_account_context`, `trace_funds`, `find_shared_devices`, `detect_rapid_forwarding`, `detect_fan_in`. Read-only and allowlisted, returning typed results with evidence IDs. No free-form queries | `traceguard/graph/tools.py` |
-| Rule config | Window lengths, minimum sender counts, trace depth (PRD Q7) | `traceguard/graph/config.py` |
+| Rule config | Window lengths, minimum sender counts, forwarding ratio, trace depth ([ADR-003](adr/ADR-003-rule-windows-and-thresholds.md)) | `traceguard/graph/config.py` |
 | AI investigation | Retrieval workflow, prompt, Gemini client, schema parsing | `traceguard/ai/` |
 | Validators | Citation check (BR-002), wording check (BR-004), payload cap (BR-007) | `traceguard/ai/validate.py` |
 | UI | Queue, timeline, graph view, brief, citation highlight, export, error states | `traceguard/ui/` |
@@ -51,9 +51,9 @@ Gemini function calling is used only for F-011 (P1), if time allows.
 | Tool | Input | Output |
 |---|---|---|
 | `get_account_context` | `account_id` | account ID, label, inbound/outbound transfers, linked devices, evidence IDs |
-| `trace_funds` | `account_id`, `direction`, `max_depth`, `start_time` | ordered transaction IDs, timestamps, amounts; paths are non-decreasing in time; `truncated: bool` + reason (data boundary / depth) |
+| `trace_funds` | `account_id`, `direction`, `max_depth` (default 3), `start_time` | `paths[]` of time-ordered hops (equal timestamps followed), each with `stop_reason` `data_boundary` or `max_depth`; `truncated`, `truncation_reasons`, and a plain-language `notice` stating what is unknown |
 | `find_shared_devices` | `account_ids` | device ID, account IDs, `relationship_id`s |
-| `detect_rapid_forwarding` | `account_id`, config | matched (in, out) transfer pairs, rule params, rationale, `rule_id` |
+| `detect_rapid_forwarding` | `account_id`, config | `rule_id`, `matched`, `config`, `explanation`, and per-outbound `evaluated[]` entries with `inbound_transaction_ids`, `inbound_total`, `forwarded_ratio` (2-dp string, rounded down), `minutes_after_last_inbound`, `matched` |
 | `detect_fan_in` | `account_id`, config | sender count, transfers, window start/end, aggregate amount, threshold, `rule_id` |
 
 Window boundaries are inclusive at the configured length and exclusive beyond it (tested to the second, TC-004).
@@ -72,11 +72,12 @@ Window boundaries are inclusive at the configured length and exclusive beyond it
 - **Validation order:** structure → citations → figures → wording. On any problem, the workflow
   regenerates once, sending the problems back to the model; a second failure raises
   `InvestigationError("validation")` and shows no brief.
-- **Interim evidence (until TASK-003):** the UI's `RETRIEVER` in `traceguard/ui/investigation.py`
-  is `sample_retriever`, which serves static, hand-derived tool results for the sample case C-1
-  (`traceguard/ui/sample_evidence.json`). While it is in use, the UI and export label the evidence
-  and rule flags as "sample evidence, not yet computed by graph tools" (BR-003, BR-006). Swapping
-  `RETRIEVER` for the graph retriever switches those labels automatically.
+- **Evidence source:** the UI's `RETRIEVER` in `traceguard/ui/investigation.py` is
+  `traceguard.graph.retriever.graph_retriever`. It runs a fixed two-round workflow over the bundled
+  dataset: account context for each seed, then fan-in, rapid forwarding, outbound trace and shared
+  devices. Case title, description and scenario label never reach model input. The case queue reads
+  the same dataset through `traceguard.graph.loader.case_dicts()`. The hand-made S-1 sample is
+  test-only, in `tests/ui_sample/`.
 - **Citation navigation (F-007):** clicking an evidence ID in a validated brief highlights it in the
   graph and marks it ★ in the timeline's "Cited" column; a rule ID highlights the records it
   matched. The timeline's "Selected" column is the analyst's own row selection, never a citation.

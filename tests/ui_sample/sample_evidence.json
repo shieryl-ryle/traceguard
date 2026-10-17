@@ -1,6 +1,6 @@
 {
-  "_note": "STATIC sample tool results for the UI sample case C-1, hand-derived from sample_case.json. Replaced by the TASK-003 graph tools; shown in the UI as 'sample evidence'.",
-  "case_id": "C-1",
+  "_note": "Test-only static tool results for the UI test sample S-1, hand-derived from sample_case.json.",
+  "case_id": "S-1",
   "rounds": [
     [
       {
