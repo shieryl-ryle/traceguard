@@ -183,3 +183,28 @@ def test_real_c1_brief_passes_validation_against_graph_evidence() -> None:
 
     result = run_investigation("C-1", retrieve=graph_retriever, generate=lambda *_: C1_BRIEF, model_id="gemini-test")
     assert len(result.attempts) == 1
+
+
+def test_tool_contrasts_are_collected_and_unknown_ids_dropped() -> None:
+    from traceguard.ai.evidence import EvidenceBundle, ToolCall
+    from traceguard.ui.citations import tool_contrasts
+
+    call = ToolCall(
+        tool="detect_fan_in",
+        inputs={"account_id": "A-07"},
+        output={"rule_id": "RULE-FANIN-01", "matched": True, "contrasts": [
+            {"text": "A-02 and A-04 are not linked to a device shared with other senders.", "evidence_ids": ["DL-0001", "DL-9999"]},
+            "not a dict",
+        ]},
+        evidence_ids=frozenset({"RULE-FANIN-01", "DL-0001"}),
+    )
+    contrasts = tool_contrasts(EvidenceBundle(case_id="C-1", rounds=((call,),)))
+    assert [(c.text, c.evidence_ids) for c in contrasts] == [
+        ("A-02 and A-04 are not linked to a device shared with other senders.", ("DL-0001",))
+    ]
+
+
+def test_no_contrasts_when_tools_emit_none() -> None:
+    from traceguard.ui.citations import tool_contrasts
+
+    assert tool_contrasts(EVIDENCE) == []

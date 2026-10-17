@@ -89,3 +89,9 @@ def test_system_instruction_bans_bookkeeping_and_filler_counterevidence() -> Non
     assert "known_account" in SYSTEM_INSTRUCTION
     assert 'never describe an account as "flagged"' in SYSTEM_INSTRUCTION
     assert "Never pad this section with" in SYSTEM_INSTRUCTION
+
+
+def test_system_instruction_requires_tool_contrasts() -> None:
+    from traceguard.ai.prompt import SYSTEM_INSTRUCTION
+
+    assert 'If a tool result has a "contrasts" list, include every entry as counterevidence' in SYSTEM_INSTRUCTION

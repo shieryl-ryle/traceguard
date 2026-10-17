@@ -13,7 +13,7 @@ from traceguard.ai import InvestigationError, InvestigationResult, Statement, ru
 from traceguard.ai.gemini import GeminiBriefGenerator, GeminiConfig
 from traceguard.ai.investigate import Retriever
 from traceguard.graph.retriever import graph_retriever
-from traceguard.ui.citations import highlight_for, rule_flags
+from traceguard.ui.citations import highlight_for, rule_flags, tool_contrasts
 from traceguard.ui.export import brief_to_markdown
 from traceguard.ui.models import CaseView
 
@@ -107,6 +107,12 @@ def _render_result(view: CaseView, result: InvestigationResult) -> None:
         params = ", ".join(f"{k} = {v}" for k, v in flag.config.items())
         label = "Pattern warrants review" if flag.matched else "Rule not matched"
         st.markdown(f"- `{flag.rule_id}` — {label} ({params}). {flag.explanation}")
+
+    contrasts = tool_contrasts(result.evidence)
+    if contrasts:
+        st.markdown("**Contrasts (deterministic, from graph tools)**")
+        for i, c in enumerate(contrasts):
+            _statement(Statement(text=c.text, evidence_ids=list(c.evidence_ids)), f"con{i}")
 
     st.markdown("**Observations**")
     for i, s in enumerate(brief.observations):
