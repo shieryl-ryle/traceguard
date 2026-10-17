@@ -64,16 +64,35 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member="user:$SHIERYL" --role="roles/iam.serviceAccountUser"
 ```
 
+### A5b. Let source deploys build (needed before the first `gcloud run deploy --source`)
+A source deploy builds in Cloud Build, which runs as the project's **default compute service
+account** (`PROJECT_NUMBER-compute@developer.gserviceaccount.com`). Without these two grants, the
+build fails with `caller does not have permission to act as service account` (seen on 2026-10-17).
+```bash
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+BUILD_SA=$PROJECT_NUMBER-compute@developer.gserviceaccount.com
+
+# The deployer may start builds that run as the build SA (that one SA only)
+gcloud iam service-accounts add-iam-policy-binding $BUILD_SA --project $PROJECT_ID \
+  --member="user:$SHIERYL" --role="roles/iam.serviceAccountUser"
+
+# The build SA may build and deploy to Cloud Run
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$BUILD_SA" --role="roles/run.builder"
+```
+On PowerShell, run the commands one at a time with the values filled in.
+
 ### A6. Done when
 - [ ] The billing account is open, and `traceguard-2026` is linked to it
 - [ ] The budget alert is set
 - [ ] The model ID and location are confirmed and sent to Shieryl
 - [ ] The APIs are enabled and the `traceguard-run` service account exists with `roles/aiplatform.user`
 - [ ] Shieryl can see the project in the console with her personal account
+- [ ] The two A5b build grants are in place
 - [ ] The Evidence column for TASK-000 in [implementation-plan.md](implementation-plan.md) is updated (no IDs or secrets)
 
-The first deploy is TASK-001. If it fails with a build permission error, grant `roles/run.builder`
-to the build service account named in the error, as described in [System Design §7](system-design.md).
+The first deploy is TASK-001 ([System Design §7](system-design.md)). If it still fails with a
+permission error, fix only the role named in that error. Never grant Owner or Editor.
 
 ---
 
