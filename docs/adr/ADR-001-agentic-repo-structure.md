@@ -1,8 +1,8 @@
 # ADR-001 — Agent-readable repo structure
 
-- **Date:** {{YYYY-MM-DD}}
+- **Date:** 2026-10-17
 - **Status:** Accepted
-- **Owners:** {{names}}
+- **Owners:** Shieryl, Dzelle
 - **Related:** `AGENTS.md`, `docs/index.md`, `.agents/`
 
 ### Context

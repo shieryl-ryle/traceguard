@@ -1,7 +1,7 @@
-# Documentation Index — {{PROJECT_NAME}}
+# Documentation Index — TraceGuard
 
-**Maintained by:** {{owner}}
-**Last updated:** {{YYYY-MM-DD}}
+**Maintained by:** Shieryl
+**Last updated:** 2026-10-17
 
 ## 0. Source-of-truth map (one fact, one home)
 
@@ -15,6 +15,7 @@ When two docs disagree, the owner wins until the other is reconciled.
 | How it's built: architecture, integrations, security, stack versions | [System Design](system-design.md) | |
 | Tests, cases `TC-###`, commands, exit criteria | [QA Test Plan](qa-test-plan.md) | |
 | Live work `TASK-###`, owners, status | [Implementation Plan](implementation-plan.md) | |
+| Environment & GCP project setup (walkthrough) | [Setup](setup.md) | roles/commands owned by System Design |
 
 Add a row (and a doc) only when a concern outgrows its current owner — e.g. split Data Model out
 of System Design once the schema is large. Fewer docs is better.
