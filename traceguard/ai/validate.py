@@ -1,6 +1,7 @@
 """Brief validation before display: citations (BR-002), figures (BR-003), language (BR-004/005)."""
 
 import re
+from dataclasses import dataclass
 from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
 
@@ -100,3 +101,28 @@ def validate_brief(brief: ModelBrief, evidence: EvidenceBundle) -> list[str]:
         *figure_problems(brief, evidence),
         *language_problems(brief),
     ]
+
+
+@dataclass(frozen=True)
+class ValidationSummary:
+    """What the validator checked on a brief that passed (shown to the analyst as proof, F-006)."""
+
+    citations: int
+    distinct_citations: int
+    figures: int
+    ids_in_text: int
+    statements: int
+    passed: bool
+
+
+def validation_summary(brief: ModelBrief, evidence: EvidenceBundle) -> ValidationSummary:
+    cited = [i for s in (*brief.observations, *brief.counterevidence) for i in s.evidence_ids]
+    texts = list(_texts(brief))
+    return ValidationSummary(
+        citations=len(cited),
+        distinct_citations=len(set(cited)),
+        figures=sum(len(_numbers(t)) for t in texts),
+        ids_in_text=sum(len(ID_TOKEN.findall(t)) for t in texts),
+        statements=len(texts),
+        passed=not validate_brief(brief, evidence),
+    )
