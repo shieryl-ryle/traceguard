@@ -1,58 +1,32 @@
-# Agentic Repo Starter
+# TraceGuard
 
-A project skeleton that AI coding agents (Claude Code, and any tool that reads `AGENTS.md`) can
-navigate without chat history: a thin router file, one-owner docs, append-only decision records,
-and scoped subagents and skills.
+A graph-powered AI investigation assistant that helps fraud analysts trace suspicious fund
+movements across accounts and devices and produce an evidence-linked case brief.
+Python 3.12 · Streamlit · NetworkX · Gemini on Vertex AI · Cloud Run. **All data is synthetic.**
 
-## Use it
+Built for the AI Builder Cup 2026 (Google Cloud × Hack2skill), BFSI theme, by Shieryl and Dzelle.
 
-1. Create a new repo from this one (GitHub "Use this template", or copy the folder and `git init`).
-2. Open it in Claude Code and run: `/bootstrap-project`
-   The skill interviews you and fills every `{{placeholder}}`.
-3. Start work with `/start-task`. Record decisions with `/write-adr`.
+## Start here
+1. **Set up your machine and the Google Cloud project:** [docs/setup.md](docs/setup.md)
+2. **Open the repo in Claude Code:** run `claude` in the repo folder. It reads
+   [CLAUDE.md](CLAUDE.md) → [AGENTS.md](AGENTS.md) automatically.
+3. **Pick up work:** type `/start-task` (or `/start-task TASK-002`). It claims the task,
+   creates the branch, and loads only the docs that task needs.
 
-## What's inside
+## Docs
+| Need | Open |
+|---|---|
+| What we build (features `F-###`, rules `BR-###`) | [docs/prd.md](docs/prd.md) |
+| How it's built, IAM roles, deploy | [docs/system-design.md](docs/system-design.md) |
+| Tests and gates | [docs/qa-test-plan.md](docs/qa-test-plan.md) |
+| Who does what, timeline | [docs/implementation-plan.md](docs/implementation-plan.md) |
+| Why we decided X | [docs/adr/](docs/adr/) |
 
-```
-CLAUDE.md                      → points to AGENTS.md (one instruction source for every tool)
-AGENTS.md                      → router: where to look, commands, rules, definition of done
-docs/
-  index.md                     → §0 "one fact, one home" ownership map + ID conventions
-  prd.md                       → features F-###, business rules BR-###
-  system-design.md             → architecture, integrations, security, stack currency
-  qa-test-plan.md              → gates, TC-### test cases, exit criteria
-  implementation-plan.md       → TASK-### ledger with owners and write scopes
-  adr/                         → append-only decision records (template + ADR-001)
-.claude/
-  agents/                      → subagents: separate workers with restricted tools
-    rules-reviewer.md          →   read-only diff review against BR-### rules
-    test-runner.md             →   runs gates, reports evidence, never fixes
-  skills/                      → procedures loaded into the main session on demand
-    bootstrap-project/         →   fill the template (run once)
-    start-task/                →   claim TASK-###, branch, load only needed docs
-    write-adr/                 →   create an ADR correctly
-    add-subagent/              →   add a new specialist agent with the right shape
-```
-
-## Subagent or skill?
-
-| | Subagent (`.claude/agents/*.md`) | Skill (`.claude/skills/*/SKILL.md`) |
-|---|---|---|
-| Runs | In its own context, returns a result | Inside the current session |
-| Best for | Isolated jobs: review, test runs, a specialist build | Repeatable procedures and checklists |
-| Tool limits | Yes, via `tools:` | Inherits the session's tools |
-
-In both, the `description` frontmatter decides when it is used — write it as "Use when …" with
-concrete triggers.
-
-## Principles
-
-- **Route, don't restate.** `AGENTS.md` stays short; details live in exactly one owning doc.
-- **Decisions are append-only.** Never edit an Accepted ADR; supersede it.
-- **Stable IDs** (`F`, `BR`, `TC`, `TASK`, `ADR`) link intent, rules, tests, and work.
-- **Start small.** Add docs, agents, and skills only when a real need recurs.
-
-## Reuse across all projects
-
-Generic agents and skills can also live in `~/.claude/agents/` and `~/.claude/skills/` to apply to
-every repo on your machine. Keep project-specific rules (the BR-### checklist) in each repo.
+## Claude Code helpers in this repo
+| Command / agent | Use it to |
+|---|---|
+| `/start-task` | Begin a `TASK-###` on its own branch |
+| `/write-adr` | Record a decision (model change, library choice, scope cut) |
+| `/write-prd` | Revise features or business rules |
+| `rules-reviewer` agent | Check a diff against BR-001…BR-010 before merging |
+| `test-runner` agent | Run the test gates and report results |

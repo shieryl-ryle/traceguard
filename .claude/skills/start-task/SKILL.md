@@ -16,6 +16,6 @@ description: Use when beginning work on a TASK-### from docs/implementation-plan
    - the TC-### that will prove it works.
 6. Work inside the write scope only. If you must touch another scope, stop and ask.
 7. Before finishing: run the `test-runner` agent; run `rules-reviewer` if the change touches
-   anything in PRD §4; update owning docs if behaviour changed; write an ADR if a decision was made.
+   anything in PRD §6; update owning docs if behaviour changed; write an ADR if a decision was made.
 8. Report evidence (commands + results, PR link) for the Evidence column. Do not change task
    status yourself if the plan has a designated plan owner.
