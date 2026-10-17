@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import streamlit as st
 
 from traceguard.ai import Brief, InvestigationError, InvestigationResult, Statement, run_investigation
+from traceguard.ai.followup import MAX_QUESTION_CHARS, FollowUpAnswer, FollowUpResult, ask_follow_up
 from traceguard.ai.gemini import GeminiBriefGenerator, GeminiConfig
 from traceguard.ai.investigate import Retriever
 from traceguard.graph.retriever import graph_retriever
@@ -112,6 +113,44 @@ def render_verified_panel(brief: Brief, result: InvestigationResult) -> None:
                    "accusatory wording is regenerated once, then blocked.")
 
 
+def _follow_up_key(case_id: str) -> str:
+    return f"follow_up:{case_id}"
+
+
+def run_follow_up(question: str, result: InvestigationResult) -> FollowUpResult | InvestigationError:
+    try:
+        config = GeminiConfig.from_env()
+        return ask_follow_up(question, result.evidence, GeminiBriefGenerator(config, schema=FollowUpAnswer))
+    except InvestigationError as exc:
+        return exc
+
+
+def render_follow_up(view: CaseView, result: InvestigationResult) -> None:
+    """F-011: one case-scoped question, answered from the same evidence with the same checks."""
+    st.markdown("**Ask a follow-up about this case**")
+    st.caption("Answered only from this case's tool results, with the same citation and wording checks. "
+               "Questions the data can't answer are refused, not guessed.")
+    key = _follow_up_key(view.case.case_id)
+    with st.form(f"follow_up_form:{view.case.case_id}", clear_on_submit=False, border=False):
+        question = st.text_input("Question", max_chars=MAX_QUESTION_CHARS, label_visibility="collapsed",
+                                 placeholder="e.g. Why is A-08 relevant? or Who owns A-22?")
+        asked = st.form_submit_button("Ask", icon=":material/help:")
+    if asked:
+        with st.spinner("Asking Gemini about this case…"):
+            st.session_state[key] = run_follow_up(question, result)
+    outcome = st.session_state.get(key)
+    if isinstance(outcome, InvestigationError):
+        st.error(outcome.user_message, icon=":material/error:")
+    elif isinstance(outcome, FollowUpResult):
+        st.markdown(f"*Q: {outcome.question}*")
+        if outcome.answer.answerable:
+            st.badge("Answered from case evidence · verified", icon=":material/verified:", color="green")
+            _statement(Statement(text=outcome.answer.text, evidence_ids=outcome.answer.evidence_ids), "fu")
+        else:
+            st.badge("Not answerable from this data", icon=":material/block:", color="gray")
+            st.markdown(outcome.answer.text)
+
+
 def _render_result(view: CaseView, result: InvestigationResult) -> None:
     brief = result.brief
     st.success("Live AI output" if not brief.cached else "Cached AI output", icon=":material/smart_toy:")
@@ -163,6 +202,7 @@ def _render_result(view: CaseView, result: InvestigationResult) -> None:
         mime="text/markdown",
         icon=":material/download:",
     )
+    render_follow_up(view, result)
 
 
 def render_investigation(view: CaseView) -> None:
@@ -174,6 +214,7 @@ def render_investigation(view: CaseView) -> None:
     key = _state_key(view.case.case_id)
     if st.button("Run AI investigation", type="primary", icon=":material/search:"):
         st.session_state.pop(CITED_KEY, None)
+        st.session_state.pop(_follow_up_key(view.case.case_id), None)
         with st.spinner("Retrieving evidence and asking Gemini…"):
             st.session_state[key] = run_ai_investigation(view.case.case_id)
 
