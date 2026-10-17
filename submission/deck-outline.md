@@ -121,9 +121,12 @@ Re-check after the final redeploy.
 
 | Case | Pattern | Expected conclusion | Actual (deployed) |
 |---|---|---|---|
-| C-1 Convergence & forwarding | Fan-in plus rapid forwarding, shared device | Pattern warrants review | **FILL** |
-| C-2 Benign shared device | Household accounts on one device, no forwarding | Insufficient evidence: device sharing alone is not enough | **FILL** |
-| C-3 Incomplete evidence | Chain ends at the data boundary | Next recipient and intent unknown, not guessed | **FILL** |
+| C-1 Convergence & forwarding | Fan-in plus rapid forwarding, shared device | Pattern warrants review | ✅ Both rules flag "Pattern warrants review". The brief cites the 4 senders, the 0.91 ratio, and shared device D-01. Live brief in 6.4 s. |
+| C-2 Benign shared device | Household accounts on one device, no forwarding | Insufficient evidence: device sharing alone is not enough | ✅ No rule matched. The brief lists shared device D-04 as an observation, with the unmatched rules as counterevidence. Live brief in 9.9 s. |
+| C-3 Incomplete evidence | Chain ends at the data boundary | Next recipient and intent unknown, not guessed | ✅ "The destination of the funds beyond account A-22 is unknown". No recipient named. Forwarding flags (ratio 0.96), which is expected. Live brief in 4.8 s. |
+
+Verified 2026-10-17 on the public URL (revision `traceguard-00007`) in a clean browser profile with no Google login.
+Every brief passed validation on the first attempt.
 
 **Deterministic results (graph tools vs hand-derived expected outcomes, TC-004): 11 of 11 match.**
 
@@ -140,7 +143,7 @@ Boundaries are exact to the second.
 **Quality evidence:**
 - **Automated tests:** cover repeated transfers, time ordering, exact window boundaries, sums,
   invented-citation rejection, model-computed-figure rejection, wording, and timeout handling.
-  **FILL:** final pass count from `pytest`.
+  144 unit tests pass, plus 1 live Gemini test (2026-10-17).
 - **Citation integrity:** briefs shown with an invented citation: **0 by design**. The validator
   blocks display.
 
