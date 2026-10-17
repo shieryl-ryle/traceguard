@@ -4,3 +4,9 @@ node_modules/
 !.env.example
 .agents/settings.local.json
 .DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
