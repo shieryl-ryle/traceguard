@@ -2,7 +2,8 @@
 
 from traceguard.ai.evidence import EvidenceBundle
 from traceguard.ai.schema import Brief, Statement
-from traceguard.ui.citations import rule_flags, tool_contrasts
+from traceguard.ai.validate import validation_summary
+from traceguard.ui.citations import rule_description, rule_flags, tool_contrasts
 
 
 def _statement(s: Statement) -> str:
@@ -32,15 +33,19 @@ def brief_to_markdown(
     ]
     flags = rule_flags(evidence)
     for flag in flags:
-        status = "matched" if flag.matched else "not matched"
-        params = ", ".join(f"{k}={v}" for k, v in flag.config.items())
-        lines.append(f"- `{flag.rule_id}` {status} ({params}). {flag.explanation}")
+        status = "pattern warrants review" if flag.matched else "rule not matched"
+        lines.append(f"- `{flag.rule_id}`: {status}. {rule_description(flag)}. {flag.explanation}")
     if not flags:
         lines.append("- No rule results.")
     contrasts = tool_contrasts(evidence)
     if contrasts:
         lines += ["", "## Contrasts (deterministic, from graph tools)"]
         lines += [_statement(Statement(text=c.text, evidence_ids=list(c.evidence_ids))) for c in contrasts]
+    summary = validation_summary(brief, evidence)
+    lines += ["", "## Verified before display",
+              f"- {summary.citations} citations ({summary.distinct_citations} records) found in the retrieved evidence",
+              f"- {summary.figures} figures matched to tool output; {summary.ids_in_text} IDs in the text checked",
+              "- No accusatory or probability wording"]
     lines += ["", "## Observations", *(_statement(s) for s in brief.observations)]
     lines += ["", "## Counterevidence", *([_statement(s) for s in brief.counterevidence] or ["- None stated."])]
     lines += ["", "## Unknowns", *_bullets(brief.unknowns)]
