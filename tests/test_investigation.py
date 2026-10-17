@@ -195,3 +195,35 @@ def test_client_timeout_is_30_seconds_in_ms() -> None:
     client = build_client(CONFIG)
     assert REQUEST_TIMEOUT_MS == 30_000
     assert client._api_client._http_options.timeout == 30_000
+
+
+def test_rejection_logs_categories_only() -> None:
+    from traceguard.ai.investigate import problem_kinds
+
+    kinds = problem_kinds([
+        "Cited ID 'TX-9999' is not in the evidence bundle.",
+        "ID 'A-12' in the text does not appear in the tool results.",
+        "The figure 5000.00 does not appear in the tool results; quote figures exactly as given.",
+        "Forbidden wording (guilty): 'The holder is guilty.'",
+        "Observation 1 cites no evidence IDs.",
+        "The brief lists no unknowns; state at least what the data cannot show.",
+    ])
+    assert kinds == {"invented_citation": 1, "unknown_id_in_text": 1, "unsupported_figure": 1,
+                     "forbidden_wording": 1, "uncited_observation": 1, "missing_section": 1}
+    assert not any("TX-" in k or "A-12" in k or "guilty" in k for k in kinds)
+
+
+def test_brief_requests_use_low_thinking_and_json_schema() -> None:
+    from google.genai import types
+
+    seen: dict[str, Any] = {}
+
+    def generate_content(**kwargs: Any) -> Any:
+        seen.update(kwargs)
+        return SimpleNamespace(text="{}")
+
+    client = SimpleNamespace(models=SimpleNamespace(generate_content=generate_content))
+    GeminiBriefGenerator(CONFIG, client=client)("system", "prompt")  # type: ignore[arg-type]
+    config = seen["config"]
+    assert config.thinking_config.thinking_level == types.ThinkingLevel.LOW
+    assert config.response_mime_type == "application/json"

@@ -40,6 +40,26 @@ class InvestigationResult:
     attempts: list[Attempt] = field(default_factory=list)
 
 
+PROBLEM_KINDS = (
+    ("Cited ID", "invented_citation"),
+    ("ID '", "unknown_id_in_text"),
+    ("The figure", "unsupported_figure"),
+    ("Forbidden wording", "forbidden_wording"),
+    ("Observation", "uncited_observation"),
+    ("The response was not valid", "invalid_json"),
+    ("The brief", "missing_section"),
+)
+
+
+def problem_kinds(problems: list[str]) -> dict[str, int]:
+    """Counts problems by category for logs. Never logs brief text, IDs, or evidence (System Design §2)."""
+    kinds: dict[str, int] = {}
+    for problem in problems:
+        kind = next((k for prefix, k in PROBLEM_KINDS if problem.startswith(prefix)), "other")
+        kinds[kind] = kinds.get(kind, 0) + 1
+    return kinds
+
+
 def _parse(raw: str) -> tuple[ModelBrief | None, list[str]]:
     try:
         return ModelBrief.model_validate_json(raw), []
@@ -77,7 +97,7 @@ def run_investigation(
         if model_brief is not None and not problems:
             brief = Brief(**model_brief.model_dump(), case_id=case_id, model=model_id, run_at=now())
             return InvestigationResult(brief=brief, evidence=evidence, attempts=attempts)
-        logger.warning("Brief attempt %s rejected: %s problem(s)", number, len(problems))
+        logger.warning("Brief attempt %s rejected: %s", number, problem_kinds(problems))
         feedback = problems
 
     raise InvestigationError(
