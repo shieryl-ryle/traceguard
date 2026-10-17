@@ -1,13 +1,11 @@
-"""UI view of one case (System Design §3 shapes). The graph layer (TASK-003) will produce this."""
+"""UI view of one case (System Design §3 shapes), built from `traceguard.graph.loader.case_dicts()`."""
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from pathlib import Path
 from typing import Any
 
-SAMPLE_PATH = Path(__file__).with_name("sample_case.json")
+from traceguard.graph.loader import case_dicts
 
 
 @dataclass(frozen=True)
@@ -105,10 +103,6 @@ def case_view_from_dict(data: dict[str, Any]) -> CaseView:
     )
 
 
-def load_sample_case() -> CaseView:
-    return case_view_from_dict(json.loads(SAMPLE_PATH.read_text(encoding="utf-8")))
-
-
 def load_cases() -> tuple[CaseView, ...]:
-    """Cases for the queue. Sample only until the TASK-002 dataset and TASK-003 loader land."""
-    return (load_sample_case(),)
+    """Cases for the queue: C-1..C-3 from the bundled dataset, via the graph loader."""
+    return tuple(case_view_from_dict(d) for d in case_dicts())

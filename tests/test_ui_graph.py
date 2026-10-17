@@ -1,7 +1,7 @@
 """TC-003 (F-003) and TC-007 (F-007): graph elements built from a case view."""
 
 from traceguard.ui.graph_view import HIGHLIGHT_COLOR, SEED_COLOR, build_elements
-from traceguard.ui.models import load_sample_case
+from tests.ui_sample import load_sample_case
 
 VIEW = load_sample_case()
 
@@ -47,3 +47,11 @@ def test_highlight_marks_only_the_cited_elements() -> None:
 def test_node_evidence_lists_transfers_and_device_links() -> None:
     assert VIEW.evidence_for("A-01") == ("TX-0001", "DL-0001")
     assert VIEW.evidence_for("D-01") == ("DL-0001", "DL-0002")
+
+
+def test_graph_height_grows_with_case_size_within_bounds() -> None:
+    from traceguard.ui.graph_view import graph_height
+
+    assert graph_height(3) == 480
+    assert graph_height(9) < graph_height(15)
+    assert graph_height(100) == 640

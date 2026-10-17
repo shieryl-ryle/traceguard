@@ -1,11 +1,11 @@
 {
-  "_note": "Synthetic UI sample shaped like System Design §3, used until TASK-002/003 land. Not the real fixture dataset.",
+  "_note": "Hand-made synthetic UI TEST sample (S-1), shaped like System Design §3. Test-only: not shipped in the app and not part of data/dataset.json.",
   "case": {
-    "case_id": "C-1",
-    "title": "Convergence and forwarding to one account",
+    "case_id": "S-1",
+    "title": "Sample case (hand-made UI demo)",
     "description": "Several accounts send funds to A-07 within a short window; A-07 forwards funds onward.",
     "seed_ids": ["A-07"],
-    "scenario_label": "Convergence & forwarding"
+    "scenario_label": "Sample · UI demo"
   },
   "accounts": [
     {"account_id": "A-01", "label": "Wallet A-01"},

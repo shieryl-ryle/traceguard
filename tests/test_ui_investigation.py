@@ -12,12 +12,11 @@ from traceguard.ai.investigate import MAX_TOOL_ROUNDS
 from traceguard.ui import investigation
 from traceguard.ui.citations import highlight_for, rule_flags
 from traceguard.ui.export import brief_to_markdown
-from traceguard.ui.models import load_sample_case
-from traceguard.ui.sample_evidence import sample_retriever
+from tests.ui_sample import load_sample_case, sample_retriever
 
 APP = str(Path(__file__).resolve().parents[1] / "app.py")
 VIEW = load_sample_case()
-EVIDENCE = sample_retriever("C-1", MAX_TOOL_ROUNDS)
+EVIDENCE = sample_retriever("S-1", MAX_TOOL_ROUNDS)
 
 GOOD_BRIEF = json.dumps(
     {
@@ -32,6 +31,22 @@ GOOD_BRIEF = json.dumps(
     }
 )
 
+
+# A brief that is valid for the REAL C-1 evidence from the graph tools (figures and IDs quoted).
+C1_BRIEF = json.dumps(
+    {
+        "observations": [
+            {"text": "4 senders (A-01, A-02, A-03, A-04) paid A-07 PHP 17000.00 across 5 transfers within 30 minutes; "
+                     "this pattern warrants review.", "evidence_ids": ["RULE-FANIN-01", "TX-0002"]},
+            {"text": "A-07 sent TX-0007 (PHP 15500.00), a ratio of 0.91 of its inbound funds, 30 minutes after its "
+                     "last inbound transfer.", "evidence_ids": ["RULE-FWD-01", "TX-0007"]},
+        ],
+        "counterevidence": [{"text": "Device D-01 links only A-01 and A-03 among the senders.",
+                             "evidence_ids": ["DL-0001", "DL-0002"]}],
+        "unknowns": ["Where funds went after A-09 is unknown (data boundary)."],
+        "suggested_checks": ["Review onboarding records for A-01 and A-03."],
+    }
+)
 
 # --- Sample evidence must agree with the sample case (guards hand-derived figures) ---
 
@@ -75,7 +90,7 @@ def test_record_citation_highlights_itself_and_unknown_ids_nothing() -> None:
 def test_markdown_export_contains_full_brief() -> None:
     from traceguard.ai import run_investigation
 
-    result = run_investigation("C-1", retrieve=sample_retriever, generate=lambda *_: GOOD_BRIEF, model_id="gemini-test")
+    result = run_investigation("S-1", retrieve=sample_retriever, generate=lambda *_: GOOD_BRIEF, model_id="gemini-test")
     md = brief_to_markdown(result.brief, result.evidence, VIEW.case.title, "Sample evidence", "Rule flags (sample)")
     for expected in ("Synthetic data", "gemini-test", "Live AI output", "RULE-FANIN-01", "min_senders=3",
                      "## Observations", "`TX-0005`", "## Counterevidence", "## Unknowns", "data boundary",
@@ -87,7 +102,7 @@ def test_markdown_export_contains_full_brief() -> None:
 
 
 class FakeGenerator:
-    response = GOOD_BRIEF
+    response = C1_BRIEF
     error: InvestigationError | None = None
 
     def __init__(self, config: object) -> None:
@@ -131,13 +146,13 @@ def test_model_error_is_readable_and_page_still_works(app: AppTest) -> None:
 
 
 def test_rejected_brief_shows_error_not_brief(app: AppTest) -> None:
-    FakeGenerator.response = GOOD_BRIEF.replace("TX-0005", "TX-9999")
+    FakeGenerator.response = C1_BRIEF.replace("TX-0007", "TX-9999")
     try:
         _button(app, "Run AI investigation").click().run()
         assert any("failed citation or wording checks" in e.value for e in app.error)
         assert not any("Live AI output" in s.value for s in app.success)
     finally:
-        FakeGenerator.response = GOOD_BRIEF
+        FakeGenerator.response = C1_BRIEF
 
 
 def test_cited_records_are_listed_for_verification() -> None:
@@ -150,11 +165,21 @@ def test_cited_records_are_listed_for_verification() -> None:
 
 def test_sample_retriever_errors_instead_of_truncating_rounds() -> None:
     with pytest.raises(InvestigationError) as exc:
-        sample_retriever("C-1", max_rounds=1)
+        sample_retriever("S-1", max_rounds=1)
     assert exc.value.kind == "too_many_rounds"
 
 
-def test_labels_are_honest_while_using_sample_evidence() -> None:
-    assert investigation.USING_SAMPLE_EVIDENCE
-    assert "not yet computed by graph tools" in investigation.FLAGS_HEADING
-    assert "static sample evidence" in investigation.WORKFLOW_SOURCE
+def test_app_uses_the_graph_retriever_with_deterministic_labels() -> None:
+    from traceguard.graph.retriever import graph_retriever
+
+    assert investigation.RETRIEVER is graph_retriever
+    assert investigation.FLAGS_HEADING == "Rule flags (deterministic)"
+    assert "Graph tools" in investigation.EVIDENCE_SOURCE
+
+
+def test_real_c1_brief_passes_validation_against_graph_evidence() -> None:
+    from traceguard.ai import run_investigation
+    from traceguard.graph.retriever import graph_retriever
+
+    result = run_investigation("C-1", retrieve=graph_retriever, generate=lambda *_: C1_BRIEF, model_id="gemini-test")
+    assert len(result.attempts) == 1
