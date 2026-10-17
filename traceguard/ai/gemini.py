@@ -2,7 +2,9 @@
 
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TypeVar
 
 import httpx
 from google import genai
@@ -14,6 +16,8 @@ from traceguard.ai.schema import ModelBrief
 
 REQUEST_TIMEOUT_MS = 30_000  # BR-007, provisional (PRD Q6). google-genai timeouts are in ms.
 REQUIRED_ENV = ("GOOGLE_CLOUD_PROJECT", "VERTEX_LOCATION", "GEMINI_MODEL")
+
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +50,39 @@ def build_client(config: GeminiConfig) -> genai.Client:
     )
 
 
+def _call(fn: Callable[[], T]) -> T:
+    """Runs one Gemini request and converts every failure into a readable InvestigationError."""
+    try:
+        return fn()
+    except (DefaultCredentialsError, RefreshError) as exc:
+        raise InvestigationError(
+            "credentials",
+            "Google Cloud credentials are missing or expired. Locally, run "
+            "`gcloud auth application-default login`; on Cloud Run, check the runtime service account.",
+        ) from exc
+    except httpx.TimeoutException as exc:
+        logger.warning("Gemini request timed out after %s ms", REQUEST_TIMEOUT_MS)
+        raise InvestigationError(
+            "timeout", f"Gemini did not respond within {REQUEST_TIMEOUT_MS // 1000} seconds. Try again."
+        ) from exc
+    except httpx.TransportError as exc:
+        logger.warning("Gemini network error: %s", type(exc).__name__)
+        raise InvestigationError("api", "Could not reach Gemini (network error). Try again shortly.") from exc
+    except errors.APIError as exc:
+        logger.warning("Gemini API error: code=%s status=%s", exc.code, exc.status)
+        kind, message = api_error_message(exc.code)
+        raise InvestigationError(kind, message) from exc
+    except Exception as exc:
+        logger.exception("Unexpected error calling Gemini")
+        raise InvestigationError("unexpected", "Something went wrong calling Gemini. Check the service logs.") from exc
+
+
+def generate_text(client: genai.Client, model: str, prompt: str) -> str:
+    """Plain-text call used by the deployment diagnostics check (TASK-001)."""
+    response = _call(lambda: client.models.generate_content(model=model, contents=prompt))
+    return response.text or ""
+
+
 class GeminiBriefGenerator:
     """Returns the raw JSON text of a brief. Parsing and validation happen in `investigate`."""
 
@@ -60,29 +97,7 @@ class GeminiBriefGenerator:
             response_schema=ModelBrief,
             temperature=0.2,
         )
-        try:
-            response = self._client.models.generate_content(
-                model=self.model, contents=user_prompt, config=config
-            )
-        except (DefaultCredentialsError, RefreshError) as exc:
-            raise InvestigationError(
-                "credentials",
-                "Google Cloud credentials are missing or expired. Locally, run "
-                "`gcloud auth application-default login`; on Cloud Run, check the runtime service account.",
-            ) from exc
-        except httpx.TimeoutException as exc:
-            logger.warning("Gemini request timed out after %s ms", REQUEST_TIMEOUT_MS)
-            raise InvestigationError(
-                "timeout", f"Gemini did not respond within {REQUEST_TIMEOUT_MS // 1000} seconds. Try again."
-            ) from exc
-        except httpx.TransportError as exc:
-            logger.warning("Gemini network error: %s", type(exc).__name__)
-            raise InvestigationError("api", "Could not reach Gemini (network error). Try again shortly.") from exc
-        except errors.APIError as exc:
-            logger.warning("Gemini API error: code=%s status=%s", exc.code, exc.status)
-            kind, message = api_error_message(exc.code)
-            raise InvestigationError(kind, message) from exc
-        except Exception as exc:
-            logger.exception("Unexpected error calling Gemini")
-            raise InvestigationError("unexpected", "Something went wrong calling Gemini. Check the service logs.") from exc
+        response = _call(
+            lambda: self._client.models.generate_content(model=self.model, contents=user_prompt, config=config)
+        )
         return response.text or ""
