@@ -3,3 +3,4 @@ google-genai==2.31.0
 httpx==0.28.1
 pydantic==2.14.1
 streamlit-agraph==0.0.45
+networkx==3.7
