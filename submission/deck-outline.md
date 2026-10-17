@@ -14,6 +14,7 @@ time-saved claims, because we have no data for either (PRD §10).
 **Headline:** Fraud analysts review alerts one transaction at a time. The pattern lives in the connections.
 
 - **Who:** fraud operations analysts at banks, e-wallets, and fintechs who are reviewing an existing alert.
+- **Theme fit:** fraud investigation through *transaction anomaly analysis* (BFSI theme direction).
 - **Today:** analysts piece transfers together by hand across accounts and devices. They have to:
   - separate suspicious patterns from innocent links, such as a household sharing one phone;
   - document the evidence behind every conclusion.
@@ -26,15 +27,18 @@ time-saved claims, because we have no data for either (PRD §10).
 ## Slide 2: One case, three questions
 **Headline:** C-1 shows convergence and fast forwarding.
 
-- Three wallets send PHP 15,000.00 to A-07 in 4 transfers between 09:01 and 09:14.
-- A-07 sends PHP 14,500.00 on to A-09 13 minutes after the last inbound transfer.
+- Four wallets send PHP 17,000.00 to A-07 in 5 transfers between 09:01 and 09:31.
+- Exactly 30 minutes after the last inbound transfer, A-07 sends PHP 15,500.00 (a ratio of 0.91)
+  to A-08, which splits it onward.
 - Two of the senders were seen on the same device.
+- The trace follows time: a payment out of A-09 that happened *before* the money arrived is not
+  counted as part of the trail.
 - The analyst needs answers to three questions:
   - Is this pattern worth escalating?
   - What is the evidence?
   - What can't the data tell us?
 
-**Visual:** `screenshots/slide2-c1-graph.png` (interim, captured on sample evidence; retake after TASK-003).
+**Visual:** `screenshots/slide2-c1-graph.png` (real C-1, captured from the live deploy).
 
 ---
 
@@ -54,7 +58,7 @@ time-saved claims, because we have no data for either (PRD §10).
 **What it is not:** it does not block transfers, declare guilt, file regulatory reports, or give
 a risk score.
 
-**Visual:** `screenshots/slide3-brief.png` with `slide3-graph-highlight.png`, or `slide3-citation-records.png` (interim; retake after TASK-003).
+**Visual:** `screenshots/slide3-brief.png` with `slide3-graph-highlight.png`, or `slide3-citation-records.png` (real C-1, live Gemini).
 
 ---
 
@@ -103,6 +107,8 @@ Cloud Run "traceguard" (asia-southeast1, max 2 instances, runtime SA traceguard-
 - **The graph decides, the AI explains:** every number and rule flag comes from the 5 graph tools.
   The model can only cite the IDs those tools return.
 - **Cost controls:** max instances and per-call caps. Budget alerts are a backstop.
+- **From the theme's suggested Google Cloud technologies:** Gemini on Vertex AI and Cloud Run.
+  BigQuery is the scale-up path (slide 7).
 
 **Owner:** Dzelle (architecture slide). Verified against the live deploy on 2026-10-17
 (revision `traceguard-00005`): region, model ID, runtime service account, max instances, and IAM.

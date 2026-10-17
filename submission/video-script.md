@@ -1,7 +1,7 @@
 # TraceGuard: 3-Minute Demo Video Script
 
 **Audience:** hackathon judges watching a public video.
-**Length:** 3:00 hard limit. The narration is about 370 words, roughly 125 words per minute, which leaves time for the on-screen clicks.
+**Length:** 3:00 hard limit. The narration is about 380 words, roughly 127 words per minute, which leaves time for the on-screen clicks.
 **Recording:** screen capture of the **deployed public URL** in a clean browser window, plus voice-over.
 **Rules:**
 - Show live AI output only.
@@ -24,17 +24,17 @@
 > devices. Analysts rebuild that picture by hand. TraceGuard is an investigation aid that traces
 > those connections and writes an evidence-linked brief. Everything you'll see runs on synthetic data.
 
-## 0:25–1:20 · Case, graph, and trace (about 105 words)
-**Screen:** open C-1. Pan across the graph. Click A-07 to show the selection panel. Select timeline
-rows TX-0001 to TX-0004, then TX-0005, so they highlight.
+## 0:25–1:20 · Case, graph, and trace (about 115 words)
+**Screen:** open C-1. Click A-07 to show the selection panel. In the timeline, select TX-0002 to
+TX-0006, then TX-0007, so they highlight. Point at TX-0008 (A-09 → A-06 at 09:00).
 
-> Here's case C-1. The graph shows accounts as circles and devices as squares, and every transfer
-> is its own arrow, so repeated payments never merge. Clicking A-07 lists every record that touches
-> it. In the timeline, three wallets send four transfers into A-07 between 9:01 and 9:14. Thirteen
-> minutes later, A-07 sends funds on to A-09. Selecting rows highlights those transfers on the graph.
-> These paths, windows, and sums are calculated by deterministic graph tools in the backend. The
-> AI doesn't do any of this arithmetic. Two of the senders were also seen on the same device. That's
-> worth noting, but on its own it proves nothing.
+> Here's case C-1. Accounts are circles, devices are squares, and every transfer is its own arrow,
+> so repeated payments never merge. Clicking A-07 lists every record that touches it. Four wallets
+> send five transfers into A-07 between 9:01 and 9:31, seventeen thousand pesos in total. Exactly
+> thirty minutes later, A-07 sends fifteen thousand five hundred on to A-08, which splits it again.
+> The trace follows time, not just lines: this payment from A-09 happened before the money arrived,
+> so it isn't counted. Every path, window and sum here comes from deterministic graph tools, not the
+> AI. Two senders share a device. That's worth noting, but on its own it proves nothing.
 
 ## 1:20–2:15 · AI brief with citations and counterevidence (about 115 words)
 **Screen:** click **Run AI investigation**. Open the tool log briefly. Scroll the brief. Click the
@@ -51,7 +51,7 @@ rows TX-0001 to TX-0004, then TX-0005, so they highlight.
 ## 2:15–2:40 · Benign and incomplete cases (about 50 words)
 **Screen:** open C-2 and show its brief's conclusion. Open C-3 and show the Unknowns section.
 
-> C-2 is a household sharing one phone, with no rapid forwarding. TraceGuard says the evidence is
+> C-2 is three accounts sharing one tablet, with no rapid forwarding. TraceGuard says the evidence is
 > insufficient, because device sharing alone isn't enough. In C-3 the money trail hits the edge of
 > the data. TraceGuard says the next recipient and the intent are unknown, and it doesn't guess.
 
