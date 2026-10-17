@@ -100,12 +100,15 @@ only citable IDs. The model's schema has **no** numeric or flag fields (BR-003).
 | Principal | Role | Scope |
 |---|---|---|
 | `traceguard-run` (runtime SA) | `roles/aiplatform.user` | project |
-| Build SA (`PROJECT_NUMBER-compute@developer.gserviceaccount.com` by default) | `roles/run.builder` | project. Grant only when source deploy fails with a build permission error |
-| Dzelle (teammate deployer) | `roles/run.sourceDeveloper` | project |
-| Dzelle | `roles/serviceusage.serviceUsageConsumer` | project |
-| Dzelle | `roles/iam.serviceAccountUser` | the `traceguard-run` SA only |
-| Dzelle | `roles/aiplatform.user` | project (local live tests) |
-| Dzelle | `roles/logging.viewer` | project |
+| Build SA (`PROJECT_NUMBER-compute@developer.gserviceaccount.com` by default) | `roles/run.builder` | project. Required for source deploys (setup.md §A5b) |
+| Dzelle (personal account) | project creator (owner by creation; not granted to anyone else) | owns billing and grants the roles below |
+| Teammate deployer (Shieryl) | `roles/run.sourceDeveloper` | project |
+| Teammate deployer | `roles/serviceusage.serviceUsageConsumer` | project |
+| Teammate deployer | `roles/iam.serviceAccountUser` | the `traceguard-run` SA only |
+| Teammate deployer | `roles/iam.serviceAccountUser` | the build SA only, so source deploys can run as it (setup.md §A5b) |
+| Teammate deployer | `roles/aiplatform.user` | project (local live tests) |
+| Teammate deployer | `roles/logging.viewer` | project |
+| `allUsers` | `roles/run.invoker` | the `traceguard` service only. The owner grants it once (setup.md §A5c); the hackathon requires a public URL |
 
 - No narrower GA role than `roles/aiplatform.user` covering only Gemini inference could be
   verified (`roles/aiplatform.expressUser` is Beta, scope unverified).
@@ -167,5 +170,7 @@ gcloud run deploy traceguard --source . --region $REGION \
 Dockerfile start command (shell form so `$PORT` expands):
 `CMD streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true`
 
-If the first source deploy fails with a build permission error, grant
-`roles/run.builder` to the build SA shown in the error. Fix only that error.
+Before the first source deploy, apply the two build grants in [setup.md §A5b](setup.md): the
+deployer gets `roles/iam.serviceAccountUser` on the build SA, and the build SA gets
+`roles/run.builder`. Without them the build fails with `caller does not have permission to act
+as service account` (seen 2026-10-17). For any other permission error, fix only the role it names.
