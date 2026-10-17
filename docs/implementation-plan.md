@@ -19,7 +19,7 @@ Statuses: `ready` · `in-progress` · `in-review` · `done` · `cut`
 
 | ID | Title | Traces to | Owner | Status | Write scope | Evidence (PR / result) |
 |---|---|---|---|---|---|---|
-| TASK-000 | GCP project + billing + model check + IAM, per [setup.md §A](setup.md) (60–90 min timebox; fallback: upgrade Shieryl's account) | F-010, Q3, Q5 | Dzelle | ready | none (GCP console) | |
+| TASK-000 | GCP project + billing + model check + IAM, per [setup.md §A](setup.md) (60–90 min timebox; fallback: upgrade Shieryl's account) | F-010, Q3, Q5 | Dzelle | ready | none (GCP console) | 2026-10-17: personal billing account open + linked, budget alerts 50/90/100% set; run/cloudbuild/artifactregistry/aiplatform APIs enabled; `traceguard-run` SA has `roles/aiplatform.user` only; Q5 confirmed — live `gemini-3.5-flash` call in `asia-southeast1` → HTTP 200; Shieryl granted the 4 setup.md §A5 roles + `serviceAccountUser` on runtime SA (verified via `get-iam-policy`, no Owner/Editor) |
 | TASK-001 | Walking skeleton deployed to Cloud Run (Streamlit button → live Gemini call) | F-010, BR-008 | Shieryl + Dzelle | ready | `app.py`, `Dockerfile`, `requirements.txt`, `.dockerignore` | |
 | TASK-002 | Fixture dataset C-1/C-2/C-3 (seeded generator) + expected outcomes | F-001, BR-001, BR-010 | Dzelle | ready | `data/`, `tests/fixtures/` | |
 | TASK-003 | Graph loader (MultiDiGraph) + 5 tools + pytest | F-004, BR-003 | Dzelle | ready | `traceguard/graph/`, `tests/` (except `tests/fixtures/`) | |
