@@ -1,30 +1,35 @@
 {
-  "clips": {
-    "clip1": [
-      {"id": "L01", "at": 0.5, "until": 6, "text": "Fraud analysts usually review alerts one transaction at a time, from a long queue."},
-      {"id": "L02", "at": 6.5, "until": 16, "text": "But the risky pattern often hides in the connections: several accounts paying one destination, money moving on within minutes, and shared devices."},
-      {"id": "L03", "at": 16.5, "until": 24, "text": "Analysts rebuild that picture by hand, and an innocent link, like a family tablet, is easy to misread."},
-      {"id": "L04", "at": 24.5, "until": 32, "text": "TraceGuard traces those connections automatically and writes an evidence-linked case brief with Gemini on Vertex AI."},
-      {"id": "L05", "at": 32.5, "until": 40, "text": "The rule is simple: the graph decides, the AI explains, and every claim is checked before anyone sees it."},
-      {"id": "L06", "at": 40.5, "until": 50, "text": "Here's case C-1. Four wallets send five transfers into A-07 within thirty minutes: seventeen thousand pesos in total."},
-      {"id": "L07", "at": 50.5, "until": 59.5, "text": "Thirty minutes later, A-07 sends fifteen thousand five hundred onward. A payment made before the money arrived isn't counted."}
+  "segments": {
+    "intro": [
+      {"id": "N01", "at": 0.4, "text": "An alert lands in your queue. What would you investigate, and how would you explain why?"},
+      {"id": "N02", "at": 5.8, "text": "Several wallets send money into one account. Soon after, a large payment moves out. To explain it, you need to see how the accounts connect, and when each transfer happened."},
+      {"id": "N03", "at": 17.0, "text": "Looking at the payments one row at a time gives you only pieces of the story."},
+      {"id": "N04", "at": 22.0, "text": "Some connections deserve a closer look. Others may have an ordinary explanation: two people sharing a tablet should not become a conclusion about wrongdoing."},
+      {"id": "N05", "at": 32.1, "text": "That's where TraceGuard helps. It brings the connected evidence into view, and uses Gemini on Vertex AI to explain the retrieved results in an evidence-linked brief."},
+      {"id": "N06", "at": 43.7, "text": "The graph tools calculate the paths and rule matches. Gemini explains those results. You remain responsible for the judgment."}
     ],
-    "clip2": [
-      {"id": "L08", "at": 0.5, "until": 10, "text": "Now I run the AI investigation. A fixed workflow runs every graph tool for this case, then Gemini explains the results."},
-      {"id": "L09", "at": 10.5, "until": 22, "text": "Before anything is shown, every citation and every figure is checked against the tool output. This panel shows exactly what was verified, and which attempt passed."},
-      {"id": "L10", "at": 22.5, "until": 34, "text": "Both rules flag a pattern that warrants review. The counterevidence comes from the tools: two senders aren't on the shared device, and less went out than came in."},
-      {"id": "L11", "at": 34.5, "until": 44, "text": "Clicking a citation highlights the exact records on the graph, right beside the brief, so the analyst can check each claim in place."},
-      {"id": "L12", "at": 44.5, "until": 51.5, "text": "I can also ask a follow-up question about the case. For example: who owns account A-22?"},
-      {"id": "L12b", "at": 52, "until": 59.5, "text": "The case data can't answer that, so TraceGuard refuses to guess and says which records would be needed."}
+    "c1live": [
+      {"id": "N07", "at": 0.4, "text": "Now follow the alert. Does the timing reveal a pattern that warrants review? Four wallets send five transfers into A-07, all within thirty minutes."},
+      {"id": "N08", "at": 10.5, "text": "Together that's seventeen thousand pesos. Thirty minutes after the last one arrives, fifteen thousand five hundred moves on to A-08."},
+      {"id": "N09", "at": 19.1, "text": "Order matters too. This payment out of A-09 happened before the money arrived, so it isn't counted as part of the trail."}
     ],
-    "clip3": [
-      {"id": "L13", "at": 0.5, "until": 9.5, "text": "Case C-2 is three accounts sharing one tablet. Both rules were checked for each account, and none of them matched."},
-      {"id": "L13b", "at": 10, "until": 18, "text": "So the brief says the evidence is insufficient: a shared device on its own is not proof of anything."},
-      {"id": "L14", "at": 18.5, "until": 27, "text": "In case C-3, A-19 forwards most of what it received to A-22, so the forwarding rule flags it for review."},
-      {"id": "L14b", "at": 27.5, "until": 36, "text": "But the trail reaches the edge of the data at A-22, so the next recipient and the intent are stated as unknown."},
-      {"id": "L15", "at": 36.5, "until": 43.5, "text": "TraceGuard runs as one Cloud Run service, calling Gemini on Vertex AI through least-privilege access."},
-      {"id": "L15b", "at": 44, "until": 50, "text": "There are no API keys, the data is synthetic, and every model call is capped."},
-      {"id": "L16", "at": 50.5, "until": 59.5, "text": "Connected evidence, cited, and honest about what it doesn't know. That's TraceGuard, built by team Chilli for the AI Builder Cup."}
+    "c2": [
+      {"id": "N10", "at": 0.6, "text": "I run the AI investigation. The graph tools flag both rules, convergence and rapid forwarding, so this pattern warrants review."},
+      {"id": "N11", "at": 9.8, "text": "But an explanation is useful only if you can inspect its evidence. Every citation and figure is checked against the tool output first. A brief that fails is regenerated once, then blocked."},
+      {"id": "N12", "at": 22.4, "text": "Follow any citation, and its supporting records light up on the graph, right beside the brief."},
+      {"id": "N13", "at": 28.5, "text": "You also need the details that complicate the picture. Two senders have no recorded shared device link, and less went out than came in. Neither settles the question. They are context for your review."}
+    ],
+    "c3live": [
+      {"id": "N14", "at": 0.4, "text": "Now consider a different alert. What if the connection is simply a shared device?"},
+      {"id": "N15", "at": 8.4, "text": "Three accounts share one tablet, but no rule matches. The connection is visible. The evidence is still insufficient. TraceGuard keeps that distinction clear."},
+      {"id": "N16", "at": 18.4, "text": "And what happens when the data runs out? Here, A-19 forwards most of what it received to A-22, and the trail ends there."},
+      {"id": "N17", "at": 28.2, "text": "You ask who owns A-22. The available data cannot tell you. TraceGuard states that limit, instead of filling the gap with a guess."}
+    ],
+    "outro": [
+      {"id": "N18", "at": 0.4, "text": "TraceGuard runs on Cloud Run and calls Gemini on Vertex AI, with least-privilege access and no API keys."},
+      {"id": "N19", "at": 9.2, "text": "You started with an alert. Now you can explain what warrants review, point to the supporting evidence, and show what remains unknown."},
+      {"id": "N20", "at": 17.3, "text": "TraceGuard. Follow the connections. Keep the judgment human."}
     ]
-  }
+  },
+  "lengths": {"intro": 52.2, "c1live": 26.6, "c2": 42.0, "c3live": 38.5, "outro": 21.3}
 }

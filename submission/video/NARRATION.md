@@ -1,57 +1,50 @@
-# Narration: recording guide
+# Narration (generated from timeline.json)
 
-**You record 16 short lines, one file per line.** The script does the rest: it trims silences, reduces noise,
-evens out the volume, and places each line at the right moment in the video.
+**Audience:** hackathon judges. **Perspective:** the viewer is the analyst who received the alert.
+**Length:** 2:59.0 · voice-over: Kokoro-82M `af_heart` (AI-generated, credited on the closing card).
+Captions show the same text. On-screen actions are anchored to each line's start (see `video/record.py`).
 
-## How to record
-- Use a quiet room, with your phone 20–30 cm from your mouth. A voice memo or voice recorder app is fine.
-- Record one file per line, named exactly as below: `L01.m4a`, `L02.m4a` and so on. `.wav` and `.mp3` also work.
-- Speak calmly, as if you're explaining to a colleague. Pauses and breaths before and after each line are removed automatically.
-- If you fluff a line, re-record just that file.
-- Each line must fit its slot (shown in the table). There's plenty of room, so read at a relaxed pace.
-- Listen once to `PACING-GUIDE-robot-voice-do-not-submit.mp4` to hear where each line lands.
+## 0:00.0 · Opening: the analyst's alert (motion graphics)
 
-## Part 1 (0:00-1:00): problem, approach, case C-1
+| Time | Line |
+|---|---|
+| 0:00.4 | An alert lands in your queue. What would you investigate, and how would you explain why? |
+| 0:05.8 | Several wallets send money into one account. Soon after, a large payment moves out. To explain it, you need to see how the accounts connect, and when each transfer happened. |
+| 0:17.0 | Looking at the payments one row at a time gives you only pieces of the story. |
+| 0:22.0 | Some connections deserve a closer look. Others may have an ordinary explanation: two people sharing a tablet should not become a conclusion about wrongdoing. |
+| 0:32.1 | That's where TraceGuard helps. It brings the connected evidence into view, and uses Gemini on Vertex AI to explain the retrieved results in an evidence-linked brief. |
+| 0:43.7 | The graph tools calculate the paths and rule matches. Gemini explains those results. You remain responsible for the judgment. |
 
-| File | Slot | Say |
-|---|---|---|
-| `L01` | 6 s | Fraud analysts usually review alerts one transaction at a time, from a long queue. |
-| `L02` | 10 s | But the risky pattern often hides in the connections: several accounts paying one destination, money moving on within minutes, and shared devices. |
-| `L03` | 8 s | Analysts rebuild that picture by hand, and an innocent link, like a family tablet, is easy to misread. |
-| `L04` | 8 s | TraceGuard traces those connections automatically and writes an evidence-linked case brief with Gemini on Vertex AI. |
-| `L05` | 8 s | The rule is simple: the graph decides, the AI explains, and every claim is checked before anyone sees it. |
-| `L06` | 10 s | Here's case C-1. Four wallets send five transfers into A-07 within thirty minutes: seventeen thousand pesos in total. |
-| `L07` | 9 s | Thirty minutes later, A-07 sends fifteen thousand five hundred onward. A payment made before the money arrived isn't counted. |
+## 0:51.8 · Follow the alert: case C-1 (live app)
 
-## Part 2 (1:00-2:00): AI brief, verification, citation, follow-up
+| Time | Line |
+|---|---|
+| 0:52.2 | Now follow the alert. Does the timing reveal a pattern that warrants review? Four wallets send five transfers into A-07, all within thirty minutes. |
+| 1:02.3 | Together that's seventeen thousand pesos. Thirty minutes after the last one arrives, fifteen thousand five hundred moves on to A-08. |
+| 1:10.9 | Order matters too. This payment out of A-09 happened before the money arrived, so it isn't counted as part of the trail. |
 
-| File | Slot | Say |
-|---|---|---|
-| `L08` | 10 s | Now I run the AI investigation. A fixed workflow runs every graph tool for this case, then Gemini explains the results. |
-| `L09` | 12 s | Before anything is shown, every citation and every figure is checked against the tool output. This panel shows exactly what was verified, and which attempt passed. |
-| `L10` | 12 s | Both rules flag a pattern that warrants review. The counterevidence comes from the tools: two senders aren't on the shared device, and less went out than came in. |
-| `L11` | 10 s | Clicking a citation highlights the exact records on the graph, right beside the brief, so the analyst can check each claim in place. |
-| `L12` | 7 s | I can also ask a follow-up question about the case. For example: who owns account A-22? |
-| `L12b` | 8 s | The case data can't answer that, so TraceGuard refuses to guess and says which records would be needed. |
+## 1:18.4 · Inspect the evidence: AI brief, checks, citation, counterevidence (live, real Gemini)
 
-## Part 3 (2:00-3:00): C-2, C-3, architecture, close
+| Time | Line |
+|---|---|
+| 1:19.0 | I run the AI investigation. The graph tools flag both rules, convergence and rapid forwarding, so this pattern warrants review. |
+| 1:28.2 | But an explanation is useful only if you can inspect its evidence. Every citation and figure is checked against the tool output first. A brief that fails is regenerated once, then blocked. |
+| 1:40.8 | Follow any citation, and its supporting records light up on the graph, right beside the brief. |
+| 1:46.9 | You also need the details that complicate the picture. Two senders have no recorded shared device link, and less went out than came in. Neither settles the question. They are context for your review. |
 
-| File | Slot | Say |
-|---|---|---|
-| `L13` | 9 s | Case C-2 is three accounts sharing one tablet. Both rules were checked for each account, and none of them matched. |
-| `L13b` | 8 s | So the brief says the evidence is insufficient: a shared device on its own is not proof of anything. |
-| `L14` | 8 s | In case C-3, A-19 forwards most of what it received to A-22, so the forwarding rule flags it for review. |
-| `L14b` | 8 s | But the trail reaches the edge of the data at A-22, so the next recipient and the intent are stated as unknown. |
-| `L15` | 7 s | TraceGuard runs as one Cloud Run service, calling Gemini on Vertex AI through least-privilege access. |
-| `L15b` | 6 s | There are no API keys, the data is synthetic, and every model call is capped. |
-| `L16` | 9 s | Connected evidence, cited, and honest about what it doesn't know. That's TraceGuard, built by team Chilli for the AI Builder Cup. |
+## 2:00.4 · Different alerts: C-2 shared device, C-3 end of trail and follow-up (live, real Gemini)
 
-## Pronunciation
-- "A-07": "A oh seven"
-- "C-1": "C one"
-- "TraceGuard": "trace guard"
-- "Vertex": "VER-tex"
+| Time | Line |
+|---|---|
+| 2:00.8 | Now consider a different alert. What if the connection is simply a shared device? |
+| 2:08.8 | Three accounts share one tablet, but no rule matches. The connection is visible. The evidence is still insufficient. TraceGuard keeps that distinction clear. |
+| 2:18.8 | And what happens when the data runs out? Here, A-19 forwards most of what it received to A-22, and the trail ends there. |
+| 2:28.6 | You ask who owns A-22. The available data cannot tell you. TraceGuard states that limit, instead of filling the gap with a guess. |
 
-## Then
-Put the files in the `my-voice-recordings` folder next to this guide (`C:/Users/tendi/Videos/TraceGuard/`) and tell assistant.
-assistant runs `python submission/video/mux.py <that folder>` to produce the voiced parts and the 3:00 video.
+## 2:38.5 · Architecture and close (motion graphics)
+
+| Time | Line |
+|---|---|
+| 2:38.9 | TraceGuard runs on Cloud Run and calls Gemini on Vertex AI, with least-privilege access and no API keys. |
+| 2:47.7 | You started with an alert. Now you can explain what warrants review, point to the supporting evidence, and show what remains unknown. |
+| 2:55.8 | TraceGuard. Follow the connections. Keep the judgment human. |
