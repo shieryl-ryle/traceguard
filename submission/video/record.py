@@ -20,6 +20,7 @@ TIMELINE = json.loads((HERE / "timeline.json").read_text(encoding="utf-8"))
 TL, LENGTHS = TIMELINE["segments"], TIMELINE["lengths"]
 BRIEF_MD = RAW / "c1_brief.md"
 FX_JS = (HERE / "fx.js").read_text(encoding="utf-8")
+DIAG = False   # True: save a diagnostic screenshot of the row focus during recording
 
 CAPTIONS_JS = """(caps) => {
   let d = document.getElementById('tgcap');
@@ -222,11 +223,19 @@ def seg_c1live(page: Page) -> Clock:
     x, y = (node["l"] + node["r"]) / 2, (node["t"] + node["b"]) / 2
     page.evaluate("([x, y]) => FX.clickAt(x, y, 800)", [x, y])
     page.mouse.click(x, y)
+    page.mouse.move(8, 890)                       # real pointer off the graph: no hover tooltip covering the node
     focus(page, {"kind": "node"}, "A-07", pad=6)
     c.at(9.9)                                     # M08: the incoming window
     go(page, {"kind": "node"}, 1.6, "Into A-07 · 4 wallets · 5 transfers · PHP 17,000.00 · 30 min", pad=6, ms=900)
     c.at(16.4)                                    # M09: the onward transfer (graph -> timeline in one move)
     go(page, {"kind": "row", "tx": "TX-0007"}, 1.3, "TX-0007 · 30 min after the last incoming · PHP 15,500.00 → A-08", pad=3, ms=1400)
+    if DIAG:
+        page.screenshot(path=str(HERE / "review/diag_row.png"))
+        print("DIAG row", page.evaluate("""() => { const df = document.querySelector('[data-testid=stDataFrame]'), sc = df.querySelector('.dvn-scroller');
+          return {rect: FX.rect({kind: 'row', tx: 'TX-0007'}), df: df.getBoundingClientRect().toJSON(), off: [df.offsetWidth, df.offsetHeight], scrollTop: sc && sc.scrollTop,
+                  canvas: df.querySelector('canvas').getBoundingClientRect().toJSON(), spot: document.getElementById('fx-spot').getBoundingClientRect().toJSON(),
+          spotStyle: document.getElementById('fx-spot').style.cssText, err: window.__fxErr || null, tf: getComputedStyle(document.querySelector('[data-testid=stApp]')).transform,
+          aria: [...df.querySelectorAll('[role=row]')].map(r => r.getAttribute('aria-rowindex') + ':' + ((r.textContent.match(/TX-[0-9]+/) || ['-'])[0])).join(' ')}; }"""))
     c.at(24.2)                                    # M10: the earlier payment is excluded
     go(page, {"kind": "row", "tx": "TX-0008"}, 1.3, "TX-0008 · 09:00 · before the money reached A-09 → not part of this trail", pad=3, ms=900)
     c.at(32.6)                                    # M11: a pattern to investigate, not intent

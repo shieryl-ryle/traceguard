@@ -59,10 +59,10 @@
   let nodeCache = null, nodeAt = 0;
   function nodeRect() {
     const f = document.querySelector('iframe'); if (!f) return null;
-    if (performance.now() - nodeAt > 150) { nodeAt = performance.now();
+    if (performance.now() - nodeAt > 500) { nodeAt = performance.now();
       try { const c = f.contentDocument.querySelector('canvas'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
         let sx = 0, sy = 0, n = 0;
-        for (let i = 0; i < d.length; i += 16) { if (Math.abs(d[i]-0xE4) < 8 && Math.abs(d[i+1]-0x57) < 8 && Math.abs(d[i+2]-0x56) < 8) { const p = i / 4; sx += p % c.width; sy += Math.floor(p / c.width); n++; } }
+        for (let i = 0; i < d.length; i += 8) { const r = d[i], g = d[i+1], b = d[i+2]; if (r > 160 && g < 135 && b < 135 && r - g > 80 && Math.abs(g - b) < 25) { const p = i / 4; sx += p % c.width; sy += Math.floor(p / c.width); n++; } }
         if (n) { const cr = c.getBoundingClientRect(); nodeCache = {x: cr.left + sx / n / c.width * cr.width, y: cr.top + sy / n / c.height * cr.height}; }
       } catch (e) {} }
     if (!nodeCache) return null;
@@ -80,15 +80,14 @@
   // ---------- spotlight: lives inside the zoomed app layer and stays locked to its target ----------
   let target = null, pad = 10;
   function place() {
-    const host = app(); if (!host) return;
-    if (spot.parentElement !== host) host.append(spot, label);
+    // screen-space overlay: measure the target as drawn right now (after any camera step) and cover it
+    if (spot.parentElement !== document.body) document.body.append(spot, label);
     const r = resolve(target); if (!r) return;
-    const m = matrix(), a = m.a || 1, L = (v, o) => (v - o) / a;
-    const box = {l: L(r.l, m.e) - pad, t: L(r.t, m.f) - pad, r: L(r.r, m.e) + pad, b: L(r.b, m.f) + pad};
+    const k = matrix().a || 1, q = pad * k;
+    const box = {l: r.l - q, t: r.t - q, r: r.r + q, b: r.b + q};
     Object.assign(spot.style, {left: box.l + 'px', top: box.t + 'px', width: (box.r - box.l) + 'px', height: (box.b - box.t) + 'px'});
-    const vis = {l: L(0, m.e), t: L(0, m.f), r: L(innerWidth, m.e)};
-    const lh = label.offsetHeight || 36, above = box.t - lh - 10 > vis.t + 8;
-    Object.assign(label.style, {left: Math.max(vis.l + 8, Math.min(box.l - 3, vis.r - label.offsetWidth - 8)) + 'px',
+    const lh = label.offsetHeight || 36, above = box.t - lh - 10 > 8;
+    Object.assign(label.style, {left: Math.max(8, Math.min(box.l - 3, innerWidth - label.offsetWidth - 8)) + 'px',
       top: (above ? box.t - lh - 10 : box.b + 10) + 'px'});
   }
   (function tick() { try { if (target) place(); } catch (err) { window.__fxErr = String(err); } requestAnimationFrame(tick); })();
@@ -136,6 +135,7 @@
       p.scs.forEach((n, i) => n.scrollTo({top: p.from[i] + (p.to[i] - p.from[i]) * e, behavior: 'instant'}));   // our easing, not CSS smooth-scroll
       const s = c.s + (p.t.s - c.s) * e, x = c.x + (p.t.x - c.x) * e, y = c.y + (p.t.y - c.y) * e;
       host.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+      if (target) place();   // same frame as the camera step, so a kept spotlight never trails
       k < 1 ? requestAnimationFrame(step) : done(); })(t0); });
   }
 
@@ -160,9 +160,13 @@
     // Move the camera to `spec` (or back to the full page when scale <= 1), then draw the spotlight there.
     async go(spec, {scale = 1, label: text = '', pad: p = 10, spot: show = true, ms = 1100} = {}) {
       cursor.style.opacity = 0;
-      await hideSpot();
+      const same = show && spec && target && JSON.stringify(spec) === JSON.stringify(target) && +getComputedStyle(spot).opacity > 0;
+      if (same) { label.animate([{opacity: 1}, {opacity: 0}], {duration: 200, fill: 'forwards'}); await sleep(200); }
+      else await hideSpot();
       await move(plan(spec, scale), ms);
-      if (spec && show) { showSpot(spec, text, p); await sleep(300); } else { target = null; }
+      if (same) { label.textContent = text || ''; place();
+        label.animate([{opacity: 0, transform: 'translateY(6px)'}, {opacity: text ? 1 : 0, transform: 'none'}], {duration: 380, easing: 'ease-out', fill: 'forwards'}); }
+      else if (spec && show) { showSpot(spec, text, p); await sleep(300); } else { target = null; }
     },
     // Draw the spotlight on a target without moving the camera.
     async focus(spec, text = '', p = 10) { await hideSpot(200); showSpot(spec, text, p); },
