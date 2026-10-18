@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TraceGuard motion</title>
+<style>
+  :root { --bg:#0b0d12; --ink:#f1f3f4; --muted:#9aa0a6; --blue:#4c8df6; --green:#34a853; --amber:#f2a900; --red:#ea4335; --card:#151922; --line:#2a2f3a; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; background: var(--bg); color: var(--ink);
+               font-family: "Segoe UI", "Google Sans", Arial, sans-serif; }
+  .scene { position: absolute; inset: 0; opacity: 0; transition: opacity .7s ease; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; }
+  .scene.on { opacity: 1; }
+  .kicker { font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-size: 104px; font-weight: 700; letter-spacing: -.02em; }
+  h1 .g { background: linear-gradient(90deg, var(--blue), var(--green) 45%, var(--amber)); -webkit-background-clip: text; color: transparent; }
+  h2 { font-size: 54px; font-weight: 650; text-align: center; line-height: 1.15; max-width: 1250px; }
+  .sub { font-size: 30px; color: var(--muted); margin-top: 22px; text-align: center; max-width: 1150px; line-height: 1.35; }
+  .pop { opacity: 0; transform: translateY(18px); transition: all .6s ease; }
+  .pop.on { opacity: 1; transform: none; }
+  /* alert row */
+  .alert { display: flex; gap: 28px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+           padding: 22px 34px; font-size: 28px; }
+  .alert .tag { background: #3b1f1d; color: #ff8a80; padding: 6px 14px; border-radius: 999px; font-size: 22px; }
+  svg text { font-family: "Segoe UI", Arial, sans-serif; }
+  .edge { stroke: #5f6773; stroke-width: 3; fill: none; stroke-dasharray: 500; stroke-dashoffset: 500; transition: stroke-dashoffset 1.1s ease; }
+  .edge.on { stroke-dashoffset: 0; }
+  .edge.hot { stroke: var(--amber); stroke-width: 4.5; }
+  .dev { stroke: #9d755d; stroke-width: 3; fill: none; stroke-dasharray: 8 9; opacity: 0; transition: opacity .8s ease; }
+  .dev.on { opacity: 1; }
+  .node { opacity: 0; transition: opacity .5s ease; }
+  .node.on { opacity: 1; }
+  /* split */
+  .split { display: grid; grid-template-columns: 1fr 120px 1fr; gap: 0; align-items: stretch; width: 1380px; margin-top: 36px; }
+  .col { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 34px 38px; }
+  .col h3 { font-size: 34px; margin-bottom: 18px; }
+  .col li { font-size: 25px; color: #d7dbdf; margin: 12px 0 0 26px; line-height: 1.35; }
+  .arrow { display: flex; align-items: center; justify-content: center; font-size: 64px; color: var(--muted); }
+  .gate { margin-top: 30px; display: inline-flex; gap: 16px; align-items: center; background: #10291a; color: #8ee0a8;
+          border: 1px solid #1e5e34; padding: 16px 26px; border-radius: 999px; font-size: 26px; }
+  /* architecture */
+  .arch { display: flex; align-items: center; gap: 34px; margin-top: 40px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 26px 30px; font-size: 24px; color: #d7dbdf; }
+  .box b { display: block; font-size: 30px; color: var(--ink); margin-bottom: 8px; }
+  .run { border-color: #2d4f8f; background: #111a2c; }
+  .run .layer { background: #0b0d12; border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; margin-top: 12px; font-size: 22px; }
+  .chips { display: flex; gap: 16px; margin-top: 34px; flex-wrap: wrap; justify-content: center; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 12px 22px; font-size: 23px; color: #d7dbdf; background: var(--card); }
+  .chip i { color: var(--green); font-style: normal; margin-right: 8px; }
+</style>
+</head>
+<body>
+<!-- INTRO (0-40 s) -->
+<section class="scene" id="title">
+  <div class="kicker pop" id="t1">AI Builder Cup 2026 · BFSI</div>
+  <h1 class="pop" id="t2">Trace<span class="g">Guard</span></h1>
+  <div class="sub pop" id="t3">Trace connected fund movements. Brief every claim with evidence.</div>
+</section>
+
+<section class="scene" id="problem">
+  <div class="alert pop" id="p1"><span class="tag">ALERT</span><span>A-07 · several inbound transfers, then a large outbound transfer</span></div>
+  <svg width="1200" height="600" viewBox="0 0 1200 600" style="margin-top:18px">
+    <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#5f6773"/></marker>
+          <marker id="ahh" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#f2a900"/></marker></defs>
+    <g id="edges"></g><g id="nodes"></g>
+  </svg>
+</section>
+
+<section class="scene" id="manual">
+  <h2 class="pop" id="m1">Analysts rebuild this picture by hand</h2>
+  <div class="sub pop" id="m2">…and must separate suspicious patterns from innocent links, like a household sharing one tablet.</div>
+</section>
+
+<section class="scene" id="rule">
+  <h2 class="pop" id="r1">The graph decides. The AI explains.</h2>
+  <div class="split">
+    <div class="col pop" id="r2"><h3 style="color:var(--blue)">Deterministic graph tools</h3>
+      <ul><li>Time-ordered money trails</li><li>Windows, counts and sums</li><li>Rule flags with thresholds</li><li>Computed counterevidence</li></ul></div>
+    <div class="arrow pop" id="r3">→</div>
+    <div class="col pop" id="r4"><h3 style="color:var(--green)">Gemini on Vertex AI</h3>
+      <ul><li>Explains the evidence</li><li>Cites every claim</li><li>States what is unknown</li><li>Never accuses or scores</li></ul></div>
+  </div>
+  <div class="gate pop" id="r5">✓ Every citation and figure checked before display</div>
+</section>
+
+<!-- OUTRO (architecture + close, 24 s) -->
+<section class="scene" id="arch">
+  <h2 class="pop" id="a1" style="font-size:46px">Built on Google Cloud</h2>
+  <div class="arch">
+    <div class="box pop" id="a2"><b>Browser</b>Analyst · public URL</div>
+    <div class="arrow pop" id="a3" style="font-size:48px">→</div>
+    <div class="box run pop" id="a4"><b>Cloud Run · traceguard</b>
+      <div class="layer">Streamlit UI · graph · brief · follow-up</div>
+      <div class="layer">Graph layer · NetworkX · 5 tools</div>
+      <div class="layer">AI layer · validation · regenerate once</div></div>
+    <div class="arrow pop" id="a5" style="font-size:48px">→</div>
+    <div class="box pop" id="a6"><b>Gemini on Vertex AI</b>gemini-3.5-flash<br>structured JSON</div>
+  </div>
+  <div class="chips">
+    <div class="chip pop" id="a7"><i>✓</i>Least-privilege IAM</div>
+    <div class="chip pop" id="a8"><i>✓</i>No API keys</div>
+    <div class="chip pop" id="a9"><i>✓</i>Max 2 instances · capped calls</div>
+    <div class="chip pop" id="a10"><i>✓</i>Synthetic data only</div>
+  </div>
+</section>
+
+<section class="scene" id="close">
+  <h1 class="pop" id="c1" style="font-size:88px">Trace<span class="g">Guard</span></h1>
+  <div class="sub pop" id="c2" style="font-size:34px;color:var(--ink)">Connected evidence. Cited. Honest about what it doesn't know.</div>
+  <div class="sub pop" id="c3" style="font-size:24px">Team Chilli · AI Builder Cup 2026 · github.com/shieryl-ryle/traceguard</div>
+</section>
+
+<script>
+const N = { "A-01":[230,90], "A-02":[250,300], "A-03":[230,500], "A-04":[430,540], "A-07":[580,300],
+            "A-08":[810,300], "A-09":[1010,170], "A-10":[1010,430], "D-01":[70,300] };
+const E = [["A-01","A-07"],["A-02","A-07"],["A-03","A-07"],["A-04","A-07"],["A-07","A-08",1],["A-08","A-09",1],["A-08","A-10",1]];
+const nodes = document.getElementById("nodes"), edges = document.getElementById("edges"), NS = "http://www.w3.org/2000/svg";
+for (const [a, b, hot] of E) {
+  const [x1, y1] = N[a], [x2, y2] = N[b], dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), k = 34 / L;
+  const p = document.createElementNS(NS, "path");
+  p.setAttribute("d", `M${x1 + dx * k},${y1 + dy * k} L${x2 - dx * k},${y2 - dy * k}`);
+  p.setAttribute("class", "edge" + (hot ? " hot" : "")); p.setAttribute("marker-end", hot ? "url(#ahh)" : "url(#ah)"); p.dataset.to = b;
+  edges.appendChild(p);
+}
+for (const [a, b] of [["A-01","D-01"],["A-03","D-01"]]) {
+  const [x1, y1] = N[a], [x2, y2] = N[b]; const p = document.createElementNS(NS, "path");
+  p.setAttribute("d", `M${x1},${y1} L${x2},${y2}`); p.setAttribute("class", "dev"); edges.appendChild(p);
+}
+for (const [id, [x, y]] of Object.entries(N)) {
+  const g = document.createElementNS(NS, "g"); g.setAttribute("class", "node"); g.dataset.id = id;
+  const dev = id.startsWith("D"); const sh = document.createElementNS(NS, dev ? "rect" : "circle");
+  if (dev) { sh.setAttribute("x", x - 26); sh.setAttribute("y", y - 26); sh.setAttribute("width", 52); sh.setAttribute("height", 52); sh.setAttribute("rx", 6); sh.setAttribute("fill", "#9d755d"); }
+  else { sh.setAttribute("cx", x); sh.setAttribute("cy", y); sh.setAttribute("r", 30); sh.setAttribute("fill", id === "A-07" ? "#ea4335" : "#4c78a8"); }
+  const t = document.createElementNS(NS, "text"); t.setAttribute("x", x); t.setAttribute("y", y + 58); t.setAttribute("text-anchor", "middle");
+  t.setAttribute("fill", "#d7dbdf"); t.setAttribute("font-size", "22"); t.textContent = id;
+  g.append(sh, t); nodes.appendChild(g);
+}
+const on = (sel) => document.querySelectorAll(sel).forEach(e => e.classList.add("on"));
+const off = (sel) => document.querySelectorAll(sel).forEach(e => e.classList.remove("on"));
+const scene = (id) => { document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.id === id)); };
+const T = (s, f) => setTimeout(f, s * 1000);
+const PART = new URLSearchParams(location.search).get("part") || "intro";
+window.__start = () => {
+  if (PART === "intro") {
+    T(0.2, () => { scene("title"); on("#t1"); }); T(0.8, () => on("#t2")); T(1.8, () => on("#t3"));
+    T(6, () => { scene("problem"); on("#p1"); });
+    T(7.5, () => on('.node[data-id="A-07"]'));
+    ["A-01","A-02","A-03","A-04"].forEach((a, i) => T(8.5 + i * 0.6, () => { on(`.node[data-id="${a}"]`); }));
+    T(9, () => document.querySelectorAll('.edge[data-to="A-07"]').forEach(e => e.classList.add("on")));
+    T(11.5, () => { on('.node[data-id="A-08"]'); document.querySelectorAll('.edge[data-to="A-08"]').forEach(e => e.classList.add("on")); });
+    T(12.6, () => { on('.node[data-id="A-09"]'); on('.node[data-id="A-10"]'); document.querySelectorAll('.edge[data-to="A-09"],.edge[data-to="A-10"]').forEach(e => e.classList.add("on")); });
+    T(14, () => { on('.node[data-id="D-01"]'); document.querySelectorAll('.dev').forEach(e => e.classList.add("on")); });
+    T(16, () => { scene("manual"); on("#m1"); }); T(17.5, () => on("#m2"));
+    T(24, () => { scene("rule"); on("#r1"); }); T(25.5, () => on("#r2")); T(27, () => on("#r3")); T(28, () => on("#r4")); T(31, () => on("#r5"));
+  } else {
+    T(0.2, () => { scene("arch"); on("#a1"); }); T(1, () => on("#a2")); T(1.8, () => on("#a3")); T(2.4, () => on("#a4"));
+    T(3.4, () => on("#a5")); T(4, () => on("#a6")); [7, 8, 9, 10].forEach((t, i) => T(t, () => on(`#a${7 + i}`)));
+    T(14, () => { scene("close"); on("#c1"); }); T(15, () => on("#c2")); T(17, () => on("#c3"));
+  }
+};
+</script>
+</body>
+</html>
