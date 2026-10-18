@@ -382,7 +382,7 @@ for path, crop, px, caption in shots:
 # ---------- Slide 11: performance ----------
 s = S[10]
 title_only(s)
-stats = [("3 / 3", "cases reach the expected\nconclusion on the live URL"), ("0", "invented citations shown\n(blocked by design)"),
+stats = [("3 / 3", "cases reach the expected\nconclusion on the live URL"), ("47 / 47", "citations found in the retrieved\nevidence (live C-1 brief, slide 10)"),
          ("3–9 s", "live brief (LOW thinking),\nvalid on the first attempt"), ("11 / 11", "graph-tool checks match\nexpected outcomes")]
 for i, (big, small) in enumerate(stats):
     x = 0.35 + i * 2.35
