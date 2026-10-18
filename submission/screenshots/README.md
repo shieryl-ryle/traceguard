@@ -6,7 +6,8 @@
 | `slide3-brief.png` | 3 | The "Live AI output" label, model and run time, deterministic rule flags with thresholds, and the deterministic contrast with its citation chips |
 | `slide3-citation-records.png` | 3 | Counterevidence quoting the tool contrasts; unknowns (data boundary and depth limit); suggested checks; the records cited by `RULE-FWD-01` |
 | `slide10-verified-panel.png` | 10 | The full "Verified before display" panel of a live C-1 brief |
-| `slide10-follow-up-refusal.png` | 10 | Follow-up question "Who owns A-22?" refused as not answerable from the case data (1440×960, 1× scale) |
+| `slide10-follow-up-refusal.png` | 10 | Case C-3: follow-up "Who owns A-22?" refused as not answerable from the case data (retaken 2026-10-18 on revision `traceguard-00013-qrg`, 2× scale, cropped to the follow-up block) |
+| `logo-google-cloud.png`, `logo-gemini.png`, `logo-vertex-ai.png` | 7 | Service marks rendered from the video's `story.html` (Gemini and Vertex AI: LobeHub Icons, MIT; Google Cloud: Simple Icons, CC0, recoloured). Trademarks belong to Google |
 | `slide3-graph-highlight.png` | 3 | The records matched by `RULE-FWD-01`, highlighted on the graph and starred in the timeline |
 
 **Layout:** graph and AI brief side by side, with the Verified panel and follow-up question (PRs #20 to #22).

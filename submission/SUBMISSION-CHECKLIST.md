@@ -25,10 +25,10 @@ Tick each box and write the time. If a step fails, stop and fix it before moving
 - [ ] Record: problem → C-1 graph and trace → AI brief, Verified panel, citation click, follow-up refusal → C-2 and C-3 → architecture → close
 - [ ] Only live output on screen; no accusatory words in narration ("pattern warrants review", never "fraudster" or a percentage)
 - [ ] Upload (YouTube unlisted or as the rules require); **open the link in incognito** to confirm it plays publicly
-- [ ] Video length ≤ 4:00 in the player (3:35 now; confirm the portal's own video limit)
+- [x] Video length 3:56, within the portal's 3–4 minute range
 
 ## 3. Proposal deck (Shieryl, by 7 PM)
-- [ ] Put the video link on slide 13: edit `ADD-VIDEO-LINK-BEFORE-SUBMITTING`, or rebuild with `submission/build_deck.py`
+- [x] Video link on slide 13 (Drive file link, opens without sign-in; label "3–4 Minutes")
 - [ ] Upload `submission/TraceGuard-proposal.pptx` to Drive → Open with Google Slides (or *File → Import slides* into the template)
 - [ ] Skim all 15 slides in Google Slides: fonts render, nothing overflows, three links on slide 13 are clickable
 - [ ] Re-check slide 5 (revision, IAM) and slide 11 (timings, test count) still match the live app
