@@ -1,6 +1,6 @@
 # System Design — TraceGuard
 
-**Status:** Draft v0.1 · **Last updated:** 2026-10-17
+**Status:** v1.0, as deployed (Cloud Run revision `traceguard-00013-qrg`) · **Last updated:** 2026-10-18
 
 ## 1. Architecture
 ```
@@ -24,13 +24,13 @@ the brief can be shown.
 **AI flow (locked, fixed workflow — BR-006):**
 1. For the selected case, run every relevant tool on its `seed_ids` (≤ 4 tool rounds, BR-007).
 2. Build an evidence bundle: tool outputs + the set of evidence IDs they returned. Cap at
-   60,000 characters (provisional, PRD Q6); over the cap → readable error.
+   60,000 characters; over the cap → readable error.
 3. Call Gemini with `response_mime_type="application/json"` and a brief schema; timeout 30 s.
 4. Validate: every cited ID ∈ evidence set (BR-002), no forbidden terms (BR-004), required
    sections present. Fail → regenerate once → fail again → error, no brief.
 5. Render the brief and tool log, labelled with model ID and run time.
 
-Gemini function calling is used only for F-011 (P1), if time allows.
+The follow-up question (F-011) reuses the same evidence bundle and validators. There is no function calling.
 
 ## 2. Components
 | Component | Responsibility | Location in repo |
@@ -115,14 +115,14 @@ only citable IDs. The model's schema has **no** numeric or flag fields (BR-003).
 | Cloud Run | Hosting (F-010) | Deployer's gcloud identity | — |
 | Cloud Build / Artifact Registry | Source deploy build | Build SA (Compute Engine default SA unless overridden) with `roles/run.builder` | — |
 
-**Model choice (PRD Q5, verify in Model Garden console before TASK-001):**
-- **Default:** `GEMINI_MODEL=gemini-3.5-flash`, `VERTEX_LOCATION=asia-southeast1`. Stable and
-  listed for Singapore. Keeps processing in-region alongside the Cloud Run region.
-- **Alternative:** `gemini-3.8-flash` on `VERTEX_LOCATION=global` (newer, global-only; the
+**Model choice:**
+- **Chosen:** `GEMINI_MODEL=gemini-3.5-flash`, `VERTEX_LOCATION=asia-southeast1`, confirmed with a
+  live call on 2026-10-17. Keeps processing in-region alongside the Cloud Run region.
+- **Alternative considered:** `gemini-3.8-flash` on `VERTEX_LOCATION=global` (newer, global-only; the
   global endpoint gives no in-region processing guarantee).
 - **Do not use `gemini-2.5-*`.** These models retire on 2026-10-20, two days after submission
   and while judging is likely still running.
-- Changing the model ID after TASK-001 needs an ADR (AGENTS.md "Ask before changing").
+- Changing the model ID needs an ADR.
 
 ## 5. Security & privacy
 - Secrets only via environment variables; never committed. **No secrets exist in this design.**
@@ -133,15 +133,15 @@ only citable IDs. The model's schema has **no** numeric or flag fields (BR-003).
 | Principal | Role | Scope |
 |---|---|---|
 | `traceguard-run` (runtime SA) | `roles/aiplatform.user` | project |
-| Build SA (`PROJECT_NUMBER-compute@developer.gserviceaccount.com` by default) | `roles/run.builder` | project. Required for source deploys (setup.md §A5b) |
-| Dzelle (personal account) | project creator (owner by creation; not granted to anyone else) | owns billing and grants the roles below |
-| Teammate deployer (Shieryl) | `roles/run.sourceDeveloper` | project |
+| Build SA (`PROJECT_NUMBER-compute@developer.gserviceaccount.com` by default) | `roles/run.builder` | project. Required for source deploys (setup.md §A6) |
+| Project owner | owner by creation; not granted to anyone else | owns billing and grants the roles below |
+| Teammate deployer | `roles/run.sourceDeveloper` | project |
 | Teammate deployer | `roles/serviceusage.serviceUsageConsumer` | project |
 | Teammate deployer | `roles/iam.serviceAccountUser` | the `traceguard-run` SA only |
-| Teammate deployer | `roles/iam.serviceAccountUser` | the build SA only, so source deploys can run as it (setup.md §A5b) |
+| Teammate deployer | `roles/iam.serviceAccountUser` | the build SA only, so source deploys can run as it (setup.md §A6) |
 | Teammate deployer | `roles/aiplatform.user` | project (local live tests) |
 | Teammate deployer | `roles/logging.viewer` | project |
-| `allUsers` | `roles/run.invoker` | the `traceguard` service only. The owner grants it once (setup.md §A5c); the hackathon requires a public URL |
+| `allUsers` | `roles/run.invoker` | the `traceguard` service only. The owner grants it once (setup.md §A7); the hackathon requires a public URL |
 
 - No narrower GA role than `roles/aiplatform.user` covering only Gemini inference could be
   verified (`roles/aiplatform.expressUser` is Beta, scope unverified).
@@ -150,7 +150,7 @@ only citable IDs. The model's schema has **no** numeric or flag fields (BR-003).
 - Service is public (`--allow-unauthenticated`) by hackathon requirement. There is no authentication (PRD §11).
 
 ## 6. Stack currency
-Agents must verify these versions against the official docs before emitting APIs.
+Pinned versions. Check the official docs before upgrading any of them.
 
 | Library / service | Pinned version | Docs URL | Verified on |
 |---|---|---|---|
@@ -158,11 +158,11 @@ Agents must verify these versions against the official docs before emitting APIs
 | streamlit | 1.66.0 | https://docs.streamlit.io | 2026-10-17 (PyPI) |
 | networkx | 3.7 (requires ≥ 3.12) | https://networkx.org/documentation/stable/ | 2026-10-17 (PyPI) |
 | google-genai | 2.31.0 | https://googleapis.github.io/python-genai/ | 2026-10-17 (PyPI + source on `main`) |
-| streamlit-agraph | 0.0.45 (last release 2023-01-28; browser spike passed 2026-10-17 on Python 3.14 — **3.12 unverified**; see ADR-002) | https://github.com/ChrisDelClea/streamlit-agraph | 2026-10-17 |
+| streamlit-agraph | 0.0.45 (last release 2023-01-28; runs on Python 3.12 in the deployed image; see ADR-002) | https://github.com/ChrisDelClea/streamlit-agraph | 2026-10-17 |
 | pandas | 3.0.6 | https://pandas.pydata.org/docs/ | 2026-10-17 (PyPI) |
 | pytest | 9.1.1 | https://docs.pytest.org | 2026-10-17 (PyPI) |
 | mypy | 2.4.0 | https://mypy.readthedocs.io | 2026-10-17 (PyPI) |
-| Gemini model | `gemini-3.5-flash` @ `asia-southeast1` (**console check pending, Q5**) | https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions | 2026-10-17 (docs) |
+| Gemini model | `gemini-3.5-flash` @ `asia-southeast1` (confirmed by a live call) | https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions | 2026-10-17 (docs) |
 | Cloud Run | source deploy + Dockerfile; `$PORT` (default 8080), listen on `0.0.0.0` | https://docs.cloud.google.com/run/docs/container-contract | 2026-10-17 |
 
 **google-genai API notes (verified 2026-10-17):**
@@ -182,11 +182,10 @@ Agents must verify these versions against the official docs before emitting APIs
 
 **Graph view decision:** use streamlit-agraph. It returns the selected node ID to Python
 (`agraph()` return value), which F-003/F-007 need. pyvis renders static HTML and returns nothing.
-**Risks:** the package has had no release since 2023, and parallel edges are unverified. Give every
-edge a unique `id` (= `transaction_id`). Spike this at the start of TASK-004; if it fails, fall back to
-a selectbox-driven highlight. Record the outcome as an ADR.
+Every edge has a unique `id` (= `transaction_id`), so parallel transfers render separately. The package
+has had no release since 2023; a spike confirmed node selection before the UI was built ([ADR-002](adr/ADR-002-graph-view-streamlit-agraph.md)).
 
-## 7. Deployment (TASK-001)
+## 7. Deployment
 ```bash
 PROJECT_ID=<your-project-id>
 REGION=asia-southeast1
@@ -207,7 +206,7 @@ gcloud run deploy traceguard --source . --region $REGION \
 Dockerfile start command (shell form so `$PORT` expands):
 `CMD streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true`
 
-Before the first source deploy, apply the two build grants in [setup.md §A5b](setup.md): the
+Before the first source deploy, apply the two build grants in [setup.md §A6](setup.md): the
 deployer gets `roles/iam.serviceAccountUser` on the build SA, and the build SA gets
 `roles/run.builder`. Without them the build fails with `caller does not have permission to act
-as service account` (seen 2026-10-17). For any other permission error, fix only the role it names.
+as service account`. For any other permission error, fix only the role it names.

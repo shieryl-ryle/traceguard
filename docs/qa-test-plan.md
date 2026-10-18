@@ -1,6 +1,6 @@
 # QA Test Plan — TraceGuard
 
-## 1. Gates (run by `test-runner`)
+## 1. Gates
 | Gate | Command | Must pass before |
 |---|---|---|
 | Typecheck | `python -m mypy traceguard app.py` | every PR |
