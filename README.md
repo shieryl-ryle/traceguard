@@ -140,7 +140,7 @@ owns each concern. `/start-task` claims a `TASK-###` on its own branch, and the 
 
 ## Team
 
-**Team Chilli:** Shieryl Tendilla (team lead: UI, AI prompts, demo, deck) and Dzelle (graph backend,
+**Team Chilli:** Shieryl Tendilla (team lead: UI, AI prompts, demo, deck) and Dzelle Faith Tan (graph backend,
 dataset, deployment).
 
 ## License
