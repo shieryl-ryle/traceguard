@@ -2,6 +2,9 @@
 name = "traceguard"
 version = "0.1.0"
 requires-python = ">=3.12"
+description = "Graph-powered AI investigation assistant for fraud analysts (synthetic data)"
+license = "MIT"
+license-files = ["LICENSE"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
