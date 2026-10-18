@@ -122,7 +122,7 @@ def seg_intro(page: Page) -> float:
     c = Clock()
     captions(page, "clip1", lo=0, hi=40)
     page.evaluate("() => window.__start()")
-    c.at(40.2)
+    c.at(40.9)
     return c
 
 
@@ -246,7 +246,7 @@ def seg_c3live(page: Page) -> float:
     un.evaluate("e => e.scrollIntoView({block: 'center'})")
     time.sleep(0.6)
     box_around(page, un, "b3", "Stated as unknown, not guessed", pad=12, w=560, h=150)
-    c.at(36.2)
+    c.at(36.9)
     return c
 
 
