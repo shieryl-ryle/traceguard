@@ -132,11 +132,10 @@ python -m pytest -m live           # optional: calls real Gemini on Vertex AI (u
 | `docs/` | PRD, system design, QA plan, implementation plan, ADRs |
 | `submission/` | Proposal deck and its build script, screenshots, demo video tooling |
 
-## Built with coding assistant
+## Contributing
 
-The repo was set up for agent-assisted work. [AGENTS.md](AGENTS.md) routes an agent to the one doc that
-owns each concern. `/start-task` claims a `TASK-###` on its own branch, and the `rules-reviewer` and
-`test-runner` agents check changes against the business rules and test gates before merge.
+[AGENTS.md](AGENTS.md) routes contributors to the one doc that owns each concern. Each `TASK-###` gets its
+own branch, every change passes the test gates, and decisions are recorded as ADRs in `docs/adr/`.
 
 ## Team
 

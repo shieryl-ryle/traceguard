@@ -6,7 +6,7 @@ Two parts: **A. Google Cloud project** (TASK-000, owner Dzelle, done once) and *
 
 > **Use a personal Google account only.** Never use a work or employer account, project, or
 > billing (PRD BR-001, BR-008). Use a separate browser profile so accounts don't mix.
-> Never paste keys, passwords, or service-account JSON into the repo, chat, or assistant.
+> Never paste keys, passwords, or service-account JSON into the repo or any chat tool.
 
 ---
 
@@ -115,7 +115,6 @@ permission error, fix only the role named in that error. Never grant Owner or Ed
 | Git | `git-scm.com` | `git --version` |
 | Python 3.12 (tick "Add to PATH" on Windows) | `python.org/downloads` | `python --version` → 3.12.x |
 | Google Cloud CLI | `cloud.google.com/sdk/docs/install` | `gcloud --version` |
-| coding assistant | `assistant.com/assistant-code` | `assistant --version` |
 
 ### B2. Get the code and authenticate
 ```bash

@@ -1,6 +1,6 @@
 .git
 .gitignore
-.agents
+.*
 .venv
 venv
 __pycache__

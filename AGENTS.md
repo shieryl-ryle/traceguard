@@ -80,9 +80,9 @@ Confirm pinned versions in System Design before emitting framework APIs. If unve
 - Real decision or pivot → new ADR.
 - No secrets committed.
 
-## Build agents
-`.agents/agents/`: `rules-reviewer` (read-only, checks BR-### rules), `test-runner` (runs gates,
-never fixes). Add more with the `add-subagent` skill only when a task recurs.
+## Review helpers
+Two optional local helpers (not stored in the repo): `rules-reviewer` (read-only, checks BR-### rules)
+and `test-runner` (runs the gates, never fixes).
 
 ## References
 [Docs index](./docs/index.md) · [ADRs](./docs/adr/) · [PRD](./docs/prd.md) ·

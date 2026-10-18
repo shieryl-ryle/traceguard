@@ -2,7 +2,6 @@ node_modules/
 .env
 .env.*
 !.env.example
-.agents/settings.local.json
 .DS_Store
 __pycache__/
 *.py[cod]

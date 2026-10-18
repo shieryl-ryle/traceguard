@@ -3,7 +3,7 @@
 - **Date:** 2026-10-17
 - **Status:** Accepted
 - **Owners:** Shieryl, Dzelle
-- **Related:** `AGENTS.md`, `docs/index.md`, `.agents/`
+- **Related:** `AGENTS.md`, `docs/index.md`
 
 ### Context
 Humans and AI coding agents both work in this repo. Agents start every session without memory of
@@ -14,17 +14,17 @@ Without a structure from day one, facts get duplicated across docs, drift, and a
 stale copies.
 
 ### Options considered
-1. **Single large README / AGENTS.md.** Pros: one file. Cons: loads everything into every session;
+1. **Single large README.** Pros: one file. Cons: loads everything into every session;
    becomes stale and contradictory as it grows.
 2. **Thin router + one-owner docs + append-only ADRs + scoped agents/skills.** Pros: small context
    per task, one source of truth per concern, auditable decisions. Cons: needs discipline to keep
    owners reconciled.
 
 ### Decision
-1. `AGENTS.md` is the router (AGENTS.md points to it). Kept under ~150 lines.
+1. `AGENTS.md` is the router. Kept under ~150 lines.
 2. `docs/index.md` §0 assigns one canonical owner per concern.
 3. `docs/adr/` is the sole decision audit root; append-only.
-4. Specialist workers live in `.agents/agents/`; repeatable procedures live in `.agents/skills/`.
+4. Specialist helpers and repeatable procedures are local tooling, kept outside the repo.
 
 ### Why this option
 It keeps per-task context small and makes "why" questions answerable without chat history.
