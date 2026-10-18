@@ -1,35 +1,186 @@
 {
-  "segments": {
-    "intro": [
-      {"id": "N01", "at": 0.4, "text": "An alert lands in your queue. What would you investigate, and how would you explain why?"},
-      {"id": "N02", "at": 5.8, "text": "Several wallets send money into one account. Soon after, a large payment moves out. To explain it, you need to see how the accounts connect, and when each transfer happened."},
-      {"id": "N03", "at": 17.0, "text": "Looking at the payments one row at a time gives you only pieces of the story."},
-      {"id": "N04", "at": 22.0, "text": "Some connections deserve a closer look. Others may have an ordinary explanation: two people sharing a tablet should not become a conclusion about wrongdoing."},
-      {"id": "N05", "at": 32.1, "text": "That's where TraceGuard helps. It brings the connected evidence into view, and uses Gemini on Vertex AI to explain the retrieved results in an evidence-linked brief."},
-      {"id": "N06", "at": 43.7, "text": "The graph tools calculate the paths and rule matches. Gemini explains those results. You remain responsible for the judgment."}
-    ],
-    "c1live": [
-      {"id": "N07", "at": 0.4, "text": "Now follow the alert. Does the timing reveal a pattern that warrants review? Four wallets send five transfers into A-07, all within thirty minutes."},
-      {"id": "N08", "at": 10.5, "text": "Together that's seventeen thousand pesos. Thirty minutes after the last one arrives, fifteen thousand five hundred moves on to A-08."},
-      {"id": "N09", "at": 19.1, "text": "Order matters too. This payment out of A-09 happened before the money arrived, so it isn't counted as part of the trail."}
-    ],
-    "c2": [
-      {"id": "N10", "at": 0.6, "text": "I run the AI investigation. The graph tools flag both rules, convergence and rapid forwarding, so this pattern warrants review."},
-      {"id": "N11", "at": 9.8, "text": "But an explanation is useful only if you can inspect its evidence. Every citation and figure is checked against the tool output first. A brief that fails is regenerated once, then blocked."},
-      {"id": "N12", "at": 22.4, "text": "Follow any citation, and its supporting records light up on the graph, right beside the brief."},
-      {"id": "N13", "at": 28.5, "text": "You also need the details that complicate the picture. Two senders have no recorded shared device link, and less went out than came in. Neither settles the question. They are context for your review."}
-    ],
-    "c3live": [
-      {"id": "N14", "at": 0.4, "text": "Now consider a different alert. What if the connection is simply a shared device?"},
-      {"id": "N15", "at": 8.4, "text": "Three accounts share one tablet, but no rule matches. The connection is visible. The evidence is still insufficient. TraceGuard keeps that distinction clear."},
-      {"id": "N16", "at": 18.4, "text": "And what happens when the data runs out? Here, A-19 forwards most of what it received to A-22, and the trail ends there."},
-      {"id": "N17", "at": 28.2, "text": "You ask who owns A-22. The available data cannot tell you. TraceGuard states that limit, instead of filling the gap with a guess."}
-    ],
-    "outro": [
-      {"id": "N18", "at": 0.4, "text": "TraceGuard runs on Cloud Run and calls Gemini on Vertex AI, with least-privilege access and no API keys."},
-      {"id": "N19", "at": 9.2, "text": "You started with an alert. Now you can explain what warrants review, point to the supporting evidence, and show what remains unknown."},
-      {"id": "N20", "at": 17.3, "text": "TraceGuard. Follow the connections. Keep the judgment human."}
-    ]
-  },
-  "lengths": {"intro": 52.2, "c1live": 26.6, "c2": 42.0, "c3live": 38.5, "outro": 21.3}
+ "order": [
+  "meet",
+  "diff",
+  "open",
+  "c1live",
+  "c2",
+  "review",
+  "c2case",
+  "c3case",
+  "arch",
+  "resolve"
+ ],
+ "segments": {
+  "meet": [
+   {
+    "id": "M01",
+    "at": 1.2,
+    "text": "This is Maya. She reviews flagged transactions at a fintech."
+   },
+   {
+    "id": "M02",
+    "at": 5.2,
+    "text": "A new alert lands in her queue. Several wallets have sent money into one account. Soon after, a large payment moves out."
+   },
+   {
+    "id": "M03",
+    "at": 13.2,
+    "text": "Maya has a question to answer: what happened here, and what does the evidence actually support?"
+   }
+  ],
+  "diff": [
+   {
+    "id": "M04",
+    "at": 0.6,
+    "text": "She starts with the individual records. But the important details sit between them: who paid whom, in what order, and which accounts share a device."
+   },
+   {
+    "id": "M05",
+    "at": 9.8,
+    "text": "A connection may matter. It may also have an ordinary explanation. Maya needs to separate what she can observe from what she can only suspect."
+   }
+  ],
+  "open": [
+   {
+    "id": "M06",
+    "at": 0.4,
+    "text": "She opens the case in TraceGuard."
+   }
+  ],
+  "c1live": [
+   {
+    "id": "M07",
+    "at": 0.6,
+    "text": "The graph brings the relationships into view. Maya can follow the transfers in order, inspect the timing, and see the records behind each connection."
+   },
+   {
+    "id": "M08",
+    "at": 10.4,
+    "text": "Four wallets send five transfers into A-07: seventeen thousand pesos over thirty minutes."
+   },
+   {
+    "id": "M09",
+    "at": 17.2,
+    "text": "Thirty minutes after the final incoming transfer, fifteen thousand five hundred pesos moves onward to A-08."
+   },
+   {
+    "id": "M10",
+    "at": 24.6,
+    "text": "One earlier payment, out of A-09, isn't part of this trail. Maya can see why: it happened before the money reached A-09."
+   },
+   {
+    "id": "M11",
+    "at": 32.9,
+    "text": "The sequence gives her a specific pattern to investigate. It does not establish anyone's intent."
+   }
+  ],
+  "c2": [
+   {
+    "id": "M12",
+    "at": 0.6,
+    "text": "Maya runs the investigation. A fixed workflow executes the graph tools, and Gemini on Vertex AI explains their results."
+   },
+   {
+    "id": "M13",
+    "at": 10.1,
+    "text": "Before the brief appears, TraceGuard checks that every cited record exists in the retrieved evidence, that every figure matches the tool output, and that the wording makes no accusation. That makes each claim checkable, not automatically true."
+   },
+   {
+    "id": "M14",
+    "at": 25.5,
+    "text": "She reads the brief, then follows a citation back to its supporting records."
+   },
+   {
+    "id": "M15",
+    "at": 30.4,
+    "text": "She also checks what complicates the picture: two senders are not linked to the shared device, and the outgoing amount is lower than the incoming total."
+   }
+  ],
+  "review": [
+   {
+    "id": "M16",
+    "at": 0.6,
+    "text": "She needs those details in her review too, so the next analyst can see both sides."
+   }
+  ],
+  "c2case": [
+   {
+    "id": "M17",
+    "at": 0.6,
+    "text": "Her next case looks connected too: three accounts share one device. She runs the investigation and reads what the tools found."
+   },
+   {
+    "id": "M18",
+    "at": 8.8,
+    "text": "But this time, no configured rule matches. The available evidence is insufficient."
+   },
+   {
+    "id": "M19",
+    "at": 14.4,
+    "text": "Maya can document the connection without turning it into an accusation. Sharing a device alone does not establish wrongdoing."
+   }
+  ],
+  "c3case": [
+   {
+    "id": "M20",
+    "at": 0.6,
+    "text": "In her final case, the available trail ends at A-22. She runs the investigation to see what the records cover, and what they leave open."
+   },
+   {
+    "id": "M21",
+    "at": 10.4,
+    "text": "Maya asks who owns the account. The dataset cannot tell her."
+   },
+   {
+    "id": "M22",
+    "at": 15.2,
+    "text": "TraceGuard states the limit. The owner, the next recipient, and the intent remain unknown."
+   },
+   {
+    "id": "M23",
+    "at": 21.3,
+    "text": "So Maya knows what further evidence she would need, rather than accepting an answer the system cannot support."
+   }
+  ],
+  "arch": [
+   {
+    "id": "M24",
+    "at": 0.6,
+    "text": "TraceGuard runs on Cloud Run with Gemini on Vertex AI. Graph tools compute the paths and rule matches. Gemini explains the retrieved evidence. Maya makes the judgment."
+   }
+  ],
+  "resolve": [
+   {
+    "id": "M25",
+    "at": 0.6,
+    "text": "Maya began with an alert and a question."
+   },
+   {
+    "id": "M26",
+    "at": 3.4,
+    "text": "She now has a brief she can explain: the pattern that warrants review, the records supporting it, and the limits of the available evidence.",
+    "until": 12.6
+   },
+   {
+    "id": "M27",
+    "at": 15.3,
+    "text": "TraceGuard. Follow the connections. Keep the judgment human."
+   }
+  ]
+ },
+ "lengths": {
+  "meet": 20.5,
+  "diff": 19.2,
+  "open": 4.6,
+  "c1live": 39.6,
+  "c2": 41.0,
+  "review": 6.6,
+  "c2case": 23.0,
+  "c3case": 28.4,
+  "arch": 13.6,
+  "resolve": 21.8
+ },
+ "xfade": 0.7,
+ "lead": 0.35
 }

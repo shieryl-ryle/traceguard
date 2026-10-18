@@ -20,12 +20,12 @@ Tick each box and write the time. If a step fails, stop and fix it before moving
 - [ ] `python -m pytest -m "not live"` → 168 passed · `python -m pytest -m live` → passed
 
 ## 2. Demo video (Shieryl, 12 PM – 5 PM)
-- [ ] One dry run against the live URL with `submission/video-script.md` open; time it (≤ 3:00)
+- [ ] One dry run against the live URL with `submission/video-script.md` open; time it (≤ 4:00)
 - [ ] Before recording: run each case once to warm up; browser zoom 110%; notifications off; incognito
 - [ ] Record: problem → C-1 graph and trace → AI brief, Verified panel, citation click, follow-up refusal → C-2 and C-3 → architecture → close
 - [ ] Only live output on screen; no accusatory words in narration ("pattern warrants review", never "fraudster" or a percentage)
 - [ ] Upload (YouTube unlisted or as the rules require); **open the link in incognito** to confirm it plays publicly
-- [ ] Video length ≤ 3:00 in the player
+- [ ] Video length ≤ 4:00 in the player (3:35 now; confirm the portal's own video limit)
 
 ## 3. Proposal deck (Shieryl, by 7 PM)
 - [ ] Put the video link on slide 13: edit `ADD-VIDEO-LINK-BEFORE-SUBMITTING`, or rebuild with `submission/build_deck.py`

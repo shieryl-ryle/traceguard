@@ -1,50 +1,83 @@
-# TraceGuard demo video: final narration
+# TraceGuard demo video: Maya's story (final narration)
 
-**Audience:** hackathon judges. **Perspective:** the viewer is the analyst who received the alert.
-**Length:** 2:59.0 · voice-over: Kokoro-82M `af_heart` (AI-generated, credited on the closing card).
+**Audience:** hackathon judges. **Story:** Maya, a fictional fraud analyst, works three synthetic cases with TraceGuard.
+**Length:** 3:35 · voice-over: Kokoro-82M `af_heart` (AI-generated, credited on the closing card).
 Captions show the same text. On-screen actions are anchored to each line's start (see `video/record.py`).
+Labels on screen: "Fictional analyst scenario · illustration" on Maya's scenes; "live app · synthetic demo data" on app footage.
 
-## 0:00.0 · Opening: the analyst's alert (motion graphics)
-
-| Time | Line |
-|---|---|
-| 0:00.4 | An alert lands in your queue. What would you investigate, and how would you explain why? |
-| 0:05.8 | Several wallets send money into one account. Soon after, a large payment moves out. To explain it, you need to see how the accounts connect, and when each transfer happened. |
-| 0:17.0 | Looking at the payments one row at a time gives you only pieces of the story. |
-| 0:22.0 | Some connections deserve a closer look. Others may have an ordinary explanation: two people sharing a tablet should not become a conclusion about wrongdoing. |
-| 0:32.1 | That's where TraceGuard helps. It brings the connected evidence into view, and uses Gemini on Vertex AI to explain the retrieved results in an evidence-linked brief. |
-| 0:43.7 | The graph tools calculate the paths and rule matches. Gemini explains those results. You remain responsible for the judgment. |
-
-## 0:51.8 · Follow the alert: case C-1 (live app)
+## 0:00.0 · 1 · Meet Maya (illustration · fictional analyst scenario)
 
 | Time | Line |
 |---|---|
-| 0:52.2 | Now follow the alert. Does the timing reveal a pattern that warrants review? Four wallets send five transfers into A-07, all within thirty minutes. |
-| 1:02.3 | Together that's seventeen thousand pesos. Thirty minutes after the last one arrives, fifteen thousand five hundred moves on to A-08. |
-| 1:10.9 | Order matters too. This payment out of A-09 happened before the money arrived, so it isn't counted as part of the trail. |
+| 0:01.2 | This is Maya. She reviews flagged transactions at a fintech. |
+| 0:05.2 | A new alert lands in her queue. Several wallets have sent money into one account. Soon after, a large payment moves out. |
+| 0:13.2 | Maya has a question to answer: what happened here, and what does the evidence actually support? |
 
-## 1:18.4 · Inspect the evidence: AI brief, checks, citation, counterevidence (live, real Gemini)
-
-| Time | Line |
-|---|---|
-| 1:19.0 | I run the AI investigation. The graph tools flag both rules, convergence and rapid forwarding, so this pattern warrants review. |
-| 1:28.2 | But an explanation is useful only if you can inspect its evidence. Every citation and figure is checked against the tool output first. A brief that fails is regenerated once, then blocked. |
-| 1:40.8 | Follow any citation, and its supporting records light up on the graph, right beside the brief. |
-| 1:46.9 | You also need the details that complicate the picture. Two senders have no recorded shared device link, and less went out than came in. Neither settles the question. They are context for your review. |
-
-## 2:00.4 · Different alerts: C-2 shared device, C-3 end of trail and follow-up (live, real Gemini)
+## 0:20.1 · 2 · Her difficulty (illustration)
 
 | Time | Line |
 |---|---|
-| 2:00.8 | Now consider a different alert. What if the connection is simply a shared device? |
-| 2:08.8 | Three accounts share one tablet, but no rule matches. The connection is visible. The evidence is still insufficient. TraceGuard keeps that distinction clear. |
-| 2:18.8 | And what happens when the data runs out? Here, A-19 forwards most of what it received to A-22, and the trail ends there. |
-| 2:28.6 | You ask who owns A-22. The available data cannot tell you. TraceGuard states that limit, instead of filling the gap with a guess. |
+| 0:20.8 | She starts with the individual records. But the important details sit between them: who paid whom, in what order, and which accounts share a device. |
+| 0:29.9 | A connection may matter. It may also have an ordinary explanation. Maya needs to separate what she can observe from what she can only suspect. |
 
-## 2:38.5 · Architecture and close (motion graphics)
+## 0:39.0 · 3 · TraceGuard enters her workflow (illustration)
 
 | Time | Line |
 |---|---|
-| 2:38.9 | TraceGuard runs on Cloud Run and calls Gemini on Vertex AI, with least-privilege access and no API keys. |
-| 2:47.7 | You started with an alert. Now you can explain what warrants review, point to the supporting evidence, and show what remains unknown. |
-| 2:55.8 | TraceGuard. Follow the connections. Keep the judgment human. |
+| 0:39.4 | She opens the case in TraceGuard. |
+
+## 0:43.2 · 4 · Follow the evidence: C-1 graph and timeline (live app · synthetic demo data)
+
+| Time | Line |
+|---|---|
+| 0:43.9 | The graph brings the relationships into view. Maya can follow the transfers in order, inspect the timing, and see the records behind each connection. |
+| 0:53.6 | Four wallets send five transfers into A-07: seventeen thousand pesos over thirty minutes. |
+| 1:00.5 | Thirty minutes after the final incoming transfer, fifteen thousand five hundred pesos moves onward to A-08. |
+| 1:07.8 | One earlier payment, out of A-09, isn't part of this trail. Maya can see why: it happened before the money reached A-09. |
+| 1:16.2 | The sequence gives her a specific pattern to investigate. It does not establish anyone's intent. |
+
+## 1:22.5 · 5 · An explanation she can inspect: brief, checks, citation, counterevidence, export (live app, real Gemini)
+
+| Time | Line |
+|---|---|
+| 1:23.1 | Maya runs the investigation. A fixed workflow executes the graph tools, and Gemini on Vertex AI explains their results. |
+| 1:32.6 | Before the brief appears, TraceGuard checks that every cited record exists in the retrieved evidence, that every figure matches the tool output, and that the wording makes no accusation. That makes each claim checkable, not automatically true. |
+| 1:48.0 | She reads the brief, then follows a citation back to its supporting records. |
+| 1:52.9 | She also checks what complicates the picture: two senders are not linked to the shared device, and the outgoing amount is lower than the incoming total. |
+
+## 2:03.2 · 5b · Maya's review (illustration, text from the real exported brief)
+
+| Time | Line |
+|---|---|
+| 2:03.8 | She needs those details in her review too, so the next analyst can see both sides. |
+
+## 2:09.4 · 6 · A connection she should question: Maya's next case, C-2 (live app)
+
+| Time | Line |
+|---|---|
+| 2:10.0 | Her next case looks connected too: three accounts share one device. She runs the investigation and reads what the tools found. |
+| 2:18.2 | But this time, no configured rule matches. The available evidence is insufficient. |
+| 2:23.8 | Maya can document the connection without turning it into an accusation. Sharing a device alone does not establish wrongdoing. |
+
+## 2:32.1 · 7 · A question she cannot answer: Maya's final case, C-3 follow-up (live app)
+
+| Time | Line |
+|---|---|
+| 2:32.7 | In her final case, the available trail ends at A-22. She runs the investigation to see what the records cover, and what they leave open. |
+| 2:42.5 | Maya asks who owns the account. The dataset cannot tell her. |
+| 2:47.2 | TraceGuard states the limit. The owner, the next recipient, and the intent remain unknown. |
+| 2:53.4 | So Maya knows what further evidence she would need, rather than accepting an answer the system cannot support. |
+
+## 3:00.1 · 8 · How it works (motion graphic)
+
+| Time | Line |
+|---|---|
+| 3:00.7 | TraceGuard runs on Cloud Run with Gemini on Vertex AI. Graph tools compute the paths and rule matches. Gemini explains the retrieved evidence. Maya makes the judgment. |
+
+## 3:13.3 · 9 · Resolution: Maya beside the real case brief, then end card (illustration)
+
+| Time | Line |
+|---|---|
+| 3:13.9 | Maya began with an alert and a question. |
+| 3:16.8 | She now has a brief she can explain: the pattern that warrants review, the records supporting it, and the limits of the available evidence. |
+| 3:28.7 | TraceGuard. Follow the connections. Keep the judgment human. |
