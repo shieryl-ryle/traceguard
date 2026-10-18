@@ -120,12 +120,12 @@
 </section>
 
 <section class="scene" id="s-manual">
-  <h2 class="el" id="m-h">Rebuilt by hand. Easy to misread.</h2>
+  <h2 class="el" id="m-h">Separate rows. Pieces of the story.</h2>
   <div class="rows card" id="m-rows" style="padding:10px 0"><div class="lens" id="m-lens"></div></div>
   <div class="family el" id="m-fam">
     <svg width="330" height="70" viewBox="0 0 330 70"><circle cx="30" cy="35" r="22" fill="#4c78a8"/><circle cx="300" cy="35" r="22" fill="#4c78a8"/>
       <rect x="140" y="12" width="50" height="46" rx="7" fill="#9d755d"/><path d="M52 35 H140 M190 35 H278" stroke="#a57d63" stroke-width="3" stroke-dasharray="7 8"/></svg>
-    <span>Two accounts, one family tablet</span><span class="qtag">suspicious, or innocent?</span>
+    <span>Two accounts, one shared tablet</span><span class="qtag">a closer look, or an ordinary explanation?</span>
   </div>
 </section>
 
@@ -142,7 +142,7 @@
 </section>
 
 <section class="scene" id="s-rule">
-  <h2 class="el" id="r-h">The graph decides. The AI explains.</h2>
+  <h2 class="el" id="r-h">Graph tools compute. AI explains. You judge.</h2>
   <div class="split">
     <div class="col card el left" id="r-l"><h3 style="color:var(--blue)">Deterministic graph tools</h3>
       <ul><li>Time-ordered money trails</li><li>Windows, counts and sums</li><li>Rule flags with thresholds</li><li>Computed counterevidence</li></ul></div>
@@ -172,7 +172,10 @@
 
 <section class="scene" id="s-close">
   <div class="logo" id="c-logo" style="font-size:104px"><div class="sweep" id="c-sweep"></div></div>
-  <div class="sub el" id="c-sub" style="font-size:34px; color:var(--ink)">Connected evidence. Cited. Honest about what it doesn't know.</div>
+  <div class="pills" id="c-three" style="margin-top:26px">
+    <div class="pill el popin"><i>✓</i>Explain what warrants review</div><div class="pill el popin"><i>✓</i>Point to the evidence</div>
+    <div class="pill el popin"><i>✓</i>Show what remains unknown</div></div>
+  <div class="sub el" id="c-sub" style="font-size:36px; color:var(--ink); margin-top:30px">Follow the connections. Keep the judgment human.</div>
   <div class="sub el" id="c-foot" style="font-size:23px">Team Chilli · AI Builder Cup 2026 · github.com/shieryl-ryle/traceguard · voice-over: AI-generated (Kokoro)</div>
 </section>
 
@@ -265,37 +268,45 @@ const miniNodes = MP.map(([x, y], i) => { const c = document.createElementNS(NS,
 const PART = new URLSearchParams(location.search).get("part") || "intro";
 window.__start = () => {
   if (PART === "intro") {
+    /* title 0-5.6 (N01) */
     T(0.1, () => { scene("s-title"); on("#t-k"); }); T(0.6, () => on("#t-logo")); T(1.6, () => $("#t-sweep").classList.add("go")); T(1.9, () => on("#t-sub"));
-    T(6.0, () => { scene("s-problem"); on("#p-alert"); });
-    T(7.4, () => { $("#p-alert").classList.add("lift"); on('.node[data-id="A-07"]'); });
-    ["A-01","A-02","A-03","A-04"].forEach((a, i) => T(7.9 + i * .28, () => on(`.node[data-id="${a}"]`)));
-    T(8.4, () => ["A-01","A-02","A-03","A-04"].forEach((a, i) => { edgeEls[a + ">A-07"].classList.add("on"); flow(edgeEls[a + ">A-07"], "#f2a900", 1.6, .6 + i * .35); }));
-    T(9.2, () => { $("#pulse").classList.add("go"); on("#p-counter"); count($("#cnt"), 17000, 2.6); });
-    T(11.6, () => { on('.node[data-id="A-08"]'); edgeEls["A-07>A-08"].classList.add("on"); flow(edgeEls["A-07>A-08"], "#f2a900", 1.3, .5); });
-    T(12.6, () => { on('.node[data-id="A-09"]'); on('.node[data-id="A-10"]');
+    /* problem 5.6-16.8 (N02) */
+    T(5.6, () => { scene("s-problem"); on("#p-alert"); });
+    T(7.0, () => { $("#p-alert").classList.add("lift"); on('.node[data-id="A-07"]'); });
+    ["A-01","A-02","A-03","A-04"].forEach((a, i) => T(7.5 + i * .28, () => on(`.node[data-id="${a}"]`)));
+    T(8.0, () => ["A-01","A-02","A-03","A-04"].forEach((a, i) => { edgeEls[a + ">A-07"].classList.add("on"); flow(edgeEls[a + ">A-07"], "#f2a900", 1.6, .6 + i * .35); }));
+    T(8.8, () => { $("#pulse").classList.add("go"); on("#p-counter"); count($("#cnt"), 17000, 2.6); });
+    T(11.2, () => { on('.node[data-id="A-08"]'); edgeEls["A-07>A-08"].classList.add("on"); flow(edgeEls["A-07>A-08"], "#f2a900", 1.3, .5); });
+    T(12.2, () => { on('.node[data-id="A-09"]'); on('.node[data-id="A-10"]');
       ["A-09","A-10"].forEach((b, i) => { edgeEls["A-08>" + b].classList.add("on"); flow(edgeEls["A-08>" + b], "#f2a900", 1.3, .6 + i * .3); }); });
-    T(13.8, () => { on('.node[data-id="D-01"]'); $$(".dev").forEach(d => d.classList.add("on")); on("#p-devtag"); });
-    T(16.0, () => { scene("s-manual"); on("#m-h"); });
-    stagger(".row", 16.6, .28); T(18.2, () => $("#m-lens").classList.add("go")); T(20.6, () => on("#m-fam"));
-    T(24.0, () => scene("s-brief"));
-    T(25.2, () => { miniNodes.forEach(c => { c.setAttribute("cx", 400); c.setAttribute("cy", 210); c.setAttribute("r", 4); c.style.opacity = 0; });
+    T(13.4, () => { on('.node[data-id="D-01"]'); $$(".dev").forEach(d => d.classList.add("on")); on("#p-devtag"); });
+    /* separate rows 16.8-31.8 (N03, N04) */
+    T(16.8, () => { scene("s-manual"); on("#m-h"); });
+    stagger(".row", 17.3, .3); T(18.8, () => $("#m-lens").classList.add("go")); T(22.0, () => on("#m-fam"));
+    /* brief 31.8-43.4 (N05) */
+    T(31.8, () => scene("s-brief"));
+    T(33.0, () => { miniNodes.forEach(c => { c.setAttribute("cx", 400); c.setAttribute("cy", 210); c.setAttribute("r", 4); c.style.opacity = 0; });
                     $$("#mini path").forEach(p => p.style.opacity = 0); on("#b-card"); });
-    T(26.0, () => { $("#mini").style.width = "0px"; $("#b-row").style.gap = "0px"; });
-    T(26.0, () => $$(".skel").forEach((s, i) => T(i * .25, () => s.style.width = s.dataset.w)));
-    stagger("#b-card .chip", 27.4, .3); T(28.8, () => on("#b-tick")); T(29.4, () => on("#b-by"));
-    T(32.0, () => { scene("s-rule"); on("#r-h"); }); T(33.0, () => on("#r-l")); T(33.6, () => { on("#r-a"); $("#r-a").classList.add("go"); }); T(34.0, () => on("#r-r"));
-    stagger("#r-l li", 34.4, .3); stagger("#r-r li", 35.0, .3); T(37.0, () => on("#r-g")); T(37.4, () => on("#r-tick"));
+    T(33.8, () => { $("#mini").style.width = "0px"; $("#b-row").style.gap = "0px"; });
+    T(34.0, () => $$(".skel").forEach((s, i) => T(i * .25, () => s.style.width = s.dataset.w)));
+    stagger("#b-card .chip", 35.6, .35); T(37.4, () => on("#b-tick")); T(38.2, () => on("#b-by"));
+    /* compute / explain / judge 43.4-52.9 (N06) */
+    T(43.4, () => { scene("s-rule"); on("#r-h"); }); T(44.2, () => on("#r-l")); T(44.8, () => { on("#r-a"); $("#r-a").classList.add("go"); }); T(45.2, () => on("#r-r"));
+    stagger("#r-l li", 45.6, .3); stagger("#r-r li", 46.2, .3); T(48.6, () => on("#r-g")); T(49.0, () => on("#r-tick"));
   } else {
-    T(0.1, () => { scene("s-arch"); on("#a-h"); }); T(0.8, () => on("#a-browser")); T(1.4, () => on("#a-run")); T(2.0, () => on("#a-gem"));
-    stagger("#a-run .layer", 2.4, .35);
-    T(3.4, () => {
+    /* architecture 0-8.8 (N18) */
+    T(0.1, () => { scene("s-arch"); on("#a-h"); }); T(0.6, () => on("#a-browser")); T(1.1, () => on("#a-run")); T(1.6, () => on("#a-gem"));
+    stagger("#a-run .layer", 1.9, .3);
+    T(2.8, () => {
       const w = $("#wires"); const p1 = line(w, 250, 190, 390, 190, "wire", 0), p2 = line(w, 1030, 190, 1170, 190, "wire", 0);
       p1.classList.add("on"); p2.classList.add("on");
       const req = document.createElementNS(NS, "path"); req.setAttribute("d", "M250,190 L1170,190"); req.setAttribute("fill", "none"); w.appendChild(req);
       flow(req, "#4c8df6", 2.6, .4); flow(req, "#34a853", 2.6, 1.7);
     });
-    stagger(".pill", 7.0, .45);
-    T(14.0, () => scene("s-close")); T(14.4, () => on("#c-logo")); T(15.4, () => $("#c-sweep").classList.add("go")); T(15.8, () => on("#c-sub")); T(17.4, () => on("#c-foot"));
+    stagger("#s-arch .pill", 3.6, .35);
+    /* close 8.8-21.9 (N19, N20) */
+    T(8.8, () => scene("s-close")); T(9.1, () => on("#c-logo")); T(10.0, () => $("#c-sweep").classList.add("go"));
+    stagger("#c-three .pill", 11.4, 1.6); T(17.3, () => on("#c-sub")); T(18.4, () => on("#c-foot"));
   }
 };
 </script>

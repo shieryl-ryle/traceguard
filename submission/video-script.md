@@ -1,70 +1,50 @@
-# TraceGuard: 3-Minute Demo Video Script
+# TraceGuard demo video: final narration
 
-**Audience:** hackathon judges watching a public video.
-**Length:** 3:00 hard limit. The narration is about 380 words, roughly 127 words per minute, which leaves time for the on-screen clicks.
-**Recording:** screen capture of the **deployed public URL** in a clean browser window, plus voice-over.
-**Rules:**
-- Show live AI output only.
-- If a take uses a cached brief, the on-screen label must say so (BR-006).
-- Never say "fraudster", "guilty", or give a percentage (BR-004).
+**Audience:** hackathon judges. **Perspective:** the viewer is the analyst who received the alert.
+**Length:** 2:59.0 · voice-over: Kokoro-82M `af_heart` (AI-generated, credited on the closing card).
+Captions show the same text. On-screen actions are anchored to each line's start (see `video/record.py`).
 
-**Before recording:**
-- [ ] All 3 cases are deployed. C-2 and C-3 need TASK-002 and TASK-003.
-- [ ] Run each case once to warm up the service.
-- [ ] Browser zoom is 110%, the sidebar is open, and notifications are off.
-- [ ] Have a backup take ready in case Gemini is slow. Don't edit out errors in a way that hides what happened.
+## 0:00.0 · Opening: the analyst's alert (motion graphics)
 
----
+| Time | Line |
+|---|---|
+| 0:00.4 | An alert lands in your queue. What would you investigate, and how would you explain why? |
+| 0:05.8 | Several wallets send money into one account. Soon after, a large payment moves out. To explain it, you need to see how the accounts connect, and when each transfer happened. |
+| 0:17.0 | Looking at the payments one row at a time gives you only pieces of the story. |
+| 0:22.0 | Some connections deserve a closer look. Others may have an ordinary explanation: two people sharing a tablet should not become a conclusion about wrongdoing. |
+| 0:32.1 | That's where TraceGuard helps. It brings the connected evidence into view, and uses Gemini on Vertex AI to explain the retrieved results in an evidence-linked brief. |
+| 0:43.7 | The graph tools calculate the paths and rule matches. Gemini explains those results. You remain responsible for the judgment. |
 
-## 0:00–0:25 · Problem (about 55 words)
-**Screen:** title, then the case queue with the "Synthetic data" badge.
+## 0:51.8 · Follow the alert: case C-1 (live app)
 
-> Fraud analysts review alerts one transaction at a time. But the risky pattern often sits in the
-> connections: several accounts paying one destination, money moving on within minutes, shared
-> devices. Analysts rebuild that picture by hand. TraceGuard is an investigation aid that traces
-> those connections and writes an evidence-linked brief. Everything you'll see runs on synthetic data.
+| Time | Line |
+|---|---|
+| 0:52.2 | Now follow the alert. Does the timing reveal a pattern that warrants review? Four wallets send five transfers into A-07, all within thirty minutes. |
+| 1:02.3 | Together that's seventeen thousand pesos. Thirty minutes after the last one arrives, fifteen thousand five hundred moves on to A-08. |
+| 1:10.9 | Order matters too. This payment out of A-09 happened before the money arrived, so it isn't counted as part of the trail. |
 
-## 0:25–1:20 · Case, graph, and trace (about 115 words)
-**Screen:** open C-1. Click A-07 to show the selection panel. In the timeline, select TX-0002 to
-TX-0006, then TX-0007, so they highlight. Point at TX-0008 (A-09 → A-06 at 09:00).
+## 1:18.4 · Inspect the evidence: AI brief, checks, citation, counterevidence (live, real Gemini)
 
-> Here's case C-1. Accounts are circles, devices are squares, and every transfer is its own arrow,
-> so repeated payments never merge. Clicking A-07 lists every record that touches it. Four wallets
-> send five transfers into A-07 between 9:01 and 9:31, seventeen thousand pesos in total. Exactly
-> thirty minutes later, A-07 sends fifteen thousand five hundred on to A-08, which splits it again.
-> The trace follows time, not just lines: this payment from A-09 happened before the money arrived,
-> so it isn't counted. Every path, window and sum here comes from deterministic graph tools, not the
-> AI. Two senders share a device. That's worth noting, but on its own it proves nothing.
+| Time | Line |
+|---|---|
+| 1:19.0 | I run the AI investigation. The graph tools flag both rules, convergence and rapid forwarding, so this pattern warrants review. |
+| 1:28.2 | But an explanation is useful only if you can inspect its evidence. Every citation and figure is checked against the tool output first. A brief that fails is regenerated once, then blocked. |
+| 1:40.8 | Follow any citation, and its supporting records light up on the graph, right beside the brief. |
+| 1:46.9 | You also need the details that complicate the picture. Two senders have no recorded shared device link, and less went out than came in. Neither settles the question. They are context for your review. |
 
-## 1:20–2:15 · AI brief, verification and follow-up (about 120 words)
-**Screen:** click **Run AI investigation** and pause on the **Verified before display** panel. Scroll
-to the counterevidence. Click the `RULE-FWD-01` chip, so the graph on the left highlights. In the
-follow-up box type "Who owns A-22?" and click **Ask**. Click **Export**.
+## 2:00.4 · Different alerts: C-2 shared device, C-3 end of trail and follow-up (live, real Gemini)
 
-> Now I run the AI investigation. It's a fixed workflow: the app runs the graph tools, then Gemini on
-> Vertex AI explains the results. Before anything is shown, every citation and every figure is checked
-> against the tool output, and this panel shows what was verified. The brief says the pattern warrants
-> review, and the counterevidence comes straight from the tools: two senders aren't on the shared
-> device, and less went out than came in. Clicking a citation highlights it on the graph, right beside
-> the brief. I can also ask a follow-up. "Who owns A-22?" is refused, because the data can't say.
-> Then I export the brief for the case file.
+| Time | Line |
+|---|---|
+| 2:00.8 | Now consider a different alert. What if the connection is simply a shared device? |
+| 2:08.8 | Three accounts share one tablet, but no rule matches. The connection is visible. The evidence is still insufficient. TraceGuard keeps that distinction clear. |
+| 2:18.8 | And what happens when the data runs out? Here, A-19 forwards most of what it received to A-22, and the trail ends there. |
+| 2:28.6 | You ask who owns A-22. The available data cannot tell you. TraceGuard states that limit, instead of filling the gap with a guess. |
 
-## 2:15–2:40 · Benign and incomplete cases (about 50 words)
-**Screen:** open C-2 and show its brief's conclusion. Open C-3 and show the Unknowns section.
+## 2:38.5 · Architecture and close (motion graphics)
 
-> C-2 is three accounts sharing one tablet, with no rapid forwarding. TraceGuard says the evidence is
-> insufficient, because device sharing alone isn't enough. In C-3 the money trail hits the edge of
-> the data. TraceGuard says the next recipient and the intent are unknown, and it doesn't guess.
-
-## 2:40–3:00 · Architecture and close (about 40 words)
-**Screen:** architecture slide (deck slide 5), then return to the app.
-
-> TraceGuard runs as a single Cloud Run service with Gemini on Vertex AI, least-privilege IAM, and
-> no API keys. The graph decides, the AI explains, and the analyst stays in charge. Connected
-> evidence, cited, and honest about what it doesn't know.
-
----
-
-**If C-2 or C-3 aren't deployed by recording time:** don't fake them. Shorten 2:15–2:40 to one
-line ("We also built benign and incomplete-evidence cases; see the repo tests") and extend the C-1
-citation demo. Decide this before recording, and update deck slide 6 to match.
+| Time | Line |
+|---|---|
+| 2:38.9 | TraceGuard runs on Cloud Run and calls Gemini on Vertex AI, with least-privilege access and no API keys. |
+| 2:47.7 | You started with an alert. Now you can explain what warrants review, point to the supporting evidence, and show what remains unknown. |
+| 2:55.8 | TraceGuard. Follow the connections. Keep the judgment human. |
