@@ -182,5 +182,22 @@
   "resolve": 21.8
  },
  "xfade": 0.7,
- "lead": 0.35
+ "lead": 0.35,
+ "framed": [
+  "c1live",
+  "c2",
+  "c2case",
+  "c3case"
+ ],
+ "transitions": {
+  "diff": "fade",
+  "open": "fade",
+  "c1live": "zoomin",
+  "c2": "fade",
+  "review": "fade",
+  "c2case": "smoothleft",
+  "c3case": "smoothleft",
+  "arch": "fadeblack",
+  "resolve": "fade"
+ }
 }
