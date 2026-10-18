@@ -1,7 +1,8 @@
 """Generate narration lines with Kokoro-82M (Apache-2.0): python tts_kokoro.py af_heart [more voices]
 
 Reads timeline.json and writes voice_<voice>/<line id>.wav. Captions keep exact IDs; the spoken
-form reads them naturally ("A-07" -> "A oh 7", "C-1" -> "C 1").
+form reads them naturally ("A-07" -> "A oh 7", "C-1" -> "C 1"). "AI" is left as written: Kokoro reads it
+as one word (/ˌeɪˈaɪ/); spelling it "A.I." splits it into two sentences with a pause between.
 """
 import json
 import re
@@ -11,7 +12,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 MODEL = HERE.parent / "kokoro_model"
 SPOKEN = [(r"\bA-0(\d)\b", r"A oh \1"), (r"\bA-(\d\d)\b", r"A \1"), (r"\bC-(\d)\b", r"C \1"),
-          (r"\bTraceGuard\b", "Trace Guard"), (r"\bVertex AI\b", "Vertex A.I.")]
+          (r"\bTraceGuard\b", "Trace Guard"), (r"\bA\.I\.", "AI")]
 
 
 def spoken(text: str) -> str:

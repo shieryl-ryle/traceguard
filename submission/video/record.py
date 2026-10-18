@@ -19,6 +19,7 @@ W, H = 1600, 900
 TIMELINE = json.loads((HERE / "timeline.json").read_text(encoding="utf-8"))
 TL, LENGTHS = TIMELINE["segments"], TIMELINE["lengths"]
 BRIEF_MD = RAW / "c1_brief.md"
+FX_JS = (HERE / "fx.js").read_text(encoding="utf-8")
 
 CAPTIONS_JS = """(caps) => {
   let d = document.getElementById('tgcap');
@@ -36,24 +37,6 @@ CAPTIONS_JS = """(caps) => {
     setTimeout(() => { if (d.textContent === c.text) d.style.opacity = 0; }, c.until * 1000);
   }
 }"""
-
-BOX_JS = """([id, x, y, w, h, label]) => {
-  let b = document.getElementById(id);
-  if (!b) { b = document.createElement('div'); b.id = id; document.body.appendChild(b); }
-  Object.assign(b.style, {position: 'fixed', left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px',
-    border: '4px solid #f2a900', borderRadius: '14px', boxShadow: '0 0 0 9999px rgba(0,0,0,0.0)', zIndex: 2147483646,
-    pointerEvents: 'none', transition: 'all .3s ease'});
-  b.innerHTML = label ? `<div style="position:absolute;left:-4px;top:-46px;background:#f2a900;color:#111;
-    font:700 21px 'Segoe UI',Arial,sans-serif;padding:7px 14px;border-radius:10px;white-space:nowrap">${label}</div>` : '';
-}"""
-UNBOX_JS = "(id) => { const b = document.getElementById(id); if (b) b.remove(); }"
-FIND_RED = """() => { const c = document.querySelector('canvas'); if (!c) return null;
-  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; const k = c.width / c.clientWidth;
-  let sx = 0, sy = 0, n = 0;
-  for (let i = 0; i < d.length; i += 4) { if (Math.abs(d[i]-0xE4) < 8 && Math.abs(d[i+1]-0x57) < 8 && Math.abs(d[i+2]-0x56) < 8) {
-    const p = i / 4; sx += p % c.width; sy += Math.floor(p / c.width); n++; } }
-  return n ? {x: sx / n / k, y: sy / n / k} : null; }"""
-
 
 class Clock:
     def __init__(self) -> None:
@@ -92,12 +75,6 @@ def graph_frame(page: Page):
     raise RuntimeError("graph frame not found")
 
 
-def box_around(page: Page, locator, bid: str, label: str, pad: int = 10, w: int | None = None, h: int | None = None) -> None:
-    bb = locator.bounding_box()
-    if bb:
-        page.evaluate(BOX_JS, [bid, bb["x"] - pad, bb["y"] - pad, (w or bb["width"]) + 2 * pad, (h or bb["height"]) + 2 * pad, label])
-
-
 def wait_brief(page: Page, timeout: float = 90) -> None:
     page.wait_for_function("() => document.body.innerText.includes('Live AI output') || "
                            "document.querySelector('[data-testid=stAlertContentError]') !== null", timeout=timeout * 1000)
@@ -110,6 +87,7 @@ def open_app(page: Page) -> None:
     page.get_by_text("Case queue").wait_for(timeout=120000)
     graph_frame(page)
     time.sleep(6)  # let the graph physics settle before the segment starts
+    page.add_script_tag(content=FX_JS)
 
 
 def pick_case(page: Page, case_id: str) -> None:
@@ -188,35 +166,82 @@ def seg_review(page: Page) -> Clock: return motion(page, "review", brief_data())
 def seg_resolve(page: Page) -> Clock: return motion(page, "resolve", brief_data())
 
 
+def seg_bg(page: Page) -> Clock:
+    """The story background alone (drifting light), placed behind the framed live-app window by build.py."""
+    page.goto((HERE / "story.html").as_uri() + "?part=bg")
+    time.sleep(1.0)
+    c = Clock()
+    c.at(max(LENGTHS[s] for s in TIMELINE["framed"]) + 24.0)   # build.py starts each framed segment at a different point
+    return c
+
+
+# ---- live-app overlay helpers (fx.js: tracked spotlight, cursor, camera) ----
+
+def focus(page: Page, spec: dict, label: str | None = None, pad: int = 10) -> None:
+    page.evaluate("([s, l, p]) => FX.focus(s, l, p)", [spec, label, pad])
+
+
+def unfocus(page: Page) -> None:
+    page.evaluate("() => FX.clear()")
+
+
+def camera(page: Page, scale: float = 1.0, spec: dict | None = None) -> None:
+    page.evaluate("([z, s]) => FX.camera(z, s)", [scale, spec])
+
+
+def scroll_to(page: Page, text: str, settle: float = 1.1) -> None:
+    """Smooth-scroll the element whose own text is `text` to the middle of the view."""
+    page.wait_for_function("t => document.body.innerText.includes(t)", arg=text, timeout=30000)
+    page.evaluate("""t => { const all = [...document.querySelectorAll('body *')];
+      const e = all.find(x => x.textContent.trim() === t && ![...x.children].some(c => c.textContent.trim() === t)) || all.filter(x => x.textContent.includes(t)).pop();
+      e.scrollIntoView({behavior: 'smooth', block: 'center'}); }""", text)
+    time.sleep(settle)
+
+
+def click(page: Page, locator, ms: int = 750) -> None:
+    """Glide the visible cursor to the element, ripple, then click that exact point."""
+    bb = locator.bounding_box()
+    x, y = bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2
+    page.evaluate("([x, y, ms]) => FX.cursorAt(x, y, ms)", [x, y, ms])
+    page.evaluate("() => FX.ripple()")
+    page.mouse.click(x, y)
+
+
+def section(text: str) -> dict:
+    return {"kind": "section", "text": text}
+
+
 def seg_c1live(page: Page) -> Clock:
     open_app(page)
     c = Clock()
     captions(page, "c1live")
     page.evaluate(CASE_JS, ["Maya's investigation · C-1", "Maya's investigation · C-1 · live app · synthetic demo data"])
-    fr = graph_frame(page)
-    red = fr.evaluate(FIND_RED)
-    c.at(4.5)                                     # M07: relationships into view
-    if red:
-        fr.locator("canvas").click(position={"x": red["x"], "y": red["y"]})
-    c.at(10.4)                                    # M08: incoming window
-    fr = graph_frame(page)
-    red = fr.evaluate(FIND_RED) or red
-    ifb = page.locator("iframe").first.bounding_box()
-    if red:
-        page.evaluate(BOX_JS, ["b1", ifb["x"] + red["x"] - 46, ifb["y"] + red["y"] - 46, 92, 92,
-                               "Into A-07 · 4 wallets · 5 transfers · PHP 17,000.00 · 30 min"])
-    c.at(17.2)                                    # M09: onward transfer
-    page.evaluate(UNBOX_JS, "b1")
-    grid = page.locator("[data-testid=stDataFrame]").first
-    grid.scroll_into_view_if_needed()
-    time.sleep(0.8)
-    gb = grid.bounding_box()
-    row_h = 35
-    page.evaluate(BOX_JS, ["b2", gb["x"] + 4, gb["y"] + row_h * 8 + 1, gb["width"] - 8, row_h - 2,
-                           "TX-0007 · 30 min after the last incoming · PHP 15,500.00 → A-08"])
+    c.at(2.6)                                     # M07: the graph brings the relationships into view
+    camera(page, 1.25, {"kind": "frame"})
+    c.at(4.6)
+    node = page.evaluate("() => FX.rect({kind: 'node'})")
+    x, y = (node["l"] + node["r"]) / 2, (node["t"] + node["b"]) / 2
+    page.evaluate("([x, y]) => FX.cursorAt(x, y, 900)", [x, y])
+    page.evaluate("() => FX.ripple()")
+    page.mouse.click(x, y)
+    focus(page, {"kind": "node"}, "A-07", pad=6)
+    c.at(10.4)                                    # M08: the incoming window
+    camera(page, 1.6, {"kind": "node"})
+    focus(page, {"kind": "node"}, "Into A-07 · 4 wallets · 5 transfers · PHP 17,000.00 · 30 min", pad=6)
+    c.at(16.4)                                    # M09: the onward transfer
+    unfocus(page)
+    camera(page, 1.0)
+    time.sleep(1.0)
+    page.locator("[data-testid=stDataFrame]").first.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
+    time.sleep(1.1)
+    focus(page, {"kind": "row", "tx": "TX-0007"}, "TX-0007 · 30 min after the last incoming · PHP 15,500.00 → A-08", pad=3)
+    camera(page, 1.3, {"kind": "row", "tx": "TX-0007"})
     c.at(24.6)                                    # M10: the earlier payment is excluded
-    page.evaluate(BOX_JS, ["b3", gb["x"] + 4, gb["y"] + row_h * 2 + 1, gb["width"] - 8, row_h - 2,
-                           "TX-0008 · 09:00 · before the money reached A-09 → not part of this trail"])
+    focus(page, {"kind": "row", "tx": "TX-0008"}, "TX-0008 · 09:00 · before the money reached A-09 → not part of this trail", pad=3)
+    camera(page, 1.3, {"kind": "row", "tx": "TX-0008"})
+    c.at(32.9)                                    # M11: a pattern to investigate, not intent
+    unfocus(page)
+    camera(page, 1.0)
     c.at(LENGTHS["c1live"] + 0.3)
     return c
 
@@ -227,43 +252,45 @@ def seg_c2(page: Page) -> Clock:
     captions(page, "c2")
     page.evaluate(CASE_JS, ["", "Maya's investigation · C-1 · live app · synthetic demo data"])
     c.at(1.0)                                     # M12: run the investigation
-    page.get_by_role("button", name="Run AI investigation").click()
+    click(page, page.get_by_role("button", name="Run AI investigation"))
     wait_brief(page)
-    flags = page.get_by_text("Rule flags (deterministic)").first
-    flags.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.5)
-    box_around(page, flags, "b1", "Graph tool results: both rules flag a pattern for review", pad=12, w=560, h=230)
+    scroll_to(page, "Rule flags (deterministic)")
+    focus(page, section("Rule flags (deterministic)"), "Graph tool results: both rules flag a pattern for review")
+    camera(page, 1.3, section("Rule flags (deterministic)"))
     c.at(10.1)                                    # M13: what the validators check
-    page.evaluate(UNBOX_JS, "b1")
-    v = page.get_by_text("Verified before display").first
-    v.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.6)
-    box_around(page, v, "b2", "Checked: citations · figures · wording", pad=14, w=430, h=250)
-    c.at(25.5)                                    # M14: follow a citation
-    page.evaluate(UNBOX_JS, "b2")
+    scroll_to(page, "Verified before display", 0.6)
+    focus(page, section("Verified before display"), "Checked: citations · figures · wording")
+    camera(page, 1.45, section("Verified before display"))
+    c.at(25.0)                                    # M14: follow a citation
+    unfocus(page)
+    camera(page, 1.0)
+    time.sleep(1.1)
     chip = page.get_by_role("button", name="RULE-FWD-01").first
-    chip.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.4)
-    chip.click()
-    time.sleep(2.0)
+    chip.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
+    time.sleep(1.0)
+    click(page, chip)
+    time.sleep(1.2)
     graph_frame(page)
-    ifb = page.locator("iframe").first.bounding_box()
-    page.evaluate(BOX_JS, ["b3", ifb["x"] - 6, ifb["y"] - 6, ifb["width"] + 12, min(ifb["height"], 520) + 12, "Supporting records highlighted"])
+    page.locator("iframe").first.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'start'})")
+    time.sleep(1.0)
+    focus(page, {"kind": "frame"}, "Supporting records highlighted in the graph", pad=4)
+    camera(page, 1.15, {"kind": "frame"})
     c.at(30.4)                                    # M15: what complicates the picture
-    page.evaluate(UNBOX_JS, "b3")
-    ce = page.get_by_text("Counterevidence", exact=True).first
-    ce.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.6)
-    box_around(page, ce, "b4", "Details that complicate the picture", pad=12, w=560, h=230)
-    c.at(38.4)                                    # the real export feeds the review and resolution scenes
-    page.evaluate(UNBOX_JS, "b4")
+    scroll_to(page, "Counterevidence", 0.8)
+    focus(page, section("Counterevidence"), "Details that complicate the picture")
+    camera(page, 1.3, section("Counterevidence"))
+    c.at(37.6)                                    # the real export feeds the review and resolution scenes
+    unfocus(page)
+    camera(page, 1.0)
+    time.sleep(1.1)
     exp = page.get_by_role("button", name="Export brief (Markdown)")
-    exp.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.4)
+    exp.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
+    time.sleep(1.0)
     with page.expect_download() as dl:
-        exp.click()
+        click(page, exp)
     dl.value.save_as(str(BRIEF_MD))
-    box_around(page, exp, "b5", "Exported: traceguard-C-1-brief.md", pad=10)
+    focus(page, {"kind": "el", "text": "Export brief (Markdown)"}, "Exported: traceguard-C-1-brief.md", pad=8)
+    camera(page, 1.4, {"kind": "el", "text": "Export brief (Markdown)"})
     c.at(LENGTHS["c2"] + 0.3)
     return c
 
@@ -276,19 +303,19 @@ def seg_c2case(page: Page) -> Clock:
     captions(page, "c2case")
     page.evaluate(CASE_JS, ["Maya's next case · C-2", "Maya's next case · C-2 · live app · synthetic demo data"])
     c.at(3.0)
-    page.get_by_role("button", name="Run AI investigation").click()
+    click(page, page.get_by_role("button", name="Run AI investigation"))
     wait_brief(page)
     c.at(8.8)                                     # M18: no rule matched
-    flags = page.get_by_text("Rule flags (deterministic)").first
-    flags.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.5)
-    box_around(page, flags, "b1", "No configured rule matched", pad=12, w=560, h=300)
+    scroll_to(page, "Rule flags (deterministic)", 0.8)
+    focus(page, section("Rule flags (deterministic)"), "No configured rule matched")
+    camera(page, 1.3, section("Rule flags (deterministic)"))
     c.at(14.4)                                    # M19: document without accusing
-    page.evaluate(UNBOX_JS, "b1")
-    ce = page.get_by_text("Counterevidence", exact=True).first
-    ce.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.5)
-    box_around(page, ce, "b2", "Visible connection · insufficient evidence", pad=12, w=560, h=260)
+    scroll_to(page, "Counterevidence", 0.8)
+    focus(page, section("Counterevidence"), "Visible connection · insufficient evidence")
+    camera(page, 1.3, section("Counterevidence"))
+    c.at(LENGTHS["c2case"] - 1.6)
+    unfocus(page)
+    camera(page, 1.0)
     c.at(LENGTHS["c2case"] + 0.3)
     return c
 
@@ -301,35 +328,38 @@ def seg_c3case(page: Page) -> Clock:
     captions(page, "c3case")
     page.evaluate(CASE_JS, ["Maya's final case · C-3", "Maya's final case · C-3 · live app · synthetic demo data"])
     c.at(2.8)
-    page.get_by_role("button", name="Run AI investigation").click()
+    click(page, page.get_by_role("button", name="Run AI investigation"))
     wait_brief(page)
-    un = page.get_by_text("Unknowns", exact=True).first
-    un.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.4)
-    box_around(page, un, "b1", "Trail ends at A-22 · what happens next is unknown", pad=12, w=560, h=150)
+    scroll_to(page, "Unknowns", 0.8)
+    focus(page, section("Unknowns"), "Trail ends at A-22 · what happens next is unknown")
+    camera(page, 1.4, section("Unknowns"))
     c.at(10.4)                                    # M21: the ownership question
-    page.evaluate(UNBOX_JS, "b1")
+    unfocus(page)
+    camera(page, 1.0)
+    time.sleep(0.6)
     q = page.get_by_placeholder("e.g. Why is A-08 relevant? or Who owns A-22?")
-    q.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.3)
-    q.click()
-    q.press_sequentially("Who owns A-22?", delay=60)
-    page.get_by_role("button", name="Ask").click()
+    q.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
+    time.sleep(0.9)
+    click(page, q, 600)
+    q.press_sequentially("Who owns A-22?", delay=55)
+    click(page, page.get_by_role("button", name="Ask"), 500)
     page.wait_for_function("() => document.body.innerText.includes('Q: Who owns A-22?')", timeout=60000)
-    time.sleep(0.5)
+    time.sleep(0.4)
     if "Not answerable from this data" not in page.inner_text("body"):
         raise RuntimeError("C-3 follow-up did not return a refusal; narration M21-M23 would not match the footage")
     c.at(15.0)                                    # M22: the limit is stated
-    ans = page.get_by_text("Not answerable from this data").first
-    ans.evaluate("e => e.scrollIntoView({block: 'center'})")
-    time.sleep(0.4)
-    box_around(page, ans, "b2", "TraceGuard states the limit", pad=12, w=440, h=150)
+    scroll_to(page, "Not answerable from this data", 0.7)
+    focus(page, section("Not answerable from this data"), "TraceGuard states the limit")
+    camera(page, 1.45, section("Not answerable from this data"))
+    c.at(LENGTHS["c3case"] - 1.6)
+    unfocus(page)
+    camera(page, 1.0)
     c.at(LENGTHS["c3case"] + 0.3)
     return c
 
 
 SEGMENTS = {"meet": seg_meet, "diff": seg_diff, "open": seg_open, "c1live": seg_c1live, "c2": seg_c2, "review": seg_review,
-            "c2case": seg_c2case, "c3case": seg_c3case, "arch": seg_arch, "resolve": seg_resolve}
+            "c2case": seg_c2case, "c3case": seg_c3case, "arch": seg_arch, "resolve": seg_resolve, "bg": seg_bg}
 
 
 
