@@ -1,6 +1,6 @@
 # PRD — TraceGuard
 
-**Status:** Draft v0.1 · **Owner:** Shieryl · **Last updated:** 2026-10-17
+**Status:** v1.0, as submitted · **Owners:** Shieryl Tendilla, Dzelle Faith Tan · **Last updated:** 2026-10-18
 
 **Conventions.** `F-###` features, `UJ-###` user journeys, `BR-###` business rules. Acceptance
 criteria are plain, testable bullets. IDs are never renumbered; removed items are marked `(cut)`.
@@ -8,7 +8,7 @@ criteria are plain, testable bullets. IDs are never renumbered; removed items ar
 **Sources.**
 | Source | Used for |
 |---|---|
-| TraceGuard bootstrap input (Shieryl + Dzelle, 2026-10-17) | all sections |
+| Team product brief (2026-10-17) | all sections |
 | AI Builder Cup 2026 rules (Google Cloud × Hack2skill) — theme BFSI: Intelligent Risk, Fraud & Financial Experiences | §2, BR-009, F-010 |
 
 ---
@@ -22,16 +22,15 @@ Analysts reconstruct transfers by hand, must separate suspicious patterns from i
 **This is a hypothesis to demonstrate with synthetic cases, not a validated statistic.**
 
 ## 2. Context & constraints
-- **Why now:** AI Builder Cup 2026 submission, BFSI theme.
-- **Deadline:** prototype submission portal closes **2026-10-19 2:29 AM Asia/Manila** (portal shows "PST" = Philippine Standard Time, confirmed by its countdown on 2026-10-18). Internal submit target
-  **2026-10-18 10:00 PM Asia/Manila**; feature freeze **2 PM Manila**.
-- **Budget:** no organiser credits. Project on Dzelle's personal Google Cloud account (free trial or personal billing). No employer project, account, or billing.
+- **Why now:** AI Builder Cup 2026 submission (Google Cloud × Hack2skill), BFSI theme.
+- **Timeline:** built 17–18 October 2026; submitted before the portal closed (19 October 2026, 2:29 AM Asia/Manila).
+- **Budget:** no organiser credits. The project runs on a team member's personal Google Cloud billing,
+  with budget alerts. No employer project, account or billing.
 - **Platform:** web app (Streamlit) on Google Cloud Run, publicly reachable, Gemini on Vertex AI.
 - **Legal / privacy:** synthetic data only (BR-001). No PII, no customer or employer data.
-- **Team:** Shieryl (UI, AI prompts, demo, deck) · Dzelle (graph backend, fixtures, deploy).
-- **Priority order (non-negotiable):** (1) deployed on Cloud Run with a real Gemini call →
-  (2) seed case → graph evidence → real AI brief end to end on the public URL → (3) submission
-  assets (proposal PDF, 3-min public video, form fields) → (4) everything else.
+- **Team:** Shieryl Tendilla (UI, AI prompts, demo, deck) · Dzelle Faith Tan (graph backend, dataset, deployment).
+- **Build priority:** (1) deployed on Cloud Run with a real Gemini call → (2) seed case → graph
+  evidence → real AI brief, end to end on the public URL → (3) submission assets → (4) everything else.
 
 ## 3. Goals
 | # | Goal (outcome, not output) | Measured by (§10) |
@@ -63,11 +62,11 @@ Analysts reconstruct transfers by hand, must separate suspicious patterns from i
 | F-011 | Case-scoped follow-up question | As an analyst, I want to ask one follow-up about this case, so that I can probe a specific link | P1 |
 | F-012 | CSV import, cycle detection | As an analyst, I want to load my own synthetic data and detect cycles | P2 |
 
-**P0 count is 10, above the usual ≤ 7.** Accepted because F-007–F-009 are small and F-010 is a
-hackathon entry requirement. **Cut order if behind:** F-012 → F-011 → cosmetic polish.
-**Never cut:** F-005, F-006, F-010.
+**Delivered:** F-001 to F-011. **Cut:** F-012, deliberately, to protect the P0 features. Ten P0
+features is above the usual seven; that was accepted because F-007 to F-009 are small and F-010 is a
+hackathon entry requirement.
 
-**Hard cuts (this phase):** see §11.
+**Out of scope:** see §11.
 
 ## 6. Business rules
 Testable statements. Reviewers and agents check every diff against these.
@@ -75,7 +74,7 @@ Testable statements. Reviewers and agents check every diff against these.
 ### Data & confidentiality
 | ID | Rule | Applies to |
 |---|---|---|
-| BR-001 | All data in the repo, image, prompts, and demo is synthetic and generated from public fraud patterns. No employer or customer data, internal fraud rules, proprietary code, or confidential workflows (including Dzelle's fintech employer). Every case is labelled "synthetic data" in the UI. | F-001, all |
+| BR-001 | All data in the repo, image, prompts, and demo is synthetic and generated from public fraud patterns. No employer or customer data, internal fraud rules, proprietary code, or confidential workflows. Every case is labelled "synthetic data" in the UI. | F-001, all |
 | BR-008 | No secrets in code, repo, chat, or prompts. Vertex AI is reached only through the Cloud Run runtime service account (ADC). No API keys. | F-005, F-010 |
 
 ### Evidence & detection
@@ -96,7 +95,7 @@ Testable statements. Reviewers and agents check every diff against these.
 ### AI bounds
 | ID | Rule | Applies to |
 |---|---|---|
-| BR-007 | Each investigation makes at most 4 tool rounds and 1 regeneration; each Gemini request times out after 30 s (provisional); evidence payload sent to the model is capped at 60,000 characters (provisional — Q6). Exceeding a cap produces a readable error, not a silent truncation. | F-005, F-011 |
+| BR-007 | Each investigation makes at most 4 tool rounds and 1 regeneration; each Gemini request times out after 30 s; the evidence payload sent to the model is capped at 60,000 characters. Exceeding a cap produces a readable error, not a silent truncation. | F-005, F-011 |
 
 ## 7. User journeys
 ### UJ-001 — Investigate convergence & forwarding (C-1)
@@ -123,52 +122,52 @@ Testable statements. Reviewers and agents check every diff against these.
 
 ## 8. Acceptance criteria
 ### F-001 — Case queue
-- [ ] Exactly 3 cases (C-1, C-2, C-3) load from the bundled dataset on every cold start.
-- [ ] Each case shows title, scenario label, and a visible "synthetic data" label.
+- Exactly 3 cases (C-1, C-2, C-3) load from the bundled dataset on every cold start.
+- Each case shows title, scenario label, and a visible "synthetic data" label.
 
 ### F-002 — Case detail + timeline
-- [ ] Selecting a case lists all its transactions sorted ascending by timezone-aware timestamp.
-- [ ] Each row shows transaction ID, sender, receiver, amount, currency (PHP), timestamp.
+- Selecting a case lists all its transactions sorted ascending by timezone-aware timestamp.
+- Each row shows transaction ID, sender, receiver, amount, currency (PHP), timestamp.
 
 ### F-003 — Interactive relationship graph
-- [ ] Account and device nodes are visually distinct; transfer edges show direction.
-- [ ] Repeated transfers between the same pair render as separate edges (MultiDiGraph).
-- [ ] Selecting a node shows its ID and the evidence IDs attached to it.
+- Account and device nodes are visually distinct; transfer edges show direction.
+- Repeated transfers between the same pair render as separate edges (MultiDiGraph).
+- Selecting a node shows its ID and the evidence IDs attached to it.
 
 ### F-004 — Deterministic graph tools
-- [ ] The 5 tools in System Design §2 return outputs that match `tests/fixtures/` expected
+- The 5 tools in System Design §2 return outputs that match `tests/fixtures/` expected
   outcomes for C-1, C-2, C-3 (paths, window boundaries, sender counts, aggregate sums).
-- [ ] `trace_funds` only follows transfers in non-decreasing time order.
-- [ ] C-2 returns no rapid-forwarding match; C-3 returns a truncation notice.
+- `trace_funds` only follows transfers in non-decreasing time order.
+- C-2 returns no rapid-forwarding match; C-3 returns a truncation notice.
 
 ### F-005 — AI investigation
-- [ ] Clicking "Run AI investigation" makes a real server-side Gemini call on Vertex AI.
-- [ ] A tool/retrieval log lists each tool called, its inputs, and the evidence IDs returned.
-- [ ] Request obeys BR-007 caps; output is structured JSON parsed against the brief schema.
+- Clicking "Run AI investigation" makes a real server-side Gemini call on Vertex AI.
+- A tool/retrieval log lists each tool called, its inputs, and the evidence IDs returned.
+- Request obeys BR-007 caps; output is structured JSON parsed against the brief schema.
 
 ### F-006 — Evidence-linked brief
-- [ ] Brief has observations (each with ≥ 1 evidence ID), counterevidence, unknowns,
+- Brief has observations (each with ≥ 1 evidence ID), counterevidence, unknowns,
   suggested manual checks, model ID, and run timestamp.
-- [ ] All evidence IDs pass validation (BR-002); wording passes BR-004.
+- All evidence IDs pass validation (BR-002); wording passes BR-004.
 
 ### F-007 — Citation navigation
-- [ ] Clicking an evidence ID highlights the matching timeline row or graph element.
+- Clicking an evidence ID highlights the matching timeline row or graph element.
 
 ### F-008 — Export
-- [ ] "Export" downloads a Markdown file containing the full brief, evidence IDs, model ID,
+- "Export" downloads a Markdown file containing the full brief, evidence IDs, model ID,
   run time, and the "synthetic data" label.
 
 ### F-009 — Error handling
-- [ ] Timeout, quota (429), and permission (403) errors each show a readable message.
-- [ ] After an AI error, case queue, timeline, and graph remain usable without a reload.
+- Timeout, quota (429), and permission (403) errors each show a readable message.
+- After an AI error, case queue, timeline, and graph remain usable without a reload.
 
 ### F-010 — Public Cloud Run deployment
-- [ ] The submitted URL loads in a clean browser (incognito, no Google login) and completes
+- The submitted URL loads in a clean browser (incognito, no Google login) and completes
   UJ-001 including a live Gemini call.
-- [ ] Service runs with `--max-instances 2` and the `traceguard-run` runtime service account.
+- Service runs with `--max-instances 2` and the `traceguard-run` runtime service account.
 
 ### F-011 — Follow-up question (P1)
-- [ ] One text box per case; answer uses the same retrieved evidence and passes BR-002/004/005.
+- One text box per case; answer uses the same retrieved evidence and passes BR-002/004/005.
 
 ## 9. Vocabulary
 | Term | Meaning in this product |
@@ -191,36 +190,30 @@ No claims of production accuracy or analyst time saved (we have no data for eith
 | M2 Cases with the correct conclusion class (warrants review / insufficient / unknown) | 3 / 3 | Proves the tool separates suspicious from innocent and incomplete |
 | M3 Displayed citations that exist in retrieved evidence | 100% (0 invented) | Core trust property (BR-002) |
 | M4 Briefs containing forbidden terms (BR-004) | 0 across 5 runs per case | Proves careful language holds across model variance |
-| M5 Clean-browser run of UJ-001 on the public URL | passes on 2026-10-18 before 9 PM Manila | Hackathon requirement |
+| M5 Clean-browser run of UJ-001 on the public URL | passes before submission | Hackathon requirement |
+
+**As submitted:** M1 met (TC-004 passes for all three cases); M2 3 / 3; M3 47 / 47 citations found in the
+retrieved evidence on a live C-1 brief; M5 passed on the public URL before submission.
 
 ## 11. Non-goals
 - Real payments or account ingestion, KYC, auto-freeze or transfer blocking, regulatory filing.
 - Declaring guilt, giving financial advice, credit scoring, scam-message classification.
 - Trained or GNN models, graph embeddings, vector DB, graph database, multi-agent systems.
 - Authentication, mobile app, broad banking chat.
-- Autonomous tool selection by the model for the main flow (fixed workflow; Gemini
-  function-calling only for F-011 if time allows).
+- Autonomous tool selection by the model. The main flow is a fixed workflow, and the follow-up
+  question (F-011) reuses the same evidence; there is no function calling.
 
-## 12. Risks & dependencies
-| Risk / dependency | Impact | Mitigation |
+## 12. Risks and how they were handled
+| Risk | Impact | Mitigation as built |
 |---|---|---|
-| GCP billing / credits not available (Q3) | Blocks F-010 and real Gemini call | 60–90 min timebox: personal free trial → Dzelle's personal project; then escalate to organisers. Never claim a local mock meets the rules |
-| Gemini model ID / region not available in `asia-southeast1` (Q5) | Deploy or call fails | `VERTEX_LOCATION` and `GEMINI_MODEL` are env vars, separate from Cloud Run region |
-| Graph component cannot return click selection to Python | F-003/F-007 degrade | Pick component after docs check; fallback: selectbox-driven highlight |
-| Model returns invalid citations or forbidden language | Breaks BR-002/BR-004 live in demo | Validator + one regeneration; wording check; pre-demo 5-run test per case |
-| Late submission | Disqualification | Internal target 10 PM Manila on Oct 18, 4.5 h before the portal closes (Oct 19 2:29 AM Manila). The buffer is contingency, not feature time. Check other modules (proposal, video) for their own countdowns |
-| Scope creep into P1/P2 before P0 is deployed | P0 incomplete at freeze | Feature freeze 2 PM Manila; cut order in §5 |
+| Gemini model or region not available | Deploy or call fails | `VERTEX_LOCATION` and `GEMINI_MODEL` are environment variables, separate from the Cloud Run region; `gemini-3.5-flash` confirmed in `asia-southeast1` |
+| Graph component cannot return a click to Python | F-003 and F-007 degrade | Spiked before building; streamlit-agraph returns the selected node ([ADR-002](adr/ADR-002-graph-view-streamlit-agraph.md)) |
+| Model returns invalid citations or forbidden wording | Breaks BR-002 and BR-004 | Validators on every brief and follow-up; one regeneration, then the output is blocked |
+| Model latency near the 30 s timeout | Failed investigations | LOW thinking: 3–9 s per brief, measured (System Design §6) |
 
-## 13. Open questions
-| # | Question | Owner | Blocks |
-|---|---|---|---|
-| Q1 | Category label — rules list "Healthcare, Education, Sustainability, Accessibility, Social Good", not the six challenge themes. Confirm with organisers/FAQ | Shieryl | submission form |
-| Q2 | (resolved 2026-10-18) Prototype portal closes 2026-10-19 2:29 AM Asia/Manila (supersedes the 11:59 PM Oct 18 assumption) | Shieryl | — |
-| Q3 | (resolved 2026-10-17) No organiser credits; Shieryl's trial already used. Dzelle sets up the project on her personal account (TASK-000) | Dzelle | — |
-| Q4 | (resolved 2026-10-17) Yes, Shieryl + Dzelle are registered as a duo | Shieryl | — |
-| Q5 | Gemini model ID + Vertex location confirmed in Model Garden | Dzelle | F-005, TASK-001 |
-| Q6 | Final BR-007 values: timeout (30 s provisional), evidence payload cap (60,000 chars provisional) | Shieryl | F-005 |
-| Q7 | (resolved 2026-10-17 by [ADR-003](adr/ADR-003-rule-windows-and-thresholds.md)) Fan-in ≥ 3 senders in 30 min; forwarding within 60 min and ratio ≥ 0.50; trace depth 3; boundaries inclusive | Dzelle | — |
+## 13. Decisions
+Resolved questions are recorded where they belong: the model and region in System Design §4, the
+AI bounds in BR-007, and the rule windows and thresholds in [ADR-003](adr/ADR-003-rule-windows-and-thresholds.md).
 
 ## 14. Traceability
 | Feature | Story / journey | Rules | Tests |

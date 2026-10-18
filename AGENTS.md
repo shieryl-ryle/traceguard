@@ -19,7 +19,7 @@ model compute numbers or decide flags (PRD BR-002, BR-003, BR-004). Hackathon: A
 | What we build (features `F-###`, rules `BR-###`) | [PRD](./docs/prd.md) |
 | How it's built | [System Design](./docs/system-design.md) |
 | Tests (`TC-###`) | [QA Test Plan](./docs/qa-test-plan.md) |
-| What to work on now (`TASK-###`) | [Implementation Plan](./docs/implementation-plan.md) |
+| Build history (`TASK-###`) | [Build History](./docs/implementation-plan.md) |
 | **Why / pivots / audit** | **[`docs/adr/`](./docs/adr/) only** |
 
 ## Decisions (ADRs)
