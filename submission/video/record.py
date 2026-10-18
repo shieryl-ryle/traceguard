@@ -1,4 +1,4 @@
-"""Record the TraceGuard demo segments: Maya story scenes (story.html) + the LIVE public app with real Gemini.
+"""Record the TraceGuard demo segments: Tracy story scenes (story.html) + the LIVE public app with real Gemini.
 
 Usage: python record.py <segment|all>   segments (story order): meet diff open c1live c2 review c2case c3case arch resolve
 Writes raw/<segment>.webm and raw/offsets.json (seconds to trim from each recording's start).
@@ -105,13 +105,13 @@ CASE_JS = """([title, chip]) => {
       transition: 'opacity .5s ease, transform .6s cubic-bezier(.34,1.56,.64,1)', pointerEvents: 'none'});
     card.innerHTML = title + '<div style="font:500 22px Segoe UI,Arial;color:#9aa0a6;margin-top:10px">Live app · synthetic demo data</div>';
     document.body.appendChild(card);
-    requestAnimationFrame(() => { card.style.opacity = 1; card.style.transform = 'translate(-50%,-50%) scale(1)'; });
-    setTimeout(() => { card.style.opacity = 0; }, 2300); setTimeout(() => card.remove(), 2900);
+    setTimeout(() => { card.style.opacity = 1; card.style.transform = 'translate(-50%,-50%) scale(1)'; }, 800);
+    setTimeout(() => { card.style.opacity = 0; }, 2900); setTimeout(() => card.remove(), 3500);
   }
   const c = document.createElement('div'); c.id = 'tgchip';
   Object.assign(c.style, {position: 'fixed', right: '70px', top: '14px', zIndex: 2147483646, background: 'rgba(11,13,18,0.86)', color: '#e8eaed',
     font: '600 16px "Segoe UI", Arial, sans-serif', padding: '7px 15px', borderRadius: '999px', opacity: 0, transition: 'opacity .5s', pointerEvents: 'none'});
-  c.textContent = chip; document.body.appendChild(c); setTimeout(() => { c.style.opacity = 1; }, title ? 2500 : 0);
+  c.textContent = chip; document.body.appendChild(c); setTimeout(() => { c.style.opacity = 1; }, title ? 3100 : 800);
 }"""
 
 
@@ -175,35 +175,29 @@ def seg_bg(page: Page) -> Clock:
     return c
 
 
-# ---- live-app overlay helpers (fx.js: tracked spotlight, cursor, camera) ----
+# ---- live-app overlay helpers (fx.js: one camera move, then a spotlight locked to the target) ----
 
-def focus(page: Page, spec: dict, label: str | None = None, pad: int = 10) -> None:
+def go(page: Page, spec: dict | None = None, scale: float = 1.0, label: str = "", pad: int = 10,
+       spot: bool = True, ms: int = 1100) -> None:
+    """Scroll + zoom to `spec` as one eased move (or back to the full page with scale 1), then draw the spotlight."""
+    page.evaluate("([s, o]) => FX.go(s, o)", [spec, {"scale": scale, "label": label, "pad": pad, "spot": spot, "ms": ms}])
+
+
+def focus(page: Page, spec: dict, label: str = "", pad: int = 10) -> None:
     page.evaluate("([s, l, p]) => FX.focus(s, l, p)", [spec, label, pad])
 
 
-def unfocus(page: Page) -> None:
-    page.evaluate("() => FX.clear()")
+def mark(locator, name: str) -> dict:
+    """Tag an element so fx.js can target it, and return its target spec."""
+    locator.evaluate(f"e => e.setAttribute('data-fx', '{name}')")
+    return {"kind": "sel", "sel": f"[data-fx={name}]"}
 
 
-def camera(page: Page, scale: float = 1.0, spec: dict | None = None) -> None:
-    page.evaluate("([z, s]) => FX.camera(z, s)", [scale, spec])
-
-
-def scroll_to(page: Page, text: str, settle: float = 1.1) -> None:
-    """Smooth-scroll the element whose own text is `text` to the middle of the view."""
-    page.wait_for_function("t => document.body.innerText.includes(t)", arg=text, timeout=30000)
-    page.evaluate("""t => { const all = [...document.querySelectorAll('body *')];
-      const e = all.find(x => x.textContent.trim() === t && ![...x.children].some(c => c.textContent.trim() === t)) || all.filter(x => x.textContent.includes(t)).pop();
-      e.scrollIntoView({behavior: 'smooth', block: 'center'}); }""", text)
-    time.sleep(settle)
-
-
-def click(page: Page, locator, ms: int = 750) -> None:
-    """Glide the visible cursor to the element, ripple, then click that exact point."""
+def click(page: Page, locator, ms: int = 650) -> None:
+    """The cursor appears, travels to the element, presses, and the real click lands on that exact point."""
     bb = locator.bounding_box()
     x, y = bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2
-    page.evaluate("([x, y, ms]) => FX.cursorAt(x, y, ms)", [x, y, ms])
-    page.evaluate("() => FX.ripple()")
+    page.evaluate("([x, y, ms]) => FX.clickAt(x, y, ms)", [x, y, ms])
     page.mouse.click(x, y)
 
 
@@ -211,37 +205,32 @@ def section(text: str) -> dict:
     return {"kind": "section", "text": text}
 
 
+def wait_text(page: Page, text: str) -> None:
+    page.wait_for_function("t => document.body.innerText.includes(t)", arg=text, timeout=30000)
+    time.sleep(0.3)
+
+
 def seg_c1live(page: Page) -> Clock:
     open_app(page)
     c = Clock()
     captions(page, "c1live")
-    page.evaluate(CASE_JS, ["Maya's investigation · C-1", "Maya's investigation · C-1 · live app · synthetic demo data"])
-    c.at(2.6)                                     # M07: the graph brings the relationships into view
-    camera(page, 1.25, {"kind": "frame"})
-    c.at(4.6)
+    page.evaluate(CASE_JS, ["Tracy's investigation · C-1", "Tracy's investigation · C-1 · live app · synthetic demo data"])
+    c.at(2.4)                                     # M07: the graph brings the relationships into view
+    go(page, {"kind": "frame"}, 1.25, spot=False)
+    c.at(4.4)
     node = page.evaluate("() => FX.rect({kind: 'node'})")
     x, y = (node["l"] + node["r"]) / 2, (node["t"] + node["b"]) / 2
-    page.evaluate("([x, y]) => FX.cursorAt(x, y, 900)", [x, y])
-    page.evaluate("() => FX.ripple()")
+    page.evaluate("([x, y]) => FX.clickAt(x, y, 800)", [x, y])
     page.mouse.click(x, y)
     focus(page, {"kind": "node"}, "A-07", pad=6)
-    c.at(10.4)                                    # M08: the incoming window
-    camera(page, 1.6, {"kind": "node"})
-    focus(page, {"kind": "node"}, "Into A-07 · 4 wallets · 5 transfers · PHP 17,000.00 · 30 min", pad=6)
-    c.at(16.4)                                    # M09: the onward transfer
-    unfocus(page)
-    camera(page, 1.0)
-    time.sleep(1.0)
-    page.locator("[data-testid=stDataFrame]").first.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
-    time.sleep(1.1)
-    focus(page, {"kind": "row", "tx": "TX-0007"}, "TX-0007 · 30 min after the last incoming · PHP 15,500.00 → A-08", pad=3)
-    camera(page, 1.3, {"kind": "row", "tx": "TX-0007"})
-    c.at(24.6)                                    # M10: the earlier payment is excluded
-    focus(page, {"kind": "row", "tx": "TX-0008"}, "TX-0008 · 09:00 · before the money reached A-09 → not part of this trail", pad=3)
-    camera(page, 1.3, {"kind": "row", "tx": "TX-0008"})
-    c.at(32.9)                                    # M11: a pattern to investigate, not intent
-    unfocus(page)
-    camera(page, 1.0)
+    c.at(9.9)                                     # M08: the incoming window
+    go(page, {"kind": "node"}, 1.6, "Into A-07 · 4 wallets · 5 transfers · PHP 17,000.00 · 30 min", pad=6, ms=900)
+    c.at(16.4)                                    # M09: the onward transfer (graph -> timeline in one move)
+    go(page, {"kind": "row", "tx": "TX-0007"}, 1.3, "TX-0007 · 30 min after the last incoming · PHP 15,500.00 → A-08", pad=3, ms=1400)
+    c.at(24.2)                                    # M10: the earlier payment is excluded
+    go(page, {"kind": "row", "tx": "TX-0008"}, 1.3, "TX-0008 · 09:00 · before the money reached A-09 → not part of this trail", pad=3, ms=900)
+    c.at(32.6)                                    # M11: a pattern to investigate, not intent
+    go(page, None, 1.0, ms=1200)
     c.at(LENGTHS["c1live"] + 0.3)
     return c
 
@@ -250,47 +239,31 @@ def seg_c2(page: Page) -> Clock:
     open_app(page)
     c = Clock()
     captions(page, "c2")
-    page.evaluate(CASE_JS, ["", "Maya's investigation · C-1 · live app · synthetic demo data"])
-    c.at(1.0)                                     # M12: run the investigation
+    page.evaluate(CASE_JS, ["", "Tracy's investigation · C-1 · live app · synthetic demo data"])
+    c.at(0.9)                                     # M12: run the investigation
     click(page, page.get_by_role("button", name="Run AI investigation"))
     wait_brief(page)
-    scroll_to(page, "Rule flags (deterministic)")
-    focus(page, section("Rule flags (deterministic)"), "Graph tool results: both rules flag a pattern for review")
-    camera(page, 1.3, section("Rule flags (deterministic)"))
-    c.at(10.1)                                    # M13: what the validators check
-    scroll_to(page, "Verified before display", 0.6)
-    focus(page, section("Verified before display"), "Checked: citations · figures · wording")
-    camera(page, 1.45, section("Verified before display"))
-    c.at(25.0)                                    # M14: follow a citation
-    unfocus(page)
-    camera(page, 1.0)
-    time.sleep(1.1)
+    wait_text(page, "Rule flags (deterministic)")
+    go(page, section("Rule flags (deterministic)"), 1.3, "Graph tool results: both rules flag a pattern for review")
+    c.at(9.6)                                     # M13: what the validators check
+    go(page, section("Verified before display"), 1.45, "Checked: citations · figures · wording")
+    c.at(24.4)                                    # M14: follow a citation
     chip = page.get_by_role("button", name="RULE-FWD-01").first
-    chip.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
-    time.sleep(1.0)
+    go(page, mark(chip, "chip"), 1.2, spot=False, ms=1000)
     click(page, chip)
-    time.sleep(1.2)
+    time.sleep(1.4)
     graph_frame(page)
-    page.locator("iframe").first.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'start'})")
-    time.sleep(1.0)
-    focus(page, {"kind": "frame"}, "Supporting records highlighted in the graph", pad=4)
-    camera(page, 1.15, {"kind": "frame"})
-    c.at(30.4)                                    # M15: what complicates the picture
-    scroll_to(page, "Counterevidence", 0.8)
-    focus(page, section("Counterevidence"), "Details that complicate the picture")
-    camera(page, 1.3, section("Counterevidence"))
-    c.at(37.6)                                    # the real export feeds the review and resolution scenes
-    unfocus(page)
-    camera(page, 1.0)
-    time.sleep(1.1)
+    go(page, {"kind": "frame"}, 1.15, "Supporting records highlighted in the graph", pad=4, ms=1200)
+    c.at(29.9)                                    # M15: what complicates the picture
+    go(page, section("Counterevidence"), 1.3, "Details that complicate the picture", ms=1200)
+    c.at(37.2)                                    # the real export feeds the review and resolution scenes
     exp = page.get_by_role("button", name="Export brief (Markdown)")
-    exp.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
-    time.sleep(1.0)
+    spec = mark(exp, "export")
+    go(page, spec, 1.25, spot=False, ms=1000)
     with page.expect_download() as dl:
         click(page, exp)
     dl.value.save_as(str(BRIEF_MD))
-    focus(page, {"kind": "el", "text": "Export brief (Markdown)"}, "Exported: traceguard-C-1-brief.md", pad=8)
-    camera(page, 1.4, {"kind": "el", "text": "Export brief (Markdown)"})
+    focus(page, spec, "Exported: traceguard-C-1-brief.md", pad=8)
     c.at(LENGTHS["c2"] + 0.3)
     return c
 
@@ -301,21 +274,17 @@ def seg_c2case(page: Page) -> Clock:
     time.sleep(3)
     c = Clock()
     captions(page, "c2case")
-    page.evaluate(CASE_JS, ["Maya's next case · C-2", "Maya's next case · C-2 · live app · synthetic demo data"])
+    page.evaluate(CASE_JS, ["Tracy's next case · C-2", "Tracy's next case · C-2 · live app · synthetic demo data"])
     c.at(3.0)
     click(page, page.get_by_role("button", name="Run AI investigation"))
     wait_brief(page)
-    c.at(8.8)                                     # M18: no rule matched
-    scroll_to(page, "Rule flags (deterministic)", 0.8)
-    focus(page, section("Rule flags (deterministic)"), "No configured rule matched")
-    camera(page, 1.3, section("Rule flags (deterministic)"))
-    c.at(14.4)                                    # M19: document without accusing
-    scroll_to(page, "Counterevidence", 0.8)
-    focus(page, section("Counterevidence"), "Visible connection · insufficient evidence")
-    camera(page, 1.3, section("Counterevidence"))
-    c.at(LENGTHS["c2case"] - 1.6)
-    unfocus(page)
-    camera(page, 1.0)
+    wait_text(page, "Rule flags (deterministic)")
+    c.at(8.4)                                     # M18: no rule matched
+    go(page, section("Rule flags (deterministic)"), 1.3, "No configured rule matched")
+    c.at(14.0)                                    # M19: document without accusing
+    go(page, section("Counterevidence"), 1.3, "Visible connection · insufficient evidence")
+    c.at(LENGTHS["c2case"] - 2.0)
+    go(page, None, 1.0, ms=1200)
     c.at(LENGTHS["c2case"] + 0.3)
     return c
 
@@ -326,34 +295,26 @@ def seg_c3case(page: Page) -> Clock:
     time.sleep(3)
     c = Clock()
     captions(page, "c3case")
-    page.evaluate(CASE_JS, ["Maya's final case · C-3", "Maya's final case · C-3 · live app · synthetic demo data"])
+    page.evaluate(CASE_JS, ["Tracy's final case · C-3", "Tracy's final case · C-3 · live app · synthetic demo data"])
     c.at(2.8)
     click(page, page.get_by_role("button", name="Run AI investigation"))
     wait_brief(page)
-    scroll_to(page, "Unknowns", 0.8)
-    focus(page, section("Unknowns"), "Trail ends at A-22 · what happens next is unknown")
-    camera(page, 1.4, section("Unknowns"))
-    c.at(10.4)                                    # M21: the ownership question
-    unfocus(page)
-    camera(page, 1.0)
-    time.sleep(0.6)
+    wait_text(page, "Unknowns")
+    go(page, section("Unknowns"), 1.4, "Trail ends at A-22 · what happens next is unknown")
+    c.at(9.9)                                     # M21: the ownership question
     q = page.get_by_placeholder("e.g. Why is A-08 relevant? or Who owns A-22?")
-    q.evaluate("e => e.scrollIntoView({behavior: 'smooth', block: 'center'})")
-    time.sleep(0.9)
+    go(page, mark(q, "question"), 1.25, spot=False, ms=1000)
     click(page, q, 600)
     q.press_sequentially("Who owns A-22?", delay=55)
-    click(page, page.get_by_role("button", name="Ask"), 500)
+    click(page, page.get_by_role("button", name="Ask"), 450)
     page.wait_for_function("() => document.body.innerText.includes('Q: Who owns A-22?')", timeout=60000)
-    time.sleep(0.4)
+    time.sleep(0.3)
     if "Not answerable from this data" not in page.inner_text("body"):
         raise RuntimeError("C-3 follow-up did not return a refusal; narration M21-M23 would not match the footage")
-    c.at(15.0)                                    # M22: the limit is stated
-    scroll_to(page, "Not answerable from this data", 0.7)
-    focus(page, section("Not answerable from this data"), "TraceGuard states the limit")
-    camera(page, 1.45, section("Not answerable from this data"))
-    c.at(LENGTHS["c3case"] - 1.6)
-    unfocus(page)
-    camera(page, 1.0)
+    c.at(14.6)                                    # M22: the limit is stated
+    go(page, section("Not answerable from this data"), 1.45, "TraceGuard states the limit")
+    c.at(LENGTHS["c3case"] - 2.0)
+    go(page, None, 1.0, ms=1200)
     c.at(LENGTHS["c3case"] + 0.3)
     return c
 

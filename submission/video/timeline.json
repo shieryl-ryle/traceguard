@@ -16,7 +16,7 @@
    {
     "id": "M01",
     "at": 1.2,
-    "text": "This is Maya. She reviews flagged transactions at a fintech."
+    "text": "This is Tracy. She reviews flagged transactions at a fintech."
    },
    {
     "id": "M02",
@@ -26,7 +26,7 @@
    {
     "id": "M03",
     "at": 13.2,
-    "text": "Maya has a question to answer: what happened here, and what does the evidence actually support?"
+    "text": "Tracy has a question to answer: what happened here, and what does the evidence actually support?"
    }
   ],
   "diff": [
@@ -38,7 +38,7 @@
    {
     "id": "M05",
     "at": 9.8,
-    "text": "A connection may matter. It may also have an ordinary explanation. Maya needs to separate what she can observe from what she can only suspect."
+    "text": "A connection may matter. It may also have an ordinary explanation. Tracy needs to separate what she can observe from what she can only suspect."
    }
   ],
   "open": [
@@ -52,7 +52,7 @@
    {
     "id": "M07",
     "at": 0.6,
-    "text": "The graph brings the relationships into view. Maya can follow the transfers in order, inspect the timing, and see the records behind each connection."
+    "text": "The graph brings the relationships into view. Tracy can follow the transfers in order, inspect the timing, and see the records behind each connection."
    },
    {
     "id": "M08",
@@ -67,7 +67,7 @@
    {
     "id": "M10",
     "at": 24.6,
-    "text": "One earlier payment, out of A-09, isn't part of this trail. Maya can see why: it happened before the money reached A-09."
+    "text": "One earlier payment, out of A-09, isn't part of this trail. Tracy can see why: it happened before the money reached A-09."
    },
    {
     "id": "M11",
@@ -79,7 +79,7 @@
    {
     "id": "M12",
     "at": 0.6,
-    "text": "Maya runs the investigation. A fixed workflow executes the graph tools, and Gemini on Vertex AI explains their results."
+    "text": "Tracy runs the investigation. A fixed workflow executes the graph tools, and Gemini on Vertex AI explains their results."
    },
    {
     "id": "M13",
@@ -118,7 +118,7 @@
    {
     "id": "M19",
     "at": 14.4,
-    "text": "Maya can document the connection without turning it into an accusation. Sharing a device alone does not establish wrongdoing."
+    "text": "Tracy can document the connection without turning it into an accusation. Sharing a device alone does not establish wrongdoing."
    }
   ],
   "c3case": [
@@ -130,7 +130,7 @@
    {
     "id": "M21",
     "at": 10.4,
-    "text": "Maya asks who owns the account. The dataset cannot tell her."
+    "text": "Tracy asks who owns the account. The dataset cannot tell her."
    },
    {
     "id": "M22",
@@ -140,21 +140,41 @@
    {
     "id": "M23",
     "at": 21.3,
-    "text": "So Maya knows what further evidence she would need, rather than accepting an answer the system cannot support."
+    "text": "So Tracy knows what further evidence she would need, rather than accepting an answer the system cannot support."
    }
   ],
   "arch": [
    {
     "id": "M24",
     "at": 0.6,
-    "text": "TraceGuard runs on Cloud Run with Gemini on Vertex AI. Graph tools compute the paths and rule matches. Gemini explains the retrieved evidence. Maya makes the judgment."
+    "text": "Here's how it works. TraceGuard runs on Google Cloud Run."
+   },
+   {
+    "id": "M24b",
+    "at": 4.9,
+    "text": "When Tracy opens a case, graph tools compute the paths and rule matches from the case data."
+   },
+   {
+    "id": "M24c",
+    "at": 10.8,
+    "text": "Only that retrieved evidence goes to Gemini on Vertex AI, which drafts the brief as structured output."
+   },
+   {
+    "id": "M24d",
+    "at": 18.1,
+    "text": "Validation then checks its citations, figures and wording. A brief that fails is regenerated once, then blocked."
+   },
+   {
+    "id": "M24e",
+    "at": 26.4,
+    "text": "Tracy makes the judgment."
    }
   ],
   "resolve": [
    {
     "id": "M25",
     "at": 0.6,
-    "text": "Maya began with an alert and a question."
+    "text": "Tracy began with an alert and a question."
    },
    {
     "id": "M26",
@@ -164,8 +184,13 @@
    },
    {
     "id": "M27",
-    "at": 15.3,
-    "text": "TraceGuard. Follow the connections. Keep the judgment human."
+    "at": 15.0,
+    "text": "TraceGuard turns scattered transactions into evidence an analyst can follow, check, and explain."
+   },
+   {
+    "id": "M28",
+    "at": 22.4,
+    "text": "Follow the connections. Keep the judgment human."
    }
   ]
  },
@@ -178,8 +203,8 @@
   "review": 6.6,
   "c2case": 23.0,
   "c3case": 28.4,
-  "arch": 13.6,
-  "resolve": 21.8
+  "arch": 28.8,
+  "resolve": 27.4
  },
  "xfade": 0.7,
  "lead": 0.35,
@@ -195,7 +220,7 @@
   "c1live": "zoomin",
   "c2": "fade",
   "review": "fade",
-  "c2case": "smoothleft",
+  "c2case": "fade",
   "c3case": "smoothleft",
   "arch": "fadeblack",
   "resolve": "fade"
