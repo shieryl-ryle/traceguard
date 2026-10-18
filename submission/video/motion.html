@@ -4,158 +4,298 @@
 <meta charset="utf-8">
 <title>TraceGuard motion</title>
 <style>
-  :root { --bg:#0b0d12; --ink:#f1f3f4; --muted:#9aa0a6; --blue:#4c8df6; --green:#34a853; --amber:#f2a900; --red:#ea4335; --card:#151922; --line:#2a2f3a; }
+  :root { --bg:#07090d; --ink:#f1f3f4; --muted:#9aa0a6; --blue:#4c8df6; --green:#34a853; --amber:#f2a900; --red:#ea4335;
+          --card:rgba(22,26,35,.92); --line:#2a2f3a; --ease:cubic-bezier(.22,1,.36,1); --spring:cubic-bezier(.34,1.56,.64,1); }
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 1600px; height: 900px; overflow: hidden; background: var(--bg); color: var(--ink);
                font-family: "Segoe UI", "Google Sans", Arial, sans-serif; }
-  .scene { position: absolute; inset: 0; opacity: 0; transition: opacity .7s ease; display: flex; flex-direction: column;
-           align-items: center; justify-content: center; }
-  .scene.on { opacity: 1; }
-  .kicker { font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
-  h1 { font-size: 104px; font-weight: 700; letter-spacing: -.02em; }
-  h1 .g { background: linear-gradient(90deg, var(--blue), var(--green) 45%, var(--amber)); -webkit-background-clip: text; color: transparent; }
-  h2 { font-size: 54px; font-weight: 650; text-align: center; line-height: 1.15; max-width: 1250px; }
-  .sub { font-size: 30px; color: var(--muted); margin-top: 22px; text-align: center; max-width: 1150px; line-height: 1.35; }
-  .pop { opacity: 0; transform: translateY(18px); transition: all .6s ease; }
-  .pop.on { opacity: 1; transform: none; }
-  /* alert row */
-  .alert { display: flex; gap: 28px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-           padding: 22px 34px; font-size: 28px; }
-  .alert .tag { background: #3b1f1d; color: #ff8a80; padding: 6px 14px; border-radius: 999px; font-size: 22px; }
+  .blob { position: absolute; width: 760px; height: 760px; border-radius: 50%; filter: blur(120px); opacity: .22; }
+  .b1 { background: var(--blue); left: -220px; top: -260px; animation: drift1 22s ease-in-out infinite alternate; }
+  .b2 { background: var(--green); right: -260px; bottom: -300px; animation: drift2 26s ease-in-out infinite alternate; }
+  .b3 { background: var(--amber); left: 45%; top: 55%; width: 520px; height: 520px; opacity: .10; animation: drift1 30s ease-in-out infinite alternate-reverse; }
+  @keyframes drift1 { to { transform: translate(260px, 180px) scale(1.15); } }
+  @keyframes drift2 { to { transform: translate(-220px, -160px) scale(1.1); } }
+  #particles { position: absolute; inset: 0; }
+  .scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+           opacity: 0; transform: scale(.965); filter: blur(10px); transition: opacity .9s var(--ease), transform 1.1s var(--ease), filter .9s var(--ease);
+           pointer-events: none; }
+  .scene.on { opacity: 1; transform: none; filter: none; }
+  .scene.out { opacity: 0; transform: scale(1.04); filter: blur(12px); }
+  .el { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--ease), transform .9s var(--ease); }
+  .el.on { opacity: 1; transform: none; }
+  .el.left { transform: translateX(-80px); } .el.right { transform: translateX(80px); } .el.left.on, .el.right.on { transform: none; }
+  .el.popin { transform: scale(.6); transition: opacity .5s var(--ease), transform .7s var(--spring); } .el.popin.on { transform: none; }
+  .kicker { font-size: 21px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+  .logo { font-size: 128px; font-weight: 750; letter-spacing: -.03em; position: relative; display: flex; overflow: hidden; padding: 0 10px; }
+  .logo span { display: inline-block; opacity: 0; transform: translateY(60px); filter: blur(8px);
+               transition: opacity .7s var(--ease), transform .9s var(--ease), filter .7s var(--ease); }
+  .logo.on span { opacity: 1; transform: none; filter: none; }
+  .logo .g { background: linear-gradient(90deg, var(--blue), var(--green) 50%, var(--amber)); -webkit-background-clip: text; color: transparent; }
+  .sweep { position: absolute; top: 0; bottom: 0; width: 160px; left: -200px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+           transform: skewX(-20deg); }
+  .sweep.go { animation: sweep 1.6s var(--ease) forwards; } @keyframes sweep { to { left: 110%; } }
+  h2 { font-size: 58px; font-weight: 700; text-align: center; line-height: 1.12; letter-spacing: -.01em; }
+  .sub { font-size: 29px; color: var(--muted); margin-top: 20px; text-align: center; max-width: 1150px; line-height: 1.4; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+  .alert { display: flex; gap: 22px; align-items: center; padding: 20px 32px; font-size: 27px; transition: all 1s var(--ease); }
+  .alert .tag { background: #3b1f1d; color: #ff8a80; padding: 6px 14px; border-radius: 999px; font-size: 20px; font-weight: 700; letter-spacing: .08em; }
+  .alert.lift { transform: translateY(-14px) scale(.86); opacity: .85; }
   svg text { font-family: "Segoe UI", Arial, sans-serif; }
-  .edge { stroke: #5f6773; stroke-width: 3; fill: none; stroke-dasharray: 500; stroke-dashoffset: 500; transition: stroke-dashoffset 1.1s ease; }
-  .edge.on { stroke-dashoffset: 0; }
-  .edge.hot { stroke: var(--amber); stroke-width: 4.5; }
-  .dev { stroke: #9d755d; stroke-width: 3; fill: none; stroke-dasharray: 8 9; opacity: 0; transition: opacity .8s ease; }
-  .dev.on { opacity: 1; }
-  .node { opacity: 0; transition: opacity .5s ease; }
-  .node.on { opacity: 1; }
-  /* split */
-  .split { display: grid; grid-template-columns: 1fr 120px 1fr; gap: 0; align-items: stretch; width: 1380px; margin-top: 36px; }
-  .col { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 34px 38px; }
-  .col h3 { font-size: 34px; margin-bottom: 18px; }
-  .col li { font-size: 25px; color: #d7dbdf; margin: 12px 0 0 26px; line-height: 1.35; }
-  .arrow { display: flex; align-items: center; justify-content: center; font-size: 64px; color: var(--muted); }
-  .gate { margin-top: 30px; display: inline-flex; gap: 16px; align-items: center; background: #10291a; color: #8ee0a8;
-          border: 1px solid #1e5e34; padding: 16px 26px; border-radius: 999px; font-size: 26px; }
-  /* architecture */
-  .arch { display: flex; align-items: center; gap: 34px; margin-top: 40px; }
-  .box { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 26px 30px; font-size: 24px; color: #d7dbdf; }
-  .box b { display: block; font-size: 30px; color: var(--ink); margin-bottom: 8px; }
-  .run { border-color: #2d4f8f; background: #111a2c; }
-  .run .layer { background: #0b0d12; border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; margin-top: 12px; font-size: 22px; }
-  .chips { display: flex; gap: 16px; margin-top: 34px; flex-wrap: wrap; justify-content: center; }
-  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 12px 22px; font-size: 23px; color: #d7dbdf; background: var(--card); }
-  .chip i { color: var(--green); font-style: normal; margin-right: 8px; }
+  .edge { stroke: #616a78; stroke-width: 3; fill: none; stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset 1s var(--ease); }
+  .edge.on { stroke-dashoffset: 0; } .edge.hot { stroke: var(--amber); stroke-width: 4; }
+  .dev { stroke: #a57d63; stroke-width: 3; fill: none; stroke-dasharray: 8 9; opacity: 0; transition: opacity .8s var(--ease); } .dev.on { opacity: 1; }
+  .node { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.2); transition: opacity .4s var(--ease), transform .7s var(--spring); }
+  .node.on { opacity: 1; transform: scale(1); }
+  .pulse { fill: none; stroke: var(--red); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .pulse.go { animation: pulse 1.8s ease-out infinite; } @keyframes pulse { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(2.6); } }
+  .counter { position: absolute; padding: 12px 20px; font-size: 26px; font-weight: 700; border-radius: 14px; background: #2b2410; border: 1px solid #6b5410; color: #ffd27a; }
+  .devtag { position: absolute; font-size: 19px; color: #e0b394; background: rgba(60,40,28,.85); border: 1px solid #6e4e39; padding: 6px 12px; border-radius: 10px; }
+  .rows { width: 980px; margin-top: 34px; position: relative; }
+  .row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 10px; padding: 14px 22px; font-size: 22px; color: #cfd3d8;
+         border-bottom: 1px solid #1f2430; opacity: 0; transform: translateX(120px); transition: all .7s var(--ease); font-variant-numeric: tabular-nums; }
+  .row.on { opacity: 1; transform: none; }
+  .lens { position: absolute; width: 120px; height: 120px; border: 5px solid #cfd3d8; border-radius: 50%; left: 760px; top: -20px; opacity: 0; transition: opacity .5s; }
+  .lens::after { content: ""; position: absolute; width: 60px; height: 10px; background: #cfd3d8; right: -46px; bottom: -14px; transform: rotate(45deg); border-radius: 5px; }
+  .lens.go { opacity: .85; animation: scan 3.2s ease-in-out infinite alternate; } @keyframes scan { to { top: 250px; left: 120px; } }
+  .family { display: flex; align-items: center; gap: 18px; margin-top: 30px; font-size: 22px; color: #e0b394; }
+  .qtag { background: rgba(76,141,246,.15); color: #9cc0ff; border: 1px solid #2d4f8f; border-radius: 999px; padding: 6px 14px; font-size: 20px; }
+  .brief { width: 760px; padding: 30px 34px; }
+  .brief .ttl { font-size: 26px; font-weight: 700; margin-bottom: 18px; display: flex; gap: 12px; align-items: center; }
+  .skel { height: 14px; border-radius: 7px; background: linear-gradient(90deg, #2a3040, #3a4255, #2a3040); background-size: 200% 100%;
+          margin: 12px 0; width: 0; transition: width 1s var(--ease); animation: shimmer 1.6s linear infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .chips { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+  .chip { border: 1px solid #3a4255; border-radius: 999px; padding: 8px 16px; font-size: 19px; color: #9cc0ff; background: rgba(76,141,246,.08); }
+  .tick { width: 54px; height: 54px; }
+  .tick path { stroke: var(--green); stroke-width: 6; fill: none; stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset .8s var(--ease) .1s; }
+  .tick.on path { stroke-dashoffset: 0; }
+  .split { display: grid; grid-template-columns: 1fr 140px 1fr; width: 1380px; margin-top: 40px; align-items: stretch; }
+  .col { padding: 34px 38px; }
+  .col h3 { font-size: 34px; margin-bottom: 14px; }
+  .col li { font-size: 25px; color: #d7dbdf; margin: 13px 0 0 26px; line-height: 1.35; opacity: 0; transform: translateX(-16px); transition: all .5s var(--ease); }
+  .col li.on { opacity: 1; transform: none; }
+  .arrow { display: flex; align-items: center; justify-content: center; font-size: 70px; color: var(--muted); }
+  .arrow.go { animation: nudge 1.4s ease-in-out infinite; } @keyframes nudge { 50% { transform: translateX(14px); color: var(--ink); } }
+  .gate { margin-top: 34px; display: inline-flex; gap: 14px; align-items: center; background: #0f2a1a; color: #8ee0a8;
+          border: 1px solid #1e5e34; padding: 14px 28px; border-radius: 999px; font-size: 26px; }
+  .gate .tick { width: 34px; height: 34px; } .gate .tick path { stroke-width: 7; }
+  .arch { position: relative; width: 1460px; height: 420px; margin-top: 30px; }
+  .box { position: absolute; padding: 24px 28px; font-size: 22px; color: #d7dbdf; }
+  .box b { display: block; font-size: 28px; color: var(--ink); margin-bottom: 8px; }
+  .run { border-color: #2d4f8f; background: rgba(17,26,44,.92); }
+  .layer { background: rgba(7,9,13,.8); border: 1px solid var(--line); border-radius: 12px; padding: 11px 16px; margin-top: 10px; font-size: 21px;
+           opacity: 0; transform: translateY(10px); transition: all .5s var(--ease); }
+  .layer.on { opacity: 1; transform: none; }
+  .wire { stroke: #3a4255; stroke-width: 3; fill: none; stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset 1s var(--ease); }
+  .wire.on { stroke-dashoffset: 0; }
+  .pills { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+  .pill { border: 1px solid var(--line); border-radius: 999px; padding: 12px 22px; font-size: 23px; color: #d7dbdf; background: var(--card); }
+  .pill i { color: var(--green); font-style: normal; margin-right: 8px; }
 </style>
 </head>
 <body>
-<!-- INTRO (0-40 s) -->
-<section class="scene" id="title">
-  <div class="kicker pop" id="t1">AI Builder Cup 2026 · BFSI</div>
-  <h1 class="pop" id="t2">Trace<span class="g">Guard</span></h1>
-  <div class="sub pop" id="t3">Trace connected fund movements. Brief every claim with evidence.</div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<canvas id="particles" width="1600" height="900"></canvas>
+
+<section class="scene" id="s-title">
+  <div class="kicker el" id="t-k">AI Builder Cup 2026 · BFSI</div>
+  <div class="logo" id="t-logo" style="margin-top:14px"><div class="sweep" id="t-sweep"></div></div>
+  <div class="sub el" id="t-sub">Trace connected fund movements. Brief every claim with evidence.</div>
 </section>
 
-<section class="scene" id="problem">
-  <div class="alert pop" id="p1"><span class="tag">ALERT</span><span>A-07 · several inbound transfers, then a large outbound transfer</span></div>
-  <svg width="1200" height="600" viewBox="0 0 1200 600" style="margin-top:18px">
-    <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#5f6773"/></marker>
-          <marker id="ahh" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#f2a900"/></marker></defs>
-    <g id="edges"></g><g id="nodes"></g>
-  </svg>
+<section class="scene" id="s-problem">
+  <div class="alert card el" id="p-alert"><span class="tag">ALERT</span><span>A-07 · several inbound transfers, then a large outbound transfer</span></div>
+  <div style="position:relative">
+    <svg id="net" width="1240" height="560" viewBox="0 0 1240 560">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#616a78"/></marker>
+        <marker id="ahh" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="#f2a900"/></marker>
+        <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <g id="edges"></g><g id="nodes"></g><g id="dots"></g>
+    </svg>
+    <div class="counter el popin" id="p-counter" style="left:500px; top:150px">PHP <span id="cnt">0</span> in 30 min</div>
+    <div class="devtag el" id="p-devtag" style="left:20px; top:320px">shared device</div>
+  </div>
 </section>
 
-<section class="scene" id="manual">
-  <h2 class="pop" id="m1">Analysts rebuild this picture by hand</h2>
-  <div class="sub pop" id="m2">…and must separate suspicious patterns from innocent links, like a household sharing one tablet.</div>
+<section class="scene" id="s-manual">
+  <h2 class="el" id="m-h">Rebuilt by hand. Easy to misread.</h2>
+  <div class="rows card" id="m-rows" style="padding:10px 0"><div class="lens" id="m-lens"></div></div>
+  <div class="family el" id="m-fam">
+    <svg width="330" height="70" viewBox="0 0 330 70"><circle cx="30" cy="35" r="22" fill="#4c78a8"/><circle cx="300" cy="35" r="22" fill="#4c78a8"/>
+      <rect x="140" y="12" width="50" height="46" rx="7" fill="#9d755d"/><path d="M52 35 H140 M190 35 H278" stroke="#a57d63" stroke-width="3" stroke-dasharray="7 8"/></svg>
+    <span>Two accounts, one family tablet</span><span class="qtag">suspicious, or innocent?</span>
+  </div>
 </section>
 
-<section class="scene" id="rule">
-  <h2 class="pop" id="r1">The graph decides. The AI explains.</h2>
+<section class="scene" id="s-brief">
+  <div id="b-row" style="display:flex; gap:70px; align-items:center; transition: gap 1.3s cubic-bezier(.22,1,.36,1)">
+    <svg id="mini" width="420" height="420" viewBox="0 0 420 420" style="transition: width 1.3s cubic-bezier(.22,1,.36,1), margin 1.3s cubic-bezier(.22,1,.36,1)"></svg>
+    <div class="brief card el right" id="b-card">
+      <div class="ttl"><svg class="tick" id="b-tick" viewBox="0 0 54 54"><path d="M12 28 L23 39 L43 16"/></svg>Evidence-linked case brief</div>
+      <div class="skel" data-w="92%"></div><div class="skel" data-w="78%"></div><div class="skel" data-w="85%"></div><div class="skel" data-w="60%"></div>
+      <div class="chips"><span class="chip el popin">RULE-FANIN-01</span><span class="chip el popin">TX-0007</span><span class="chip el popin">DL-0001</span><span class="chip el popin">RULE-FWD-01</span></div>
+      <div style="margin-top:20px; font-size:21px; color:var(--muted)" class="el" id="b-by">Written by Gemini on Vertex AI · every ID cited</div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="s-rule">
+  <h2 class="el" id="r-h">The graph decides. The AI explains.</h2>
   <div class="split">
-    <div class="col pop" id="r2"><h3 style="color:var(--blue)">Deterministic graph tools</h3>
+    <div class="col card el left" id="r-l"><h3 style="color:var(--blue)">Deterministic graph tools</h3>
       <ul><li>Time-ordered money trails</li><li>Windows, counts and sums</li><li>Rule flags with thresholds</li><li>Computed counterevidence</li></ul></div>
-    <div class="arrow pop" id="r3">→</div>
-    <div class="col pop" id="r4"><h3 style="color:var(--green)">Gemini on Vertex AI</h3>
+    <div class="arrow el" id="r-a">→</div>
+    <div class="col card el right" id="r-r"><h3 style="color:var(--green)">Gemini on Vertex AI</h3>
       <ul><li>Explains the evidence</li><li>Cites every claim</li><li>States what is unknown</li><li>Never accuses or scores</li></ul></div>
   </div>
-  <div class="gate pop" id="r5">✓ Every citation and figure checked before display</div>
+  <div class="gate el popin" id="r-g"><svg class="tick" id="r-tick" viewBox="0 0 54 54"><path d="M12 28 L23 39 L43 16"/></svg>Every citation and figure checked before display</div>
 </section>
 
-<!-- OUTRO (architecture + close, 24 s) -->
-<section class="scene" id="arch">
-  <h2 class="pop" id="a1" style="font-size:46px">Built on Google Cloud</h2>
+<section class="scene" id="s-arch">
+  <h2 class="el" id="a-h" style="font-size:48px">Built on Google Cloud</h2>
   <div class="arch">
-    <div class="box pop" id="a2"><b>Browser</b>Analyst · public URL</div>
-    <div class="arrow pop" id="a3" style="font-size:48px">→</div>
-    <div class="box run pop" id="a4"><b>Cloud Run · traceguard</b>
+    <svg id="wires" width="1460" height="420" viewBox="0 0 1460 420" style="position:absolute; inset:0"></svg>
+    <div class="box card el" id="a-browser" style="left:0; top:130px; width:250px"><b>Browser</b>Analyst · public URL</div>
+    <div class="box card run el" id="a-run" style="left:390px; top:0; width:640px"><b>Cloud Run · traceguard</b>
       <div class="layer">Streamlit UI · graph · brief · follow-up</div>
-      <div class="layer">Graph layer · NetworkX · 5 tools</div>
+      <div class="layer">Graph layer · NetworkX · 5 deterministic tools</div>
       <div class="layer">AI layer · validation · regenerate once</div></div>
-    <div class="arrow pop" id="a5" style="font-size:48px">→</div>
-    <div class="box pop" id="a6"><b>Gemini on Vertex AI</b>gemini-3.5-flash<br>structured JSON</div>
+    <div class="box card el" id="a-gem" style="left:1170px; top:110px; width:290px"><b>Gemini on Vertex AI</b>gemini-3.5-flash<br>structured JSON</div>
   </div>
-  <div class="chips">
-    <div class="chip pop" id="a7"><i>✓</i>Least-privilege IAM</div>
-    <div class="chip pop" id="a8"><i>✓</i>No API keys</div>
-    <div class="chip pop" id="a9"><i>✓</i>Max 2 instances · capped calls</div>
-    <div class="chip pop" id="a10"><i>✓</i>Synthetic data only</div>
+  <div class="pills">
+    <div class="pill el popin"><i>✓</i>Least-privilege IAM</div><div class="pill el popin"><i>✓</i>No API keys</div>
+    <div class="pill el popin"><i>✓</i>Max 2 instances · capped calls</div><div class="pill el popin"><i>✓</i>Synthetic data only</div>
   </div>
 </section>
 
-<section class="scene" id="close">
-  <h1 class="pop" id="c1" style="font-size:88px">Trace<span class="g">Guard</span></h1>
-  <div class="sub pop" id="c2" style="font-size:34px;color:var(--ink)">Connected evidence. Cited. Honest about what it doesn't know.</div>
-  <div class="sub pop" id="c3" style="font-size:24px">Team Chilli · AI Builder Cup 2026 · github.com/shieryl-ryle/traceguard</div>
+<section class="scene" id="s-close">
+  <div class="logo" id="c-logo" style="font-size:104px"><div class="sweep" id="c-sweep"></div></div>
+  <div class="sub el" id="c-sub" style="font-size:34px; color:var(--ink)">Connected evidence. Cited. Honest about what it doesn't know.</div>
+  <div class="sub el" id="c-foot" style="font-size:23px">Team Chilli · AI Builder Cup 2026 · github.com/shieryl-ryle/traceguard · voice-over: AI-generated (Kokoro)</div>
 </section>
 
 <script>
-const N = { "A-01":[230,90], "A-02":[250,300], "A-03":[230,500], "A-04":[430,540], "A-07":[580,300],
-            "A-08":[810,300], "A-09":[1010,170], "A-10":[1010,430], "D-01":[70,300] };
+const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+const NS = "http://www.w3.org/2000/svg";
+const T = (s, f) => setTimeout(f, s * 1000);
+const on = (el) => (typeof el === "string" ? $$(el) : [el]).forEach(e => e && e.classList.add("on"));
+let current = null;
+function scene(id) {
+  if (current) { current.classList.remove("on"); current.classList.add("out"); const old = current; T(1.2, () => old.classList.remove("out")); }
+  current = $("#" + id); current.classList.add("on");
+}
+function stagger(sel, start, step) { $$(sel).forEach((e, i) => T(start + i * step, () => e.classList.add("on"))); }
+function logo(el) {
+  "TraceGuard".split("").forEach((ch, i) => { const s = document.createElement("span"); s.textContent = ch; if (i >= 5) s.className = "g";
+    s.style.transitionDelay = (i * 0.05) + "s"; el.appendChild(s); });
+}
+logo($("#t-logo")); logo($("#c-logo"));
+
+const cv = $("#particles"), cx = cv.getContext("2d");
+const P = Array.from({ length: 70 }, () => ({ x: Math.random() * 1600, y: Math.random() * 900, r: Math.random() * 1.8 + .4,
+  vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, a: Math.random() * .5 + .15 }));
+(function tick() {
+  cx.clearRect(0, 0, 1600, 900);
+  for (const p of P) { p.x = (p.x + p.vx + 1600) % 1600; p.y = (p.y + p.vy + 900) % 900;
+    cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.3); cx.fillStyle = `rgba(200,215,255,${p.a})`; cx.fill(); }
+  requestAnimationFrame(tick);
+})();
+
+const N = { "A-01":[300,50], "A-02":[320,250], "A-03":[300,440], "A-04":[500,480], "A-07":[650,250],
+            "A-08":[880,250], "A-09":[1090,120], "A-10":[1090,380], "D-01":[120,250] };
 const E = [["A-01","A-07"],["A-02","A-07"],["A-03","A-07"],["A-04","A-07"],["A-07","A-08",1],["A-08","A-09",1],["A-08","A-10",1]];
-const nodes = document.getElementById("nodes"), edges = document.getElementById("edges"), NS = "http://www.w3.org/2000/svg";
-for (const [a, b, hot] of E) {
-  const [x1, y1] = N[a], [x2, y2] = N[b], dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), k = 34 / L;
+const edgeEls = {};
+function line(parent, x1, y1, x2, y2, cls, trim = 34) {
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), k = trim / L;
   const p = document.createElementNS(NS, "path");
-  p.setAttribute("d", `M${x1 + dx * k},${y1 + dy * k} L${x2 - dx * k},${y2 - dy * k}`);
-  p.setAttribute("class", "edge" + (hot ? " hot" : "")); p.setAttribute("marker-end", hot ? "url(#ahh)" : "url(#ah)"); p.dataset.to = b;
-  edges.appendChild(p);
+  p.setAttribute("d", `M${x1 + dx * k},${y1 + dy * k} L${x2 - dx * k},${y2 - dy * k}`); p.setAttribute("class", cls);
+  parent.appendChild(p); p.style.setProperty("--len", p.getTotalLength()); return p;
 }
-for (const [a, b] of [["A-01","D-01"],["A-03","D-01"]]) {
-  const [x1, y1] = N[a], [x2, y2] = N[b]; const p = document.createElementNS(NS, "path");
-  p.setAttribute("d", `M${x1},${y1} L${x2},${y2}`); p.setAttribute("class", "dev"); edges.appendChild(p);
+for (const [a, b, hot] of E) {
+  const p = line($("#edges"), ...N[a], ...N[b], "edge" + (hot ? " hot" : ""));
+  p.setAttribute("marker-end", hot ? "url(#ahh)" : "url(#ah)"); edgeEls[a + ">" + b] = p;
 }
+for (const a of ["A-01", "A-03"]) line($("#edges"), ...N[a], ...N["D-01"], "dev", 30);
 for (const [id, [x, y]] of Object.entries(N)) {
+  if (id === "A-07") { const r = document.createElementNS(NS, "circle"); r.setAttribute("cx", x); r.setAttribute("cy", y); r.setAttribute("r", 30);
+    r.setAttribute("class", "pulse"); r.id = "pulse"; $("#nodes").appendChild(r); }
   const g = document.createElementNS(NS, "g"); g.setAttribute("class", "node"); g.dataset.id = id;
   const dev = id.startsWith("D"); const sh = document.createElementNS(NS, dev ? "rect" : "circle");
-  if (dev) { sh.setAttribute("x", x - 26); sh.setAttribute("y", y - 26); sh.setAttribute("width", 52); sh.setAttribute("height", 52); sh.setAttribute("rx", 6); sh.setAttribute("fill", "#9d755d"); }
+  if (dev) { sh.setAttribute("x", x - 26); sh.setAttribute("y", y - 26); sh.setAttribute("width", 52); sh.setAttribute("height", 52); sh.setAttribute("rx", 7); sh.setAttribute("fill", "#9d755d"); }
   else { sh.setAttribute("cx", x); sh.setAttribute("cy", y); sh.setAttribute("r", 30); sh.setAttribute("fill", id === "A-07" ? "#ea4335" : "#4c78a8"); }
+  if (id === "A-07") sh.setAttribute("filter", "url(#glow)");
   const t = document.createElementNS(NS, "text"); t.setAttribute("x", x); t.setAttribute("y", y + 58); t.setAttribute("text-anchor", "middle");
   t.setAttribute("fill", "#d7dbdf"); t.setAttribute("font-size", "22"); t.textContent = id;
-  g.append(sh, t); nodes.appendChild(g);
+  g.append(sh, t); $("#nodes").appendChild(g);
 }
-const on = (sel) => document.querySelectorAll(sel).forEach(e => e.classList.add("on"));
-const off = (sel) => document.querySelectorAll(sel).forEach(e => e.classList.remove("on"));
-const scene = (id) => { document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.id === id)); };
-const T = (s, f) => setTimeout(f, s * 1000);
+function flow(path, color, dur, delay = 0, loop = true) {
+  const dot = document.createElementNS(NS, "circle"); dot.setAttribute("r", 7); dot.setAttribute("fill", color); dot.setAttribute("filter", "url(#glow)");
+  dot.style.opacity = 0; (path.ownerSVGElement.querySelector("#dots") || path.ownerSVGElement).appendChild(dot);
+  const L = path.getTotalLength(); let t0 = null;
+  function step(ts) {
+    if (t0 === null) t0 = ts + delay * 1000;
+    const k = (ts - t0) / (dur * 1000);
+    if (k >= 0) { const q = loop ? k % 1 : Math.min(k, 1); const pt = path.getPointAtLength(L * q);
+      dot.setAttribute("cx", pt.x); dot.setAttribute("cy", pt.y); dot.style.opacity = q < .08 ? q / .08 : (q > .9 ? (1 - q) * 10 : 1); }
+    if (loop || k < 1) requestAnimationFrame(step); else dot.remove();
+  }
+  requestAnimationFrame(step);
+}
+function count(el, to, dur) {
+  const t0 = performance.now();
+  (function step(ts) { const k = Math.min(1, Math.max(0, (ts - t0) / (dur * 1000))), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(to * e).toLocaleString("en-US") + ".00"; if (k < 1) requestAnimationFrame(step); })(t0);
+}
+
+const rows = [["09:01  TX-0002", "A-01 → A-07", "4,800.00", "PHP"], ["09:06  TX-0003", "A-02 → A-07", "2,500.00", "PHP"],
+              ["09:12  TX-0004", "A-03 → A-07", "3,700.00", "PHP"], ["09:20  TX-0005", "A-01 → A-07", "4,000.00", "PHP"],
+              ["09:31  TX-0006", "A-04 → A-07", "2,000.00", "PHP"], ["10:01  TX-0007", "A-07 → A-08", "15,500.00", "PHP"]];
+for (const r of rows) { const d = document.createElement("div"); d.className = "row"; d.innerHTML = r.map(c => `<span>${c}</span>`).join(""); $("#m-rows").appendChild(d); }
+
+const mini = $("#mini"); const MP = [[80,90],[60,230],[110,350],[210,60],[210,210],[330,120],[340,300]];
+for (const i of [0, 1, 2, 3]) { const [x1, y1] = MP[i], [x2, y2] = MP[4]; const l = document.createElementNS(NS, "path");
+  l.setAttribute("d", `M${x1},${y1} L${x2},${y2}`); l.setAttribute("stroke", "#616a78"); l.setAttribute("stroke-width", 3); l.style.transition = "opacity .6s"; mini.appendChild(l); }
+const miniNodes = MP.map(([x, y], i) => { const c = document.createElementNS(NS, "circle"); c.setAttribute("cx", x); c.setAttribute("cy", y);
+  c.setAttribute("r", i === 4 ? 24 : 18); c.setAttribute("fill", i === 4 ? "#ea4335" : "#4c78a8");
+  c.style.transition = "cx 1.2s cubic-bezier(.22,1,.36,1), cy 1.2s cubic-bezier(.22,1,.36,1), r 1.2s, opacity 1.2s"; c.style.transitionDelay = (i * .06) + "s";
+  mini.appendChild(c); return c; });
+
 const PART = new URLSearchParams(location.search).get("part") || "intro";
 window.__start = () => {
   if (PART === "intro") {
-    T(0.2, () => { scene("title"); on("#t1"); }); T(0.8, () => on("#t2")); T(1.8, () => on("#t3"));
-    T(6, () => { scene("problem"); on("#p1"); });
-    T(7.5, () => on('.node[data-id="A-07"]'));
-    ["A-01","A-02","A-03","A-04"].forEach((a, i) => T(8.5 + i * 0.6, () => { on(`.node[data-id="${a}"]`); }));
-    T(9, () => document.querySelectorAll('.edge[data-to="A-07"]').forEach(e => e.classList.add("on")));
-    T(11.5, () => { on('.node[data-id="A-08"]'); document.querySelectorAll('.edge[data-to="A-08"]').forEach(e => e.classList.add("on")); });
-    T(12.6, () => { on('.node[data-id="A-09"]'); on('.node[data-id="A-10"]'); document.querySelectorAll('.edge[data-to="A-09"],.edge[data-to="A-10"]').forEach(e => e.classList.add("on")); });
-    T(14, () => { on('.node[data-id="D-01"]'); document.querySelectorAll('.dev').forEach(e => e.classList.add("on")); });
-    T(16, () => { scene("manual"); on("#m1"); }); T(17.5, () => on("#m2"));
-    T(24, () => { scene("rule"); on("#r1"); }); T(25.5, () => on("#r2")); T(27, () => on("#r3")); T(28, () => on("#r4")); T(31, () => on("#r5"));
+    T(0.1, () => { scene("s-title"); on("#t-k"); }); T(0.6, () => on("#t-logo")); T(1.6, () => $("#t-sweep").classList.add("go")); T(1.9, () => on("#t-sub"));
+    T(6.0, () => { scene("s-problem"); on("#p-alert"); });
+    T(7.4, () => { $("#p-alert").classList.add("lift"); on('.node[data-id="A-07"]'); });
+    ["A-01","A-02","A-03","A-04"].forEach((a, i) => T(7.9 + i * .28, () => on(`.node[data-id="${a}"]`)));
+    T(8.4, () => ["A-01","A-02","A-03","A-04"].forEach((a, i) => { edgeEls[a + ">A-07"].classList.add("on"); flow(edgeEls[a + ">A-07"], "#f2a900", 1.6, .6 + i * .35); }));
+    T(9.2, () => { $("#pulse").classList.add("go"); on("#p-counter"); count($("#cnt"), 17000, 2.6); });
+    T(11.6, () => { on('.node[data-id="A-08"]'); edgeEls["A-07>A-08"].classList.add("on"); flow(edgeEls["A-07>A-08"], "#f2a900", 1.3, .5); });
+    T(12.6, () => { on('.node[data-id="A-09"]'); on('.node[data-id="A-10"]');
+      ["A-09","A-10"].forEach((b, i) => { edgeEls["A-08>" + b].classList.add("on"); flow(edgeEls["A-08>" + b], "#f2a900", 1.3, .6 + i * .3); }); });
+    T(13.8, () => { on('.node[data-id="D-01"]'); $$(".dev").forEach(d => d.classList.add("on")); on("#p-devtag"); });
+    T(16.0, () => { scene("s-manual"); on("#m-h"); });
+    stagger(".row", 16.6, .28); T(18.2, () => $("#m-lens").classList.add("go")); T(20.6, () => on("#m-fam"));
+    T(24.0, () => scene("s-brief"));
+    T(25.2, () => { miniNodes.forEach(c => { c.setAttribute("cx", 400); c.setAttribute("cy", 210); c.setAttribute("r", 4); c.style.opacity = 0; });
+                    $$("#mini path").forEach(p => p.style.opacity = 0); on("#b-card"); });
+    T(26.0, () => { $("#mini").style.width = "0px"; $("#b-row").style.gap = "0px"; });
+    T(26.0, () => $$(".skel").forEach((s, i) => T(i * .25, () => s.style.width = s.dataset.w)));
+    stagger("#b-card .chip", 27.4, .3); T(28.8, () => on("#b-tick")); T(29.4, () => on("#b-by"));
+    T(32.0, () => { scene("s-rule"); on("#r-h"); }); T(33.0, () => on("#r-l")); T(33.6, () => { on("#r-a"); $("#r-a").classList.add("go"); }); T(34.0, () => on("#r-r"));
+    stagger("#r-l li", 34.4, .3); stagger("#r-r li", 35.0, .3); T(37.0, () => on("#r-g")); T(37.4, () => on("#r-tick"));
   } else {
-    T(0.2, () => { scene("arch"); on("#a1"); }); T(1, () => on("#a2")); T(1.8, () => on("#a3")); T(2.4, () => on("#a4"));
-    T(3.4, () => on("#a5")); T(4, () => on("#a6")); [7, 8, 9, 10].forEach((t, i) => T(t, () => on(`#a${7 + i}`)));
-    T(14, () => { scene("close"); on("#c1"); }); T(15, () => on("#c2")); T(17, () => on("#c3"));
+    T(0.1, () => { scene("s-arch"); on("#a-h"); }); T(0.8, () => on("#a-browser")); T(1.4, () => on("#a-run")); T(2.0, () => on("#a-gem"));
+    stagger("#a-run .layer", 2.4, .35);
+    T(3.4, () => {
+      const w = $("#wires"); const p1 = line(w, 250, 190, 390, 190, "wire", 0), p2 = line(w, 1030, 190, 1170, 190, "wire", 0);
+      p1.classList.add("on"); p2.classList.add("on");
+      const req = document.createElementNS(NS, "path"); req.setAttribute("d", "M250,190 L1170,190"); req.setAttribute("fill", "none"); w.appendChild(req);
+      flow(req, "#4c8df6", 2.6, .4); flow(req, "#34a853", 2.6, 1.7);
+    });
+    stagger(".pill", 7.0, .45);
+    T(14.0, () => scene("s-close")); T(14.4, () => on("#c-logo")); T(15.4, () => $("#c-sweep").classList.add("go")); T(15.8, () => on("#c-sub")); T(17.4, () => on("#c-foot"));
   }
 };
 </script>
