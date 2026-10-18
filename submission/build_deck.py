@@ -2,7 +2,7 @@
 
 Usage: python submission/build_deck.py <template.pptx> submission/TraceGuard-proposal.pptx submission/screenshots
 Template: the organisers' Google Slides deck, downloaded via File > Download > PowerPoint.
-Requires python-pptx. Update ADD-VIDEO-LINK-BEFORE-SUBMITTING (slide 13) once the video is uploaded.
+Requires python-pptx. Logos and the C-3 follow-up shot in screenshots/ come from scratchpad deck_assets (video story.html symbols, live app).
 """
 
 import copy
@@ -17,6 +17,7 @@ from pptx.util import Inches, Pt
 
 TEMPLATE, OUT, SHOTS = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
 REPO_URL, APP_URL = "https://github.com/shieryl-ryle/traceguard", "https://traceguard-343683630064.asia-southeast1.run.app"
+VIDEO_URL = "https://drive.google.com/file/d/15qQuek3NzyF3jAUqO0b61K3u1IBdCGOg/view"
 
 FONT, FONT_MED, FONT_SEMI = "Google Sans Flex", "Google Sans Flex Medium", "Google Sans Flex SemiBold"
 INK, MUTED, TINT, LINE = RGBColor(0x20, 0x21, 0x24), RGBColor(0x5F, 0x63, 0x68), RGBColor(0xF1, 0xF3, 0xF4), RGBColor(0xDA, 0xDC, 0xE0)
@@ -173,6 +174,14 @@ for i, (n, colr, head, body) in enumerate(pillars):
     card(s, 6.15, y, 3.45, 0.98, name=f"pillar {n}")
     badge(s, 6.3, y + 0.13, n, colr)
     text(s, 6.75, y + 0.08, 2.75, 0.85, [[(head, {"bold": True, "size": 12})], body], size=10.5, space_after=2)
+flow = [("In", "One alert", BLUE), ("Out", "A cited case brief", GREEN), ("Decision", "The analyst's", AMBER)]
+for i, (k, v, colr) in enumerate(flow):
+    x = 0.4 + i * 1.88
+    card(s, x, 3.5, 1.58, 0.78, fill=WHITE, line=LINE, name=f"flow {i + 1}")
+    text(s, x + 0.08, 3.55, 1.42, 0.7, [[(k.upper(), {"size": 9, "color": colr, "bold": True})], [(v, {"bold": True, "size": 12})]],
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, space_after=1)
+    if i < len(flow) - 1:
+        arrow(s, x + 1.6, 3.89, x + 1.86, 3.89)
 text(s, 0.4, 4.6, 5.5, 0.7, [[("Investigation aid only: ", {"bold": True}),
                               ("it does not block transfers, declare guilt, file regulatory reports or give a risk score. "
                                "All data is synthetic.", {})]], size=10.5, color=MUTED)
@@ -182,7 +191,7 @@ s = S[2]
 title_only(s)
 cols = [("How it differs", BLUE, [
             "Shows connections, not single transactions: a time-ordered money trail across accounts and devices.",
-            "Separates duties: deterministic graph tools decide; Gemini only explains.",
+            "Separates duties: graph tools compute, Gemini explains, the analyst judges.",
             "Refuses to guess: unknowns past the data boundary are stated, not filled in."]),
         ("How it solves the problem", GREEN, [
             "Retrieves the connected evidence for an alert in one click.",
@@ -270,7 +279,8 @@ card(s, 0.35, 1.4, 1.55, 1.2, fill=WHITE, line=LINE, name="browser")
 text(s, 0.4, 1.5, 1.45, 1.0, [[("Browser", {"bold": True, "size": 12})], "Analyst or judge, public URL"], size=10,
      align=PP_ALIGN.CENTER)
 run_box = card(s, 2.3, 1.3, 4.9, 3.95, fill=RGBColor(0xE8, 0xF0, 0xFE), name="cloud run")
-text(s, 2.45, 1.38, 4.6, 0.55, [[("Cloud Run · traceguard", {"bold": True, "size": 12.5})],
+picture(s, SHOTS / "logo-google-cloud.png", 2.45, 1.43, w=0.36, frame=False)
+text(s, 2.88, 1.38, 4.2, 0.55, [[("Cloud Run · traceguard", {"bold": True, "size": 12.5})],
                                 [("asia-southeast1 · max 2 instances · runtime SA traceguard-run", {"size": 10, "color": MUTED})]],
      space_after=0)
 inner = [("Streamlit app (Python 3.12)", "Case queue · graph · timeline · brief · export", WHITE),
@@ -281,8 +291,10 @@ for i, (head, body, fill) in enumerate(inner):
     y = 2.05 + i * 0.78
     card(s, 2.5, y, 4.5, 0.66, fill=fill, line=LINE, name=f"layer {i + 1}")
     text(s, 2.6, y + 0.05, 4.3, 0.58, [[(head, {"bold": True, "size": 11})], body], size=9.5, space_after=0)
-card(s, 7.6, 1.4, 2.05, 1.55, fill=WHITE, line=LINE, name="vertex ai")
-text(s, 7.65, 1.48, 1.95, 1.4, [[("Gemini on Vertex AI", {"bold": True, "size": 12})],
+card(s, 7.6, 1.3, 2.05, 1.75, fill=WHITE, line=LINE, name="vertex ai")
+picture(s, SHOTS / "logo-gemini.png", 8.27, 1.38, w=0.32, frame=False)
+picture(s, SHOTS / "logo-vertex-ai.png", 8.67, 1.38, w=0.32, frame=False)
+text(s, 7.65, 1.74, 1.95, 1.3, [[("Gemini on Vertex AI", {"bold": True, "size": 12})],
                                 "gemini-3.5-flash", "asia-southeast1", "google-genai SDK", "structured JSON output"],
      size=10, align=PP_ALIGN.CENTER, space_after=0)
 arrow(s, 1.9, 2.0, 2.3, 2.0)
@@ -300,7 +312,7 @@ text(s, 7.6, 3.15, 2.05, 2.1, [
 s = S[7]
 title_only(s)
 rows = [("Layer", "Technology", "Why"),
-        ("AI", "Gemini 3.5 Flash on Vertex AI · google-genai 2.31", "Structured JSON briefs; LOW thinking keeps a brief to 5–8 s"),
+        ("AI", "Gemini 3.5 Flash on Vertex AI · google-genai 2.31", "Structured JSON briefs; LOW thinking: a brief in 3–9 s (measured)"),
         ("Hosting", "Cloud Run (source deploy, Dockerfile)", "One public service; scales to zero; max 2 instances"),
         ("Build", "Cloud Build · Artifact Registry", "Least-privilege build service account"),
         ("Graph", "NetworkX 3.7 (MultiDiGraph)", "Repeated transfers stay separate; time-ordered traces"),
@@ -357,8 +369,8 @@ shots = [
      [("Citation click: ", {"bold": True}), ("records cited by RULE-FWD-01 highlighted on the graph (amber).", {})]),
     (SHOTS / "slide10-verified-panel.png", dict(l=0.0, t=0.0, r=0.05, b=0.0), (890, 600),
      [("Verified before display: ", {"bold": True}), ("citations, figures and wording checked, shown beside the brief.", {})]),
-    (SHOTS / "slide10-follow-up-refusal.png", dict(l=0.635, t=0.55, r=0.05, b=0.0), (1440, 960),
-     [("Follow-up question: ", {"bold": True}), ("\"Who owns A-22?\" is refused: the case data can't answer it.", {})]),
+    (SHOTS / "slide10-follow-up-refusal.png", dict(l=0.0, t=0.0, r=0.0, b=0.0), (948, 874),
+     [("Follow-up on C-3: ", {"bold": True}), ("\"Who owns A-22?\" is refused: the case data can't answer it.", {})]),
 ]
 x = 0.35
 for path, crop, px, caption in shots:
@@ -371,7 +383,7 @@ for path, crop, px, caption in shots:
 s = S[10]
 title_only(s)
 stats = [("3 / 3", "cases reach the expected\nconclusion on the live URL"), ("0", "invented citations shown\n(blocked by design)"),
-         ("5–8 s", "live brief, valid on the\nfirst attempt"), ("11 / 11", "graph-tool checks match\nexpected outcomes")]
+         ("3–9 s", "live brief (LOW thinking),\nvalid on the first attempt"), ("11 / 11", "graph-tool checks match\nexpected outcomes")]
 for i, (big, small) in enumerate(stats):
     x = 0.35 + i * 2.35
     card(s, x, 1.3, 2.2, 1.25, name=f"stat {i + 1}")
@@ -424,7 +436,7 @@ text(s, 0.35, 4.6, 9.3, 0.6, [[("Human-led: ", {"bold": True}),
 # ---------- Slide 13: links ----------
 s = S[12]
 title_only(s, "Provide links to your:")
-links = [("GitHub Public Repository", REPO_URL, BLUE), ("Demo Video Link (3 Minutes)", "ADD-VIDEO-LINK-BEFORE-SUBMITTING", GREEN),
+links = [("GitHub Public Repository", REPO_URL, BLUE), ("Demo Video Link (3–4 Minutes)", VIDEO_URL, GREEN),
          ("Final Product Link", APP_URL, AMBER)]
 for i, (head, url, colr) in enumerate(links):
     y = 1.35 + i * 1.12
@@ -433,8 +445,21 @@ for i, (head, url, colr) in enumerate(links):
     tb = text(s, 1.0, y + 0.1, 8.5, 0.8, [[(head, {"bold": True, "size": 13})], [(url, {"size": 12, "color": BLUE})]], space_after=2)
     if url.startswith("http"):
         tb.text_frame.paragraphs[1].runs[0].hyperlink.address = url
-text(s, 0.35, 4.75, 9.3, 0.5, [[("Live app runs C-1, C-2 and C-3 end to end, including a real Gemini call. No sign-in needed.",
+text(s, 0.35, 4.75, 9.3, 0.5, [[("Live app runs C-1, C-2 and C-3 end to end, including a real Gemini call. No sign-in needed. "
+                                 "Video: 3:56, follows a fictional analyst through the three synthetic cases.",
                                  {"size": 10.5, "color": MUTED})]])
+
+# ---------- Slide 15: thank you (close on the product's promise) ----------
+s = S[14]
+GREY = RGBColor(0xBD, 0xC1, 0xC6)
+text(s, 6.75, 2.3, 3.0, 2.6, [
+    [("Trace", {"bold": True, "size": 28, "color": WHITE}), ("Guard", {"bold": True, "size": 28, "color": RGBColor(0x34, 0xA8, 0x53)})],
+    [("Follow the connections.", {"size": 15, "color": WHITE})],
+    [("Keep the judgment human.", {"size": 15, "color": WHITE})],
+    [("Team Chilli · AI Builder Cup 2026", {"size": 11, "color": GREY})],
+    [(APP_URL.replace("https://", ""), {"size": 10, "color": GREY})],
+    [(REPO_URL.replace("https://", ""), {"size": 10, "color": GREY})],
+], space_after=6)
 
 # ---------- Slide 14: limitations (template slide without a title) ----------
 s = S[13]
