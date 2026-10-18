@@ -1,0 +1,228 @@
+{
+ "order": [
+  "meet",
+  "diff",
+  "open",
+  "c1live",
+  "c2",
+  "review",
+  "c2case",
+  "c3case",
+  "arch",
+  "resolve"
+ ],
+ "segments": {
+  "meet": [
+   {
+    "id": "M01",
+    "at": 1.2,
+    "text": "This is Tracy. She reviews flagged transactions at a fintech."
+   },
+   {
+    "id": "M02",
+    "at": 5.2,
+    "text": "A new alert lands in her queue. Several wallets have sent money into one account. Soon after, a large payment moves out."
+   },
+   {
+    "id": "M03",
+    "at": 13.2,
+    "text": "Tracy has a question to answer: what happened here, and what does the evidence actually support?"
+   }
+  ],
+  "diff": [
+   {
+    "id": "M04",
+    "at": 0.6,
+    "text": "She starts with the individual records. But the important details sit between them: who paid whom, in what order, and which accounts share a device."
+   },
+   {
+    "id": "M05",
+    "at": 9.8,
+    "text": "A connection may matter. It may also have an ordinary explanation. Tracy needs to separate what she can observe from what she can only suspect."
+   }
+  ],
+  "open": [
+   {
+    "id": "M06",
+    "at": 0.4,
+    "text": "She opens the case in TraceGuard."
+   }
+  ],
+  "c1live": [
+   {
+    "id": "M07",
+    "at": 0.6,
+    "text": "The graph brings the relationships into view. Tracy can follow the transfers in order, inspect the timing, and see the records behind each connection."
+   },
+   {
+    "id": "M08",
+    "at": 10.4,
+    "text": "Four wallets send five transfers into A-07: seventeen thousand pesos over thirty minutes."
+   },
+   {
+    "id": "M09",
+    "at": 17.2,
+    "text": "Thirty minutes after the final incoming transfer, fifteen thousand five hundred pesos moves onward to A-08."
+   },
+   {
+    "id": "M10",
+    "at": 24.6,
+    "text": "One earlier payment, out of A-09, isn't part of this trail. Tracy can see why: it happened before the money reached A-09."
+   },
+   {
+    "id": "M11",
+    "at": 32.9,
+    "text": "The sequence gives her a specific pattern to investigate. It does not establish anyone's intent."
+   }
+  ],
+  "c2": [
+   {
+    "id": "M12",
+    "at": 0.6,
+    "text": "Tracy runs the investigation. A fixed workflow executes the graph tools, and Gemini on Vertex AI explains their results."
+   },
+   {
+    "id": "M13",
+    "at": 10.1,
+    "text": "Before the brief appears, TraceGuard checks that every cited record exists in the retrieved evidence, that every figure matches the tool output, and that the wording makes no accusation. That makes each claim checkable, not automatically true."
+   },
+   {
+    "id": "M14",
+    "at": 25.5,
+    "text": "She reads the brief, then follows a citation back to its supporting records."
+   },
+   {
+    "id": "M15",
+    "at": 30.4,
+    "text": "She also checks what complicates the picture: two senders are not linked to the shared device, and the outgoing amount is lower than the incoming total."
+   }
+  ],
+  "review": [
+   {
+    "id": "M16",
+    "at": 0.6,
+    "text": "She needs those details in her review too, so the next analyst can see both sides."
+   }
+  ],
+  "c2case": [
+   {
+    "id": "M17",
+    "at": 0.6,
+    "text": "Her next case looks connected too: three accounts share one device. She runs the investigation and reads what the tools found."
+   },
+   {
+    "id": "M18",
+    "at": 8.8,
+    "text": "But this time, no configured rule matches. The available evidence is insufficient."
+   },
+   {
+    "id": "M19",
+    "at": 14.4,
+    "text": "Tracy can document the connection without turning it into an accusation. Sharing a device alone does not establish wrongdoing."
+   }
+  ],
+  "c3case": [
+   {
+    "id": "M20",
+    "at": 0.6,
+    "text": "In her final case, the available trail ends at A-22. She runs the investigation to see what the records cover, and what they leave open."
+   },
+   {
+    "id": "M21",
+    "at": 10.4,
+    "text": "Tracy asks who owns the account. The dataset cannot tell her."
+   },
+   {
+    "id": "M22",
+    "at": 15.2,
+    "text": "TraceGuard states the limit. The owner, the next recipient, and the intent remain unknown."
+   },
+   {
+    "id": "M23",
+    "at": 21.3,
+    "text": "So Tracy knows what further evidence she would need, rather than accepting an answer the system cannot support."
+   }
+  ],
+  "arch": [
+   {
+    "id": "M24",
+    "at": 0.6,
+    "text": "Here's how it works. TraceGuard runs on Google Cloud Run."
+   },
+   {
+    "id": "M24b",
+    "at": 4.9,
+    "text": "When Tracy opens a case, graph tools compute the paths and rule matches from the case data."
+   },
+   {
+    "id": "M24c",
+    "at": 10.8,
+    "text": "Only that retrieved evidence goes to Gemini on Vertex AI, which drafts the brief as structured output."
+   },
+   {
+    "id": "M24d",
+    "at": 18.1,
+    "text": "Validation then checks its citations, figures and wording. A brief that fails is regenerated once, then blocked."
+   },
+   {
+    "id": "M24e",
+    "at": 26.4,
+    "text": "Tracy makes the judgment."
+   }
+  ],
+  "resolve": [
+   {
+    "id": "M25",
+    "at": 0.6,
+    "text": "Tracy began with an alert and a question."
+   },
+   {
+    "id": "M26",
+    "at": 3.4,
+    "text": "She now has a brief she can explain: the pattern that warrants review, the records supporting it, and the limits of the available evidence.",
+    "until": 12.6
+   },
+   {
+    "id": "M27",
+    "at": 15.0,
+    "text": "TraceGuard turns scattered transactions into evidence an analyst can follow, check, and explain."
+   },
+   {
+    "id": "M28",
+    "at": 22.4,
+    "text": "Follow the connections. Keep the judgment human."
+   }
+  ]
+ },
+ "lengths": {
+  "meet": 20.5,
+  "diff": 19.2,
+  "open": 4.6,
+  "c1live": 39.6,
+  "c2": 41.0,
+  "review": 6.6,
+  "c2case": 23.0,
+  "c3case": 28.4,
+  "arch": 28.8,
+  "resolve": 27.4
+ },
+ "xfade": 0.7,
+ "lead": 0.35,
+ "framed": [
+  "c1live",
+  "c2",
+  "c2case",
+  "c3case"
+ ],
+ "transitions": {
+  "diff": "fade",
+  "open": "fade",
+  "c1live": "zoomin",
+  "c2": "fade",
+  "review": "fade",
+  "c2case": "fade",
+  "c3case": "smoothleft",
+  "arch": "fadeblack",
+  "resolve": "fade"
+ }
+}

@@ -1,0 +1,6 @@
+raw/
+out/
+tts_test/
+*.mp4
+*.webm
+voice_*/
